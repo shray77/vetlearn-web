@@ -10,6 +10,7 @@ import { AdaptiveLearningTab } from '@/components/AdaptiveLearningTab';
 import { ClinicalCasesTab } from '@/components/ClinicalCasesTab';
 import { VoiceTutorTab } from '@/components/VoiceTutorTab';
 import { ResourcesTab } from '@/components/ResourcesTab';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // ==================== MAIN APP ====================
 
@@ -37,11 +38,11 @@ export default function Home() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === 'dashboard' && <DashboardTab onNavigate={handleNavigate} />}
-            {activeTab === 'learning' && <AdaptiveLearningTab />}
-            {activeTab === 'cases' && <ClinicalCasesTab />}
-            {activeTab === 'tutor' && <VoiceTutorTab />}
-            {activeTab === 'resources' && <ResourcesTab />}
+            {activeTab === 'dashboard' && <ErrorBoundary><DashboardTab onNavigate={handleNavigate} /></ErrorBoundary>}
+            {activeTab === 'learning' && <ErrorBoundary><AdaptiveLearningTab /></ErrorBoundary>}
+            {activeTab === 'cases' && <ErrorBoundary><ClinicalCasesTab /></ErrorBoundary>}
+            {activeTab === 'tutor' && <ErrorBoundary><VoiceTutorTab /></ErrorBoundary>}
+            {activeTab === 'resources' && <ErrorBoundary><ResourcesTab /></ErrorBoundary>}
           </motion.div>
         </AnimatePresence>
       </main>

@@ -54,10 +54,15 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   };
 
   const handleGodMode = () => {
-    updateProfile({ level: 99, xp: 9900, xpToNext: 100, streak: 365, totalAnswers: 500, correctAnswers: 487, completedCases: 50, assessmentsCompleted: 42 });
     const fullMap: Record<string, number> = {};
     for (const t of VET_TOPICS) fullMap[t.id] = Math.floor(Math.random() * 30) + 70;
-    setSkillMap(fullMap);
+
+    // Single update to avoid race conditions with persist middleware
+    updateProfile({
+      level: 99, xp: 9900, xpToNext: 100, streak: 365,
+      totalAnswers: 500, correctAnswers: 487, completedCases: 50, assessmentsCompleted: 42,
+      skillMap: fullMap,
+    });
     setLevel(99); setXpInput('9900'); setStreakInput('365');
     toast.success('God Mode включён!');
   };

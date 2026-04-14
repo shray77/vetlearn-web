@@ -21,7 +21,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
   const accuracy = profile.totalAnswers > 0
     ? Math.round((profile.correctAnswers / profile.totalAnswers) * 100)
     : 0;
-  const xpInLevel = 100 - profile.xpToNext;
+  const xpInLevel = Math.max(0, Math.min(100, 100 - (profile.xpToNext || 100)));
 
   useEffect(() => {
     updateStreak();
@@ -167,7 +167,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     <motion.div
                       className="h-full bg-white/80 rounded-full"
                       initial={{ width: 0 }}
-                      animate={{ width: `${xpInLevel}%` }}
+                      animate={{ width: `${Math.max(0, Math.min(100, xpInLevel))}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
                     />
                   </div>
