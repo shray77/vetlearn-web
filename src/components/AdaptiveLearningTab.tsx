@@ -14,14 +14,27 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
   Brain, TrendingUp, BarChart3, ChevronRight, CheckCircle2,
-  Loader2, X, ArrowRight, RotateCcw, Sparkles,
+  Loader2, X, ArrowRight, RotateCcw, Sparkles, GraduationCap,
+  Shield, Zap, Target, BookOpen, Lock, Unlock, AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// ===== PHASE ENUM =====
+type Phase = 'placement_intro' | 'placement_quiz' | 'placement_results' | 'adaptive_select' | 'adaptive_quiz' | 'adaptive_results';
+
 export function AdaptiveLearningTab() {
-  const { profile, updateSkillMap, updateLearningPath, addXP, addAssessmentToHistory, updateProfile } = useStore();
+  const {
+    profile, updateSkillMap, updateLearningPath, addXP,
+    addAssessmentToHistory, updateProfile, savePlacementResult,
+  } = useStore();
+
+  const [phase, setPhase] = useState<Phase>(
+    profile.placementCompleted ? 'adaptive_select' : 'placement_intro'
+  );
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [difficulty, setDifficulty] = useState<DifficultyType>('intermediate');
+  const [difficulty, setDifficulty] = useState<DifficultyType>(
+    profile.determinedLevel || 'intermediate'
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [assessmentQuestions, setAssessmentQuestions] = useState<AssessmentQuestion[]>([]);
@@ -34,6 +47,10 @@ export function AdaptiveLearningTab() {
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
+  // Placement specific
+  const [placementCount] = useState(15);
+
+  // Timer
   useEffect(() => {
     if (!quizStartTime) {
       setElapsedSeconds(0);
@@ -45,7 +62,80 @@ export function AdaptiveLearningTab() {
     return () => clearInterval(interval);
   }, [quizStartTime]);
 
-  const handleStartAssessment = async () => {
+  // ===== PLACEMENT TEST LOGIC =====
+
+  const handleStartPlacement = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch('/api/assessment/placement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_questions', count: placementCount }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAssessmentQuestions(data.questions);
+        setAnswers(new Array(data.questions.length).fill(null));
+        setCurrentQuestionIndex(0);
+        setPhase('placement_quiz');
+        setQuizStartTime(Date.now());
+        setElapsedSeconds(0);
+      } else {
+        toast.error(data.error || 'Ошибка загрузки вопросов');
+      }
+    } catch {
+      toast.error('Ошибка соединения');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handlePlacementSubmit = async () => {
+    if (answers.some(a => a === null)) {
+      toast.error('Ответьте на все вопросы перед завершением');
+      return;
+    }
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch('/api/assessment/placement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'analyze_results',
+          questions: assessmentQuestions,
+          answers,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Save placement result to store
+        savePlacementResult(data);
+
+        const correctCount = answers.filter((a, i) => a === assessmentQuestions[i]?.correctIndex).length;
+        addXP(correctCount * 5 + (data.score >= 80 ? 50 : 20));
+        updateProfile({
+          totalAnswers: profile.totalAnswers + assessmentQuestions.length,
+          correctAnswers: profile.correctAnswers + correctCount,
+        });
+
+        setAssessmentResult(data);
+        setPhase('placement_results');
+        setQuizStartTime(null);
+
+        toast.success(`Уровень определён: ${data.level === 'advanced' ? 'Продвинутый' : data.level === 'intermediate' ? 'Средний' : 'Начинающий'}`);
+      } else {
+        toast.error(data.error || 'Ошибка анализа');
+      }
+    } catch {
+      toast.error('Ошибка анализа');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // ===== ADAPTIVE AI TEST LOGIC =====
+
+  const handleStartAdaptive = async () => {
     if (selectedTopics.length === 0) {
       toast.error('Выберите хотя бы одну тему');
       return;
@@ -56,17 +146,21 @@ export function AdaptiveLearningTab() {
         const topic = getTopicById(id);
         return { id, name: topic?.name || id };
       });
+
+      // If the user hasn't done placement, still allow AI tests with default difficulty
+      const effectiveDifficulty = profile.determinedLevel || difficulty;
+
       const res = await fetch('/api/assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topics, difficulty, count: questionCount }),
+        body: JSON.stringify({ topics, difficulty: effectiveDifficulty, count: questionCount }),
       });
       const data = await res.json();
       if (data.success) {
         setAssessmentQuestions(data.questions);
         setAnswers(new Array(data.questions.length).fill(null));
         setCurrentQuestionIndex(0);
-        setShowResults(false);
+        setPhase('adaptive_quiz');
         setQuizStartTime(Date.now());
         setElapsedSeconds(0);
         addXP(5);
@@ -81,21 +175,7 @@ export function AdaptiveLearningTab() {
     }
   };
 
-  const handleSelectAnswer = (optionIndex: number) => {
-    const newAnswers = [...answers];
-    newAnswers[currentQuestionIndex] = optionIndex;
-    setAnswers(newAnswers);
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < assessmentQuestions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      handleSubmitAssessment();
-    }
-  };
-
-  const handleSubmitAssessment = async () => {
+  const handleAdaptiveSubmit = async () => {
     if (answers.some(a => a === null)) {
       toast.error('Ответьте на все вопросы');
       return;
@@ -128,7 +208,7 @@ export function AdaptiveLearningTab() {
           completedAt: new Date().toLocaleDateString('ru-RU'),
         };
         setAssessmentResult(result);
-        setShowResults(true);
+        setPhase('adaptive_results');
         setQuizStartTime(null);
         addAssessmentToHistory(result);
         updateProfile({
@@ -144,6 +224,39 @@ export function AdaptiveLearningTab() {
     }
   };
 
+  // ===== COMMON QUIZ HANDLERS =====
+
+  const handleSelectAnswer = (optionIndex: number) => {
+    const newAnswers = [...answers];
+    newAnswers[currentQuestionIndex] = optionIndex;
+    setAnswers(newAnswers);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < assessmentQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      // Submit based on current phase
+      if (phase === 'placement_quiz') {
+        handlePlacementSubmit();
+      } else {
+        handleAdaptiveSubmit();
+      }
+    }
+  };
+
+  const handleExitQuiz = () => {
+    setAssessmentQuestions([]);
+    setAnswers([]);
+    setQuizStartTime(null);
+    setElapsedSeconds(0);
+    if (phase === 'placement_quiz') {
+      setPhase('placement_intro');
+    } else {
+      setPhase('adaptive_select');
+    }
+  };
+
   const toggleTopic = (topicId: string) => {
     setSelectedTopics(prev =>
       prev.includes(topicId)
@@ -152,18 +265,33 @@ export function AdaptiveLearningTab() {
     );
   };
 
-  // Assessment in progress
-  if (assessmentQuestions.length > 0 && !showResults) {
+  const isPlacementPhase = phase === 'placement_quiz' || phase === 'placement_results';
+
+  // ===== RENDER: QUIZ IN PROGRESS =====
+  if ((phase === 'placement_quiz' || phase === 'adaptive_quiz') && assessmentQuestions.length > 0) {
     const q = assessmentQuestions[currentQuestionIndex];
     return (
       <div className="space-y-4 pb-4">
+        {/* Phase indicator */}
+        <div className="flex items-center gap-2 mb-1">
+          {isPlacementPhase ? (
+            <Badge className="bg-purple-100 text-purple-700 border-0 text-[10px]">
+              <GraduationCap className="w-3 h-3 mr-1" /> Входное тестирование
+            </Badge>
+          ) : (
+            <Badge className="bg-blue-100 text-blue-700 border-0 text-[10px]">
+              <Zap className="w-3 h-3 mr-1" /> AI генерация
+            </Badge>
+          )}
+        </div>
+
         <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => { setAssessmentQuestions([]); setQuizStartTime(null); }}>
+          <Button variant="ghost" size="sm" onClick={handleExitQuiz}>
             <X className="w-4 h-4 mr-1" /> Выход
           </Button>
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-muted-foreground tabular-nums">
-              ⏱ {String(Math.floor(elapsedSeconds / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
+              {String(Math.floor(elapsedSeconds / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
             </span>
             <span className="text-sm font-medium">
               {currentQuestionIndex + 1} / {assessmentQuestions.length}
@@ -227,6 +355,8 @@ export function AdaptiveLearningTab() {
           ) : (
             isAnalyzing ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Анализирую...</>
+            ) : isPlacementPhase ? (
+              <>Завершить тестирование <GraduationCap className="w-4 h-4 ml-1" /></>
             ) : (
               <>Завершить тест <Sparkles className="w-4 h-4 ml-1" /></>
             )
@@ -236,15 +366,181 @@ export function AdaptiveLearningTab() {
     );
   }
 
-  // Assessment results
-  if (showResults && assessmentResult) {
-    const wrongQuestions = assessmentResult.questions.filter((q: any, i: number) => assessmentResult.answers[i] !== q.correctIndex);
+  // ===== RENDER: PLACEMENT RESULTS =====
+  if (phase === 'placement_results' && assessmentResult) {
+    const levelLabels: Record<string, string> = {
+      beginner: 'Начинающий',
+      intermediate: 'Средний',
+      advanced: 'Продвинутый',
+    };
+    const levelColors: Record<string, string> = {
+      beginner: '#28CD41',
+      intermediate: '#FF9500',
+      advanced: '#FF3B30',
+    };
+    const levelIcons: Record<string, string> = {
+      beginner: '🌱',
+      intermediate: '🔥',
+      advanced: '👑',
+    };
+
+    const level = assessmentResult.level;
+    return (
+      <div className="space-y-4 pb-4 relative">
+        {assessmentResult.score >= 80 && <ConfettiCanvas />}
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Header */}
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30">
+            <CardContent className="p-5 text-center">
+              <div className="text-5xl mb-2">{levelIcons[level]}</div>
+              <h2 className="text-sm text-muted-foreground mb-1">Ваш уровень подготовки</h2>
+              <h1 className="text-2xl font-bold mb-3" style={{ color: levelColors[level] }}>
+                {levelLabels[level]}
+              </h1>
+              <div className="text-3xl font-bold gradient-text mb-1">
+                <AnimatedNumber value={assessmentResult.score} />%
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {assessmentResult.message}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Score breakdown by difficulty */}
+          <Card className="squircle-sm border-0 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Target className="w-4 h-4 text-purple-500" /> Результаты по уровням
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { label: 'Базовый', score: assessmentResult.beginnerScore, color: '#28CD41' },
+                { label: 'Средний', score: assessmentResult.intermediateScore, color: '#FF9500' },
+                { label: 'Продвинутый', score: assessmentResult.advancedScore, color: '#FF3B30' },
+              ].map((item) => (
+                <div key={item.label} className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">{item.label}</span>
+                    <span className="text-xs text-muted-foreground">{item.score}%</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${item.score}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Weak and Strong topics */}
+          <div className="grid grid-cols-2 gap-3">
+            {assessmentResult.weakTopics.length > 0 && (
+              <Card className="squircle-sm border-0 shadow-sm">
+                <CardContent className="p-4">
+                  <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-[#FF3B30]">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Требуют внимания
+                  </h3>
+                  <div className="space-y-1">
+                    {assessmentResult.weakTopics.slice(0, 4).map((t: string, i: number) => (
+                      <p key={i} className="text-[11px] text-muted-foreground">• {t}</p>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {assessmentResult.strongTopics.length > 0 && (
+              <Card className="squircle-sm border-0 shadow-sm">
+                <CardContent className="p-4">
+                  <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-[#28CD41]">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Сильные стороны
+                  </h3>
+                  <div className="space-y-1">
+                    {assessmentResult.strongTopics.slice(0, 4).map((t: string, i: number) => (
+                      <p key={i} className="text-[11px] text-muted-foreground">• {t}</p>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Explanation of the two-phase system */}
+          <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+            <CardContent className="p-4">
+              <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                <BookOpen className="w-3.5 h-3.5" /> Как работает система обучения
+              </h3>
+              <div className="space-y-2 text-[11px] text-muted-foreground leading-relaxed">
+                <p>
+                  <span className="font-medium text-foreground">Входное тестирование (пройдено)</span> —
+                  статические вопросы для определения вашего уровня.
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Адаптивный ИИ-тест</span> —
+                  уникальные вопросы генерируются искусственным интеллектом каждый раз.
+                  Ответы нельзя заучить — каждый тест уникален и подстраивается под ваш уровень.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* CTA: Go to adaptive */}
+          <Button
+            className="w-full squircle-sm bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white h-14 text-sm font-bold shadow-lg"
+            onClick={() => {
+              setAssessmentQuestions([]);
+              setAnswers([]);
+              setAssessmentResult(null);
+              setPhase('adaptive_select');
+            }}
+          >
+            <Zap className="w-4 h-4 mr-2" /> Начать ИИ-обучение
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full squircle-sm h-12 text-sm font-medium"
+            onClick={handleStartPlacement}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" /> Пройти тестирование заново
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ===== RENDER: ADAPTIVE AI RESULTS =====
+  if (phase === 'adaptive_results' && assessmentResult) {
+    const wrongQuestions = assessmentResult.questions.filter(
+      (q: any, i: number) => assessmentResult.answers[i] !== q.correctIndex
+    );
     return (
       <div className="space-y-4 pb-4 relative">
         {assessmentResult.score >= 90 && <ConfettiCanvas />}
-        <Button variant="ghost" size="sm" onClick={() => { setShowResults(false); setAssessmentQuestions([]); setQuizStartTime(null); }}>
+        <Button variant="ghost" size="sm" onClick={() => {
+          setPhase('adaptive_select');
+          setAssessmentQuestions([]);
+          setAssessmentResult(null);
+          setQuizStartTime(null);
+        }}>
           <ArrowRight className="w-4 h-4 mr-1 rotate-180" /> Назад к темам
         </Button>
+
+        <div className="flex items-center gap-2 mb-1">
+          <Badge className="bg-blue-100 text-blue-700 border-0 text-[10px]">
+            <Sparkles className="w-3 h-3 mr-1" /> ИИ-генерация
+          </Badge>
+          <Badge variant="secondary" className="text-[10px]">
+            Уровень: {profile.determinedLevel === 'advanced' ? 'Продвинутый' : profile.determinedLevel === 'intermediate' ? 'Средний' : 'Базовый'}
+          </Badge>
+        </div>
 
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-5 text-center">
@@ -273,7 +569,6 @@ export function AdaptiveLearningTab() {
           </Card>
         )}
 
-        {/* Skill Map */}
         {assessmentResult.skillMap && (
           <Card className="squircle-sm border-0 shadow-sm">
             <CardHeader className="pb-2">
@@ -287,7 +582,6 @@ export function AdaptiveLearningTab() {
           </Card>
         )}
 
-        {/* Learning Path */}
         {assessmentResult.learningPath && assessmentResult.learningPath.length > 0 && (
           <Card className="squircle-sm border-0 shadow-sm">
             <CardContent className="p-4">
@@ -331,9 +625,10 @@ export function AdaptiveLearningTab() {
               setAssessmentQuestions(wrongQuestions);
               setAnswers(new Array(wrongQuestions.length).fill(null));
               setCurrentQuestionIndex(0);
-              setShowResults(false);
+              setPhase('adaptive_quiz');
               setQuizStartTime(Date.now());
               setElapsedSeconds(0);
+              setAssessmentResult(null);
             }}
           >
             <RotateCcw className="w-4 h-4 mr-2" /> Повторить ошибки ({wrongQuestions.length})
@@ -342,156 +637,305 @@ export function AdaptiveLearningTab() {
 
         <Button
           className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-12"
-          onClick={() => { setShowResults(false); setAssessmentQuestions([]); setQuizStartTime(null); }}
+          onClick={() => {
+            setPhase('adaptive_select');
+            setAssessmentQuestions([]);
+            setAssessmentResult(null);
+            setQuizStartTime(null);
+          }}
         >
-          <RotateCcw className="w-4 h-4 mr-2" /> Новый тест
+          <RotateCcw className="w-4 h-4 mr-2" /> Новый ИИ-тест
         </Button>
       </div>
     );
   }
 
-  // Topic selection view
-  return (
-    <div className="space-y-4 pb-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h2 className="text-lg font-bold mb-1">Адаптивное обучение</h2>
-        <p className="text-sm text-muted-foreground">Выберите темы и уровень для тестирования</p>
-      </motion.div>
+  // ===== RENDER: PLACEMENT INTRO =====
+  if (phase === 'placement_intro') {
+    return (
+      <div className="space-y-4 pb-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/30 dark:via-indigo-950/30 dark:to-blue-950/30">
+            <CardContent className="p-5 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <GraduationCap className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-xl font-bold mb-2 gradient-text">Входное тестирование</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Прежде чем начать обучение, пройдите быстрый тест из {placementCount} вопросов.
+                Он поможет определить ваш текущий уровень подготовки.
+              </p>
 
-      {/* Difficulty selector */}
-      <Card className="squircle-sm border-0 shadow-sm">
-        <CardContent className="p-4">
-          <h3 className="text-sm font-semibold mb-3">Уровень сложности</h3>
-          <div className="flex gap-2">
-            {DIFFICULTY_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => setDifficulty(opt.value)}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                  difficulty === opt.value
-                    ? 'bg-[#28CD41] text-white shadow-md scale-105'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Question count */}
-      <Card className="squircle-sm border-0 shadow-sm">
-        <CardContent className="p-4">
-          <h3 className="text-sm font-semibold mb-2">Количество вопросов</h3>
-          <div className="flex gap-2">
-            {[5, 10, 15].map(n => (
-              <button
-                key={n}
-                onClick={() => setQuestionCount(n)}
-                className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                  questionCount === n
-                    ? 'bg-[#28CD41] text-white shadow-md'
-                    : 'bg-muted text-muted-foreground'
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Topic selection */}
-      <Card className="squircle border-0 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold">Темы ({selectedTopics.length} выбрано)</h3>
-            <Button variant="ghost" size="sm" className="text-xs h-7"
-              onClick={() => setSelectedTopics(selectedTopics.length === VET_TOPICS.length ? [] : VET_TOPICS.map(t => t.id))}>
-              {selectedTopics.length === VET_TOPICS.length ? 'Снять все' : 'Выбрать все'}
-            </Button>
-          </div>
-          <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
-            {VET_TOPICS.map(topic => {
-              const isSelected = selectedTopics.includes(topic.id);
-              const isExpanded = expandedTopics.includes(topic.id);
-              const mastery = profile.skillMap[topic.id] || 0;
-
-              return (
-                <div key={topic.id}>
-                  <button
-                    onClick={() => toggleTopic(topic.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                      isSelected
-                        ? 'bg-[#E8F9EC] dark:bg-[#1A3D22] border-2 border-[#28CD41]/30'
-                        : 'hover:bg-muted/50 border-2 border-transparent'
-                    }`}
-                  >
-                    <span className="text-xl">{topic.icon}</span>
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-medium">{topic.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{topic.subtopics.length} подтем</p>
-                    </div>
-                    {mastery > 0 && (
-                      <div className="flex items-center gap-2">
-                        <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full rounded-full bg-[#28CD41]" style={{ width: `${mastery}%` }} />
-                        </div>
-                        <span className="text-[10px] text-muted-foreground w-8 text-right">{mastery}%</span>
-                      </div>
-                    )}
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-[#28CD41] text-white scale-110' : 'bg-muted'
-                    }`}>
-                      {isSelected && <CheckCircle2 className="w-4 h-4" />}
-                    </div>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Generate button */}
-      <Button
-        className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-14 text-sm font-bold shadow-lg"
-        onClick={handleStartAssessment}
-        disabled={selectedTopics.length === 0 || isGenerating}
-      >
-        {isGenerating ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Генерация вопросов...</>
-        ) : (
-          <><Sparkles className="w-4 h-4 mr-2" /> Начать тест ({questionCount} вопросов)</>
-        )}
-      </Button>
-
-      {/* Learning Path (if exists) */}
-      {profile.learningPath.length > 0 && (
-        <Card className="squircle border-0 shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#FF9500]" /> Текущий план обучения
-            </h3>
-            <div className="space-y-2">
-              {profile.learningPath.slice(0, 5).map((item, i) => (
-                <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                    item.priority === 'high' ? 'bg-[#FF3B30]' :
-                    item.priority === 'medium' ? 'bg-[#FF9500]' : 'bg-[#28CD41]'
-                  }`} />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{item.topicName}</p>
-                    <p className="text-xs text-muted-foreground">{item.reason}</p>
+              <div className="space-y-3 text-left mb-4">
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5">
+                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <span className="text-xs text-muted-foreground">{item.mastery}%</span>
+                  <div>
+                    <p className="text-xs font-semibold">Фаза 1: Входной тест</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {placementCount} вопросов из базы знаний — определяем базовый уровень
+                    </p>
+                  </div>
                 </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold">Фаза 2: ИИ-обучение</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Уникальные вопросы от ИИ — каждый раз новые, нельзя заучить
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5">
+                  <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Target className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold">Адаптивная сложность</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Вопросы подбираются под ваш уровень для максимальной эффективности
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Button
+            className="w-full squircle-sm bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white h-14 text-sm font-bold shadow-lg"
+            onClick={handleStartPlacement}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Загрузка вопросов...</>
+            ) : (
+              <><GraduationCap className="w-4 h-4 mr-2" /> Начать тестирование</>
+            )}
+          </Button>
+
+          <p className="text-center text-[11px] text-muted-foreground mt-2">
+            Займёт примерно 5-10 минут
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ===== RENDER: ADAPTIVE TOPIC SELECTION =====
+  if (phase === 'adaptive_select') {
+    const userLevel = profile.determinedLevel || 'intermediate';
+    const levelLabel = userLevel === 'advanced' ? 'Продвинутый' : userLevel === 'intermediate' ? 'Средний' : 'Базовый';
+
+    return (
+      <div className="space-y-4 pb-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <h2 className="text-lg font-bold">Адаптивное обучение</h2>
+              <p className="text-sm text-muted-foreground">ИИ генерирует уникальные вопросы</p>
+            </div>
+            {profile.placementCompleted && (
+              <Badge className="bg-purple-100 text-purple-700 border-0 text-[10px]">
+                <Shield className="w-3 h-3 mr-1" /> {levelLabel}
+              </Badge>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Level info card */}
+        {profile.placementCompleted && (
+          <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold">ИИ адаптирован под вас</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Вопросы генерируются на уровне &laquo;{levelLabel}&raquo; — нельзя заучить
+                    </p>
+                  </div>
+                </div>
+                {profile.placementScore !== undefined && (
+                  <div className="text-right">
+                    <p className="text-lg font-bold">{profile.placementScore}%</p>
+                    <p className="text-[10px] text-muted-foreground">тестирование</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Difficulty info (auto-determined) */}
+        <Card className="squircle-sm border-0 shadow-sm">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold mb-3">Уровень сложности</h3>
+            <div className="flex gap-2">
+              {DIFFICULTY_OPTIONS.map(opt => (
+                <div
+                  key={opt.value}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-medium text-center transition-all ${
+                    userLevel === opt.value
+                      ? 'bg-[#28CD41] text-white shadow-md scale-105'
+                      : profile.placementCompleted
+                        ? 'bg-muted/50 text-muted-foreground cursor-default'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer'
+                  }`}
+                  onClick={() => {
+                    if (!profile.placementCompleted) {
+                      setDifficulty(opt.value);
+                    }
+                  }}
+                >
+                  {opt.label}
+                  {userLevel === opt.value && profile.placementCompleted && (
+                    <div className="text-[9px] mt-0.5 opacity-80">авто</div>
+                  )}
+                </div>
+              ))}
+            </div>
+            {profile.placementCompleted && (
+              <p className="text-[10px] text-muted-foreground mt-2 text-center">
+                Уровень определён автоматически по результатам входного тестирования
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Question count */}
+        <Card className="squircle-sm border-0 shadow-sm">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold mb-2">Количество вопросов</h3>
+            <div className="flex gap-2">
+              {[5, 10, 15].map(n => (
+                <button
+                  key={n}
+                  onClick={() => setQuestionCount(n)}
+                  className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
+                    questionCount === n
+                      ? 'bg-[#28CD41] text-white shadow-md'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {n}
+                </button>
               ))}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+
+        {/* Topic selection */}
+        <Card className="squircle border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold">Темы ({selectedTopics.length} выбрано)</h3>
+              <Button variant="ghost" size="sm" className="text-xs h-7"
+                onClick={() => setSelectedTopics(selectedTopics.length === VET_TOPICS.length ? [] : VET_TOPICS.map(t => t.id))}>
+                {selectedTopics.length === VET_TOPICS.length ? 'Снять все' : 'Выбрать все'}
+              </Button>
+            </div>
+            <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
+              {VET_TOPICS.map(topic => {
+                const isSelected = selectedTopics.includes(topic.id);
+                const mastery = profile.skillMap[topic.id] || 0;
+
+                return (
+                  <div key={topic.id}>
+                    <button
+                      onClick={() => toggleTopic(topic.id)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                        isSelected
+                          ? 'bg-[#E8F9EC] dark:bg-[#1A3D22] border-2 border-[#28CD41]/30'
+                          : 'hover:bg-muted/50 border-2 border-transparent'
+                      }`}
+                    >
+                      <span className="text-xl">{topic.icon}</span>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-medium">{topic.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{topic.subtopics.length} подтем</p>
+                      </div>
+                      {mastery > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-[#28CD41]" style={{ width: `${mastery}%` }} />
+                          </div>
+                          <span className="text-[10px] text-muted-foreground w-8 text-right">{mastery}%</span>
+                        </div>
+                      )}
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                        isSelected ? 'bg-[#28CD41] text-white scale-110' : 'bg-muted'
+                      }`}>
+                        {isSelected && <CheckCircle2 className="w-4 h-4" />}
+                      </div>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Generate button */}
+        <Button
+          className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-14 text-sm font-bold shadow-lg"
+          onClick={handleStartAdaptive}
+          disabled={selectedTopics.length === 0 || isGenerating}
+        >
+          {isGenerating ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> ИИ генерирует вопросы...</>
+          ) : (
+            <><Sparkles className="w-4 h-4 mr-2" /> Начать ИИ-тест ({questionCount} вопросов)</>
+          )}
+        </Button>
+
+        {/* Retake placement */}
+        {profile.placementCompleted && (
+          <Button
+            variant="outline"
+            className="w-full squircle-sm h-12 text-sm font-medium"
+            onClick={() => setPhase('placement_intro')}
+          >
+            <GraduationCap className="w-4 h-4 mr-2" /> Пересдать входной тест
+          </Button>
+        )}
+
+        {/* Learning Path */}
+        {profile.learningPath.length > 0 && (
+          <Card className="squircle border-0 shadow-sm">
+            <CardContent className="p-4">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-[#FF9500]" /> План обучения
+              </h3>
+              <div className="space-y-2">
+                {profile.learningPath.slice(0, 5).map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
+                    <div className={`w-2 h-2 rounded-full mt-1.5 ${
+                      item.priority === 'high' ? 'bg-[#FF3B30]' :
+                      item.priority === 'medium' ? 'bg-[#FF9500]' : 'bg-[#28CD41]'
+                    }`} />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.topicName}</p>
+                      <p className="text-xs text-muted-foreground">{item.reason}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{item.mastery}%</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  return null;
 }
+

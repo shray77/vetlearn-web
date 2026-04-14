@@ -85,6 +85,18 @@ interface VetLearnStore {
   updateSkillMap: (updates: Record<string, number>) => void;
   setSkillMap: (updates: Record<string, number>) => void;
 
+  // Placement Test
+  savePlacementResult: (data: {
+    level: 'beginner' | 'intermediate' | 'advanced';
+    score: number;
+    beginnerScore: number;
+    intermediateScore: number;
+    advancedScore: number;
+    weakTopics: string[];
+    strongTopics: string[];
+    detailedStats: Record<string, { correct: number; total: number; topicName: string }>;
+  }) => void;
+
   // Clear all data
   clearAllData: () => void;
 }
@@ -208,6 +220,38 @@ export const useStore = create<VetLearnStore>()(
             skillMap: { ...state.profile.skillMap, ...updates },
           },
         })),
+
+      // Placement Test
+      savePlacementResult: (data) =>
+        set((state) => {
+          // Set initial skill map from placement results
+          const initialSkillMap: Record<string, number> = {};
+          for (const [topicId, topicStats] of Object.entries(data.detailedStats)) {
+            const pct = topicStats.total > 0
+              ? Math.round((topicStats.correct / topicStats.total) * 100)
+              : 0;
+            initialSkillMap[topicId] = pct;
+          }
+
+          return {
+            profile: {
+              ...state.profile,
+              determinedLevel: data.level,
+              placementCompleted: true,
+              placementScore: data.score,
+              placementDate: getLocalDateString(),
+              placementDetails: {
+                beginnerScore: data.beginnerScore,
+                intermediateScore: data.intermediateScore,
+                advancedScore: data.advancedScore,
+                weakTopics: data.weakTopics,
+                strongTopics: data.strongTopics,
+              },
+              // Merge initial skill map
+              skillMap: { ...initialSkillMap },
+            },
+          };
+        }),
 
       // Clear all data
       clearAllData: () =>

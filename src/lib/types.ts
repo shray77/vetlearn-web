@@ -16,6 +16,18 @@ export interface StudentProfile {
   assessmentsCompleted: number;
   joinedDate: string;
   avatarUrl?: string;
+  // Placement Test — определённый уровень студента
+  determinedLevel?: 'beginner' | 'intermediate' | 'advanced' | null;
+  placementCompleted?: boolean;
+  placementScore?: number;
+  placementDate?: string;
+  placementDetails?: {
+    beginnerScore: number;
+    intermediateScore: number;
+    advancedScore: number;
+    weakTopics: string[];
+    strongTopics: string[];
+  };
 }
 
 export interface LearningPathItem {
