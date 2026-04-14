@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS, DIFFICULTY_OPTIONS, getTopicById } from '@/lib/vet-topics';
@@ -46,6 +46,63 @@ export function AdaptiveLearningTab() {
   const [questionCount, setQuestionCount] = useState(10);
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // ===== REAL-TIME ADAPTIVE DIFFICULTY TRACKER =====
+  type DifficultyTrend = 'increasing' | 'decreasing' | 'stable';
+
+  const runningDifficulty: DifficultyTrend = useMemo(() => {
+    if (assessmentQuestions.length === 0) return 'stable';
+    const answeredCount = currentQuestionIndex; // questions already moved past
+    if (answeredCount < 2) return 'stable';
+
+    const window = answers.slice(0, answeredCount).slice(-4);
+    const baseIndex = answeredCount - window.length;
+    const correctCount = window.filter((a, i) => {
+      const qIdx = baseIndex + i;
+      return a === assessmentQuestions[qIdx]?.correctIndex;
+    }).length;
+
+    if (correctCount === window.length) return 'increasing';
+    if (correctCount === 0) return 'decreasing';
+    if (correctCount >= window.length * 0.75) return 'increasing';
+    if (correctCount <= window.length * 0.25) return 'decreasing';
+    return 'stable';
+  }, [answers, currentQuestionIndex, assessmentQuestions]);
+
+  const difficultyIndicator = useMemo(() => {
+    switch (runningDifficulty) {
+      case 'increasing':
+        return {
+          gradient: 'from-[#FF9500] to-[#FF3B30]',
+          bgLight: 'bg-[#FFF3CD] dark:bg-[#3D2000]',
+          textColor: 'text-[#FF9500]',
+          icon: TrendingUp,
+          message: 'AI повышает сложность...',
+          subtext: 'Отличные результаты — усложняем',
+          pulseColor: '#FF9500',
+        };
+      case 'decreasing':
+        return {
+          gradient: 'from-[#28CD41] to-[#1FA833]',
+          bgLight: 'bg-[#E8F9EC] dark:bg-[#0D2E15]',
+          textColor: 'text-[#28CD41]',
+          icon: TrendingUp,
+          message: 'AI адаптирует сложность',
+          subtext: 'Снижаем сложность для закрепления',
+          pulseColor: '#28CD41',
+        };
+      default:
+        return {
+          gradient: 'from-[#007AFF] to-[#5856D6]',
+          bgLight: 'bg-[#E8F0FE] dark:bg-[#0D1B33]',
+          textColor: 'text-[#007AFF]',
+          icon: Brain,
+          message: 'AI анализирует ответы...',
+          subtext: 'Подбираем оптимальный уровень',
+          pulseColor: '#007AFF',
+        };
+    }
+  }, [runningDifficulty]);
 
   // Placement specific
   const [placementCount] = useState(15);
@@ -284,6 +341,96 @@ export function AdaptiveLearningTab() {
             </Badge>
           )}
         </div>
+
+        {/* Real-time Adaptive Difficulty Indicator */}
+        {currentQuestionIndex >= 2 && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={runningDifficulty}
+              initial={{ opacity: 0, y: -8, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.96 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className={`rounded-2xl px-4 py-2.5 ${difficultyIndicator.bgLight} border border-border/50`}
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="relative">
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: runningDifficulty === 'increasing'
+                        ? 'linear-gradient(135deg, #FF9500, #FF3B30)'
+                        : runningDifficulty === 'decreasing'
+                          ? 'linear-gradient(135deg, #28CD41, #1FA833)'
+                          : 'linear-gradient(135deg, #007AFF, #5856D6)',
+                    }}
+                  >
+                    <motion.div
+                      animate={{ rotate: runningDifficulty === 'increasing' ? 0 : runningDifficulty === 'decreasing' ? 180 : 0 }}
+                      transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    >
+                      <difficultyIndicator.icon className={`w-4 h-4 ${runningDifficulty === 'decreasing' ? 'rotate-180' : ''} text-white`} />
+                    </motion.div>
+                  </div>
+                  {/* Pulsing dot */}
+                  <motion.div
+                    className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full`}
+                    style={{ backgroundColor: difficultyIndicator.pulseColor }}
+                    animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold ${difficultyIndicator.textColor}`}>
+                      {difficultyIndicator.message}
+                    </span>
+                    {/* Mini difficulty dots */}
+                    <div className="flex items-center gap-1">
+                      {[0, 1, 2].map((dot) => {
+                        const isActive = runningDifficulty === 'increasing'
+                          ? dot >= 1
+                          : runningDifficulty === 'decreasing'
+                            ? dot <= 1
+                            : dot === 1;
+                        return (
+                          <motion.div
+                            key={dot}
+                            className={`w-1.5 h-1.5 rounded-full transition-colors duration-500`}
+                            style={{
+                              backgroundColor: isActive ? difficultyIndicator.pulseColor : 'hsl(var(--muted))',
+                            }}
+                            animate={isActive ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                            transition={{ duration: 2, repeat: Infinity, delay: dot * 0.15 }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {difficultyIndicator.subtext}
+                  </p>
+                </div>
+                {/* Shimmer bar */}
+                <div className="w-12 h-1.5 rounded-full overflow-hidden bg-muted/50">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{
+                      width: '60%',
+                      background: runningDifficulty === 'increasing'
+                        ? 'linear-gradient(90deg, #FF9500, #FF3B30)'
+                        : runningDifficulty === 'decreasing'
+                          ? 'linear-gradient(90deg, #28CD41, #1FA833)'
+                          : 'linear-gradient(90deg, #007AFF, #5856D6)',
+                    }}
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={handleExitQuiz}>

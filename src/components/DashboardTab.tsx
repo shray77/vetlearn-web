@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS } from '@/lib/vet-topics';
 import { SkillRadarChart } from '@/components/SkillRadarChart';
+import { LearningTrajectory } from '@/components/LearningTrajectory';
 import { DIFFICULTY_LABELS } from '@/components/ui/utility';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
-  Flame, Star, Target, Award, TrendingUp, Stethoscope, Mic,
-  ArrowRight, Clock, Sparkles, BarChart3, Copy, FileText,
+  Flame, Star, Target, Award, TrendingUp, TrendingDown, Minus, Stethoscope, Mic,
+  ArrowRight, Clock, Sparkles, BarChart3, Copy, FileText, Brain, Lightbulb,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -27,6 +28,93 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
   }, [updateStreak]);
 
   const hasData = Object.keys(profile.skillMap).length > 0;
+
+  // ===== AI INSIGHTS COMPUTATION =====
+  const aiInsight = useMemo(() => {
+    // Determine insight message and state
+    if (!profile.placementCompleted) {
+      return {
+        type: 'no_placement' as const,
+        message: 'Пройдите входное тестирование — ИИ определит ваш уровень и создаст персональную траекторию обучения',
+        actionLabel: 'Начать тестирование',
+        actionTab: 'learning',
+      };
+    }
+
+    const recentAssessments = assessmentHistory.slice(0, 3);
+    if (recentAssessments.length === 0) {
+      return {
+        type: 'ready' as const,
+        message: 'ИИ готов генерировать уникальные вопросы по вашему уровню. Начните тренировку!',
+        actionLabel: 'Начать тренировку',
+        actionTab: 'learning',
+      };
+    }
+
+    const avgScore = Math.round(
+      recentAssessments.reduce((sum, a) => sum + (a.score || 0), 0) / recentAssessments.length
+    );
+
+    if (avgScore >= 75) {
+      return {
+        type: 'good_progress' as const,
+        message: 'Отличный прогресс! ИИ рекомендует перейти к более сложным темам',
+        actionLabel: 'Продолжить обучение',
+        actionTab: 'learning',
+      };
+    }
+
+    const weakTopics = profile.learningPath
+      .filter(p => p.priority === 'high')
+      .map(p => p.topicName);
+
+    if (weakTopics.length > 0) {
+      return {
+        type: 'weak_areas' as const,
+        message: `ИИ заметил пробелы в знаниях. Рекомендуется повторение тем: ${weakTopics.slice(0, 3).join(', ')}`,
+        actionLabel: 'Повторить темы',
+        actionTab: 'learning',
+      };
+    }
+
+    return {
+      type: 'stable' as const,
+      message: 'ИИ анализирует ваш прогресс. Продолжайте в текущем темпе для стабильного роста',
+      actionLabel: 'Продолжить обучение',
+      actionTab: 'learning',
+    };
+  }, [profile, assessmentHistory]);
+
+  // Accuracy trend from last 3 assessments
+  const accuracyTrend = useMemo(() => {
+    const recent = assessmentHistory.slice(0, 3).map(a => a.score);
+    if (recent.length < 2) return null;
+
+    if (recent.length === 2) {
+      const diff = recent[0] - recent[1];
+      if (diff > 5) return 'up' as const;
+      if (diff < -5) return 'down' as const;
+      return 'stable' as const;
+    }
+
+    // 3 scores: compare average of latest 2 vs oldest 1
+    const latest = (recent[0] + recent[1]) / 2;
+    const oldest = recent[2];
+    if (latest - oldest > 5) return 'up' as const;
+    if (latest - oldest < -5) return 'down' as const;
+    return 'stable' as const;
+  }, [assessmentHistory]);
+
+  // Level display helpers
+  const levelConfig = useMemo(() => {
+    if (!profile.determinedLevel) return null;
+    const configs: Record<string, { label: string; color: string; bg: string; borderColor: string }> = {
+      beginner: { label: 'Начинающий', color: 'text-[#28CD41]', bg: 'bg-[#E8F9EC] dark:bg-[#1A3D22]', borderColor: 'border-[#28CD41]/30' },
+      intermediate: { label: 'Средний', color: 'text-[#FF9500]', bg: 'bg-[#FFF3CD] dark:bg-[#3D3000]', borderColor: 'border-[#FF9500]/30' },
+      advanced: { label: 'Продвинутый', color: 'text-[#FF3B30]', bg: 'bg-[#FFE5E3] dark:bg-[#3D1510]', borderColor: 'border-[#FF3B30]/30' },
+    };
+    return configs[profile.determinedLevel] || null;
+  }, [profile.determinedLevel]);
 
   const handleExportProgress = () => {
     const skillMapText = Object.entries(profile.skillMap)
@@ -111,6 +199,150 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
             <div className="text-[10px] text-muted-foreground">{stat.label}</div>
           </Card>
         ))}
+      </motion.div>
+
+      {/* AI Insights Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
+        <Card className="squircle border-0 shadow-sm overflow-hidden">
+          <div
+            className="h-1"
+            style={{
+              background: aiInsight.type === 'good_progress'
+                ? 'linear-gradient(90deg, #28CD41, #007AFF)'
+                : aiInsight.type === 'weak_areas'
+                  ? 'linear-gradient(90deg, #FF9500, #FF3B30)'
+                  : aiInsight.type === 'no_placement'
+                    ? 'linear-gradient(90deg, #AF52DE, #007AFF)'
+                    : 'linear-gradient(90deg, #007AFF, #5856D6)',
+            }}
+          />
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              {/* Pulsing AI Brain Icon */}
+              <div className="relative flex-shrink-0">
+                <motion.div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: aiInsight.type === 'good_progress'
+                      ? 'linear-gradient(135deg, #28CD41, #007AFF)'
+                      : aiInsight.type === 'weak_areas'
+                        ? 'linear-gradient(135deg, #FF9500, #FF3B30)'
+                        : 'linear-gradient(135deg, #007AFF, #AF52DE)',
+                  }}
+                  animate={{
+                    boxShadow: [
+                      '0 0 0 0 rgba(0, 122, 255, 0.4)',
+                      '0 0 0 8px rgba(0, 122, 255, 0)',
+                      '0 0 0 0 rgba(0, 122, 255, 0)',
+                    ],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Brain className="w-5 h-5 text-white" />
+                </motion.div>
+                <motion.div
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF9500] flex items-center justify-center"
+                  animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Lightbulb className="w-2.5 h-2.5 text-white" />
+                </motion.div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <h3 className="text-sm font-bold">AI Инсайты</h3>
+                  {/* Level badge */}
+                  {levelConfig && (
+                    <Badge className={`${levelConfig.bg} ${levelConfig.color} border ${levelConfig.borderColor} text-[10px] font-semibold border-0`}>
+                      {levelConfig.label}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Dynamic insight message with AnimatePresence */}
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={aiInsight.type}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-xs text-muted-foreground leading-relaxed mb-2.5"
+                  >
+                    {aiInsight.message}
+                  </motion.p>
+                </AnimatePresence>
+
+                {/* Accuracy trend + stats row */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => onNavigate(aiInsight.actionTab)}
+                    className="text-xs font-semibold text-[#007AFF] hover:text-[#0062CC] transition-colors"
+                  >
+                    {aiInsight.actionLabel} →
+                  </button>
+
+                  {accuracyTrend && assessmentHistory.length >= 2 && (
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      <span className="text-[10px] text-muted-foreground">Тренд</span>
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={accuracyTrend}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.25 }}
+                          className="flex items-center gap-1"
+                        >
+                          {accuracyTrend === 'up' ? (
+                            <>
+                              <TrendingUp className="w-3.5 h-3.5 text-[#28CD41]" />
+                              <span className="text-[10px] font-semibold text-[#28CD41]">Рост</span>
+                            </>
+                          ) : accuracyTrend === 'down' ? (
+                            <>
+                              <TrendingDown className="w-3.5 h-3.5 text-[#FF3B30]" />
+                              <span className="text-[10px] font-semibold text-[#FF3B30]">Падение</span>
+                            </>
+                          ) : (
+                            <>
+                              <Minus className="w-3.5 h-3.5 text-[#FF9500]" />
+                              <span className="text-[10px] font-semibold text-[#FF9500]">Стабильно</span>
+                            </>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+
+                      {/* Mini score dots */}
+                      <div className="flex items-center gap-1">
+                        {assessmentHistory.slice(0, 3).map((a, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.1, duration: 0.3 }}
+                            className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold"
+                            style={{
+                              backgroundColor: a.score >= 75 ? '#E8F9EC' : a.score >= 50 ? '#FFF3CD' : '#FFE5E3',
+                              color: a.score >= 75 ? '#28CD41' : a.score >= 50 ? '#FF9500' : '#FF3B30',
+                            }}
+                          >
+                            {a.score}
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Continue Learning / Start Assessment */}
@@ -198,6 +430,15 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
             <p className="text-xs text-muted-foreground mt-0.5">Голосовой AI-помощник</p>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Learning Trajectory */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.35 }}
+      >
+        <LearningTrajectory profile={profile} />
       </motion.div>
 
       {/* Skill Map / Knowledge Radar */}
