@@ -34,7 +34,7 @@ const TOTAL_TOPICS = VET_TOPICS.length;
 function getMilestoneStatus(
   profile: StudentProfile
 ): ('completed' | 'current' | 'locked')[] {
-  const skillValues = Object.values(profile.skillMap);
+  const skillValues = Object.values(profile.skillMap).filter((v): v is number => typeof v === 'number' && !isNaN(v));
   const topicsAbove50 = skillValues.filter((v) => v > 50).length;
   const topicsAbove70 = skillValues.filter((v) => v > 70).length;
   const topicsAbove90 = skillValues.filter((v) => v > 90).length;

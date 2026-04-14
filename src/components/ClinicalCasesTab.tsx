@@ -45,6 +45,12 @@ export function ClinicalCasesTab() {
       });
       const data = await res.json();
       if (data.success) {
+        // Validate the case structure before setting it
+        if (!data.case || !Array.isArray(data.case.questions) || data.case.questions.length === 0) {
+          console.error('[ClinicalCasesTab] Invalid case structure received:', data.case);
+          toast.error('Получен некорректный формат кейса. Попробуйте ещё раз.');
+          return;
+        }
         setCurrentCase(data.case);
         setCaseAnswers(new Array(data.case.questions.length).fill(null));
         setCurrentQuestionIndex(0);
@@ -53,7 +59,11 @@ export function ClinicalCasesTab() {
         setShowFeedback(false);
         setFeedbackCorrect(false);
         addXP(5);
-        toast.success('Клинический случай сгенерирован!');
+        if (data.isFallback) {
+          toast.success('Клинический случай загружен (резервный вариант).');
+        } else {
+          toast.success('Клинический случай сгенерирован!');
+        }
       } else {
         toast.error(data.error || 'Ошибка генерации');
       }
@@ -281,7 +291,18 @@ export function ClinicalCasesTab() {
   }
 
   // Case in progress
-  const q = currentCase.questions[currentQuestionIndex];
+  const q = currentCase.questions?.[currentQuestionIndex];
+  // Guard: if question or options are missing, skip rendering
+  if (!q || !q.options || !Array.isArray(q.options)) {
+    return (
+      <div className="space-y-4 pb-4">
+        <p className="text-center text-sm text-muted-foreground py-8">Ошибка: вопрос не найден.</p>
+        <Button variant="ghost" size="sm" onClick={() => setCurrentCase(null)}>
+          <ArrowRight className="w-4 h-4 mr-1 rotate-180" /> Новый кейс
+        </Button>
+      </div>
+    );
+  }
   const isCorrect = caseAnswers[currentQuestionIndex] !== null && caseAnswers[currentQuestionIndex] === q.correctIndex;
 
   const handleRevealFeedback = () => {

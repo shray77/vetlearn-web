@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
   const { profile, assessmentHistory, caseHistory, addXP, updateStreak } = useStore();
   const accuracy = profile.totalAnswers > 0
-    ? Math.round((profile.correctAnswers / profile.totalAnswers) * 100)
+    ? Math.min(100, Math.max(0, Math.round(((profile.correctAnswers || 0) / profile.totalAnswers) * 100)))
     : 0;
   const xpInLevel = Math.max(0, Math.min(100, 100 - (profile.xpToNext || 100)));
 
@@ -64,7 +64,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
       };
     }
 
-    const weakTopics = profile.learningPath
+    const weakTopics = (profile.learningPath || [])
       .filter(p => p.priority === 'high')
       .map(p => p.topicName);
 
@@ -123,7 +123,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         return `${topic?.name || id}: ${level}%`;
       })
       .join('\n  ');
-    const learningPathText = profile.learningPath
+    const learningPathText = (profile.learningPath || [])
       .map(item => `- ${item.topicName} (${item.priority})`)
       .join('\n  ');
     const text = `🐾 VetLearn AI — Мой прогресс\n━━━━━━━━━━━━━━━━━━━━━━\n📊 Уровень: ${profile.level}\n⚡ Опыт: ${profile.xp} / ${profile.xpToNext} XP\n🔥 Серия: ${profile.streak} дней\n📝 Тестов пройдено: ${profile.assessmentsCompleted}\n🎯 Точность: ${accuracy}%\n\n🗺️ Карта знаний:\n  ${skillMapText || 'Нет данных'}\n\n📚 План обучения:\n  ${learningPathText || 'Нет данных'}\n\nСгенерировано в VetLearn AI`;
@@ -365,8 +365,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   <div>
                     <h3 className="font-semibold text-sm">Продолжить обучение</h3>
                     <p className="text-xs text-muted-foreground">
-                      {profile.learningPath.length > 0
-                        ? `${profile.learningPath.filter(p => p.priority === 'high').length} тем в приоритете`
+                      {(profile.learningPath || []).length > 0
+                        ? `${(profile.learningPath || []).filter(p => p.priority === 'high').length} тем в приоритете`
                         : 'Перейти к обучению'}
                     </p>
                   </div>

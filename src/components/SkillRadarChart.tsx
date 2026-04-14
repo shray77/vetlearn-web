@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { VET_TOPICS } from '@/lib/vet-topics';
-import { ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer } from 'recharts';
+import { PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 export function SkillRadarChart({ skillMap }: { skillMap: Record<string, number> }) {
   const data = VET_TOPICS.map(topic => ({
@@ -33,16 +32,19 @@ export function SkillRadarChart({ skillMap }: { skillMap: Record<string, number>
           fillOpacity={0.25}
           strokeWidth={2}
         />
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              formatter={(value: number) => [`${value}%`, 'Мастерство']}
-              labelFormatter={(label: string) => {
-                const item = data.find(d => d.topic === label);
-                return item?.fullName || label;
-              }}
-            />
-          }
+        <Tooltip
+          contentStyle={{
+            backgroundColor: 'hsl(var(--background))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '8px',
+            fontSize: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          }}
+          formatter={(value: number) => [`${value}%`, 'Мастерство']}
+          labelFormatter={(label: string) => {
+            const item = data.find(d => d.topic === label);
+            return item?.fullName || label;
+          }}
         />
       </RadarChart>
     </ResponsiveContainer>
