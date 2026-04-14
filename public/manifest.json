@@ -1,0 +1,17 @@
+{
+  "name": "VetLearn AI",
+  "short_name": "VetLearn",
+  "description": "AI-платформа для адаптивного обучения ветеринарной медицине",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#28CD41",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
