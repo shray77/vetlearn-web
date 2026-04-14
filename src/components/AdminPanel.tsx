@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS } from '@/lib/vet-topics';
@@ -59,12 +60,18 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
-  return (
+  // Render via portal to avoid z-index conflicts with parent elements
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end justify-center"
+      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-end justify-center"
       onClick={onClose}
     >
       <motion.div
@@ -195,6 +202,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
           <div className="h-4" />
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }
