@@ -151,3 +151,20 @@ export interface TutorChatRequest {
   context?: string;
   history?: { role: string; content: string }[];
 }
+
+export interface Flashcard {
+  id: string;
+  term: string;
+  definition: string;
+  example?: string;
+}
+
+export interface FlashcardDeck {
+  id: string;
+  topic: string;
+  subtopic?: string;
+  cards: Flashcard[];
+  known: number;
+  unknown: number;
+  createdAt: string;
+}

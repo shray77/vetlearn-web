@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Brain, Stethoscope, Mic, Lightbulb, PawPrint,
-  Info, BarChart3,
+  Info, BarChart3, Layers, GraduationCap,
 } from 'lucide-react';
 import {
   Dialog,
@@ -19,6 +19,8 @@ const NAV_ITEMS = [
   { id: 'learning', label: 'Обучение', icon: BookOpen },
   { id: 'cases', label: 'Кейсы', icon: Stethoscope },
   { id: 'tutor', label: 'Репетитор', icon: Mic },
+  { id: 'flashcards', label: 'Карточки', icon: Layers },
+  { id: 'exam', label: 'Экзамен', icon: GraduationCap },
   { id: 'resources', label: 'Ресурсы', icon: Lightbulb },
   { id: 'about', label: 'О проекте', icon: Info },
 ];
@@ -79,6 +81,20 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
                 <div>
                   <p className="font-medium text-xs">Карта знаний</p>
                   <p className="text-[11px] text-muted-foreground">Визуализация уровня знаний по всем дисциплинам в виде радарной диаграммы</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
+                <Layers className="w-4 h-4 text-[#28CD41] mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-xs">Карточки</p>
+                  <p className="text-[11px] text-muted-foreground">AI-генерированные карточки с терминами и определениями для быстрого запоминания</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
+                <GraduationCap className="w-4 h-4 text-[#E74C3C] mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-xs">Экзамен</p>
+                  <p className="text-[11px] text-muted-foreground">AI-экзаменатор в формате устного экзамена с оценкой свободных ответов</p>
                 </div>
               </div>
             </div>

@@ -9,6 +9,8 @@ import { DashboardTab } from '@/components/DashboardTab';
 import { AdaptiveLearningTab } from '@/components/AdaptiveLearningTab';
 import { ClinicalCasesTab } from '@/components/ClinicalCasesTab';
 import { VoiceTutorTab } from '@/components/VoiceTutorTab';
+import { MockExamTab } from '@/components/MockExamTab';
+import { FlashcardsTab } from '@/components/FlashcardsTab';
 import { ResourcesTab } from '@/components/ResourcesTab';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -42,6 +44,8 @@ export default function Home() {
             {activeTab === 'learning' && <ErrorBoundary><AdaptiveLearningTab /></ErrorBoundary>}
             {activeTab === 'cases' && <ErrorBoundary><ClinicalCasesTab /></ErrorBoundary>}
             {activeTab === 'tutor' && <ErrorBoundary><VoiceTutorTab /></ErrorBoundary>}
+            {activeTab === 'flashcards' && <ErrorBoundary><FlashcardsTab /></ErrorBoundary>}
+            {activeTab === 'exam' && <ErrorBoundary><MockExamTab /></ErrorBoundary>}
             {activeTab === 'resources' && <ErrorBoundary><ResourcesTab /></ErrorBoundary>}
           </motion.div>
         </AnimatePresence>

@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  Brain, TrendingUp, BarChart3, ChevronRight, CheckCircle2,
+  Brain, TrendingUp, BarChart3, ChevronRight, ChevronDown, CheckCircle2,
   Loader2, X, ArrowRight, RotateCcw, Sparkles, GraduationCap,
   Shield, Zap, Target, BookOpen, Lock, Unlock, AlertTriangle,
 } from 'lucide-react';
@@ -46,6 +46,8 @@ export function AdaptiveLearningTab() {
   const [questionCount, setQuestionCount] = useState(10);
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [checkedAnswer, setCheckedAnswer] = useState(false);
+  const [showResultsReview, setShowResultsReview] = useState(false);
 
   // ===== REAL-TIME ADAPTIVE DIFFICULTY TRACKER =====
   type DifficultyTrend = 'increasing' | 'decreasing' | 'stable';
@@ -220,6 +222,7 @@ export function AdaptiveLearningTab() {
         setPhase('adaptive_quiz');
         setQuizStartTime(Date.now());
         setElapsedSeconds(0);
+        setCheckedAnswer(false);
         addXP(5);
         toast.success(`Сгенерировано ${data.questions.length} вопросов`);
       } else {
@@ -267,6 +270,10 @@ export function AdaptiveLearningTab() {
         setAssessmentResult(result);
         setPhase('adaptive_results');
         setQuizStartTime(null);
+        setCheckedAnswer(false);
+        // Default-expand review if there are wrong answers
+        const hasWrong = answers.some((a, i) => a !== assessmentQuestions[i]?.correctIndex);
+        setShowResultsReview(hasWrong);
         addAssessmentToHistory(result);
         updateProfile({
           totalAnswers: profile.totalAnswers + assessmentQuestions.length,
@@ -284,12 +291,23 @@ export function AdaptiveLearningTab() {
   // ===== COMMON QUIZ HANDLERS =====
 
   const handleSelectAnswer = (optionIndex: number) => {
+    // Prevent changing answer after it has been checked in adaptive quiz
+    if (phase === 'adaptive_quiz' && checkedAnswer) return;
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = optionIndex;
     setAnswers(newAnswers);
   };
 
   const handleNextQuestion = () => {
+    // For adaptive quiz: first click checks the answer, second click proceeds
+    if (phase === 'adaptive_quiz' && !checkedAnswer) {
+      setCheckedAnswer(true);
+      return;
+    }
+    // Reset checked state when proceeding to next question
+    if (phase === 'adaptive_quiz') {
+      setCheckedAnswer(false);
+    }
     if (currentQuestionIndex < assessmentQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
@@ -307,6 +325,7 @@ export function AdaptiveLearningTab() {
     setAnswers([]);
     setQuizStartTime(null);
     setElapsedSeconds(0);
+    setCheckedAnswer(false);
     if (phase === 'placement_quiz') {
       setPhase('placement_intro');
     } else {
@@ -464,48 +483,139 @@ export function AdaptiveLearningTab() {
                 <Badge variant="secondary" className="mb-3 text-xs">{q.topicName}</Badge>
                 <h3 className="text-base font-semibold mb-5 leading-relaxed">{q.question}</h3>
                 <div className="space-y-2.5">
-                  {q.options.map((option, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSelectAnswer(i)}
-                      className={`w-full text-left p-3.5 rounded-xl border-2 transition-all duration-200 ${
-                        answers[currentQuestionIndex] === i
-                          ? 'border-[#28CD41] bg-[#E8F9EC] dark:bg-[#1A3D22] shadow-sm'
-                          : 'border-border hover:border-[#28CD41]/50 hover:bg-muted/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                          answers[currentQuestionIndex] === i
-                            ? 'bg-[#28CD41] text-white'
-                            : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {['А', 'Б', 'В', 'Г'][i]}
+                  {q.options.map((option, i) => {
+                    const isSelected = answers[currentQuestionIndex] === i;
+                    const isAdaptiveChecked = phase === 'adaptive_quiz' && checkedAnswer;
+                    const isCorrectOption = i === q.correctIndex;
+                    const isUserWrong = isAdaptiveChecked && isSelected && !isCorrectOption;
+
+                    let optionBorderClass = '';
+                    let letterBgClass = '';
+
+                    if (isAdaptiveChecked) {
+                      if (isCorrectOption) {
+                        optionBorderClass = 'border-[#28CD41] bg-[#E8F9EC] dark:bg-[#1A3D22] shadow-sm';
+                        letterBgClass = 'bg-[#28CD41] text-white';
+                      } else if (isUserWrong) {
+                        optionBorderClass = 'border-[#FF3B30] bg-[#FFE5E5] dark:bg-[#3D1A1A] shadow-sm';
+                        letterBgClass = 'bg-[#FF3B30] text-white';
+                      } else {
+                        optionBorderClass = 'border-border opacity-50';
+                        letterBgClass = 'bg-muted text-muted-foreground';
+                      }
+                    } else {
+                      optionBorderClass = isSelected
+                        ? 'border-[#28CD41] bg-[#E8F9EC] dark:bg-[#1A3D22] shadow-sm'
+                        : 'border-border hover:border-[#28CD41]/50 hover:bg-muted/50';
+                      letterBgClass = isSelected
+                        ? 'bg-[#28CD41] text-white'
+                        : 'bg-muted text-muted-foreground';
+                    }
+
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => handleSelectAnswer(i)}
+                        className={`w-full text-left p-3.5 rounded-xl border-2 transition-all duration-200 ${optionBorderClass}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${letterBgClass}`}>
+                            {['А', 'Б', 'В', 'Г'][i]}
+                          </div>
+                          <span className="text-sm flex-1">{option}</span>
+                          {isAdaptiveChecked && isCorrectOption && (
+                            <CheckCircle2 className="w-4 h-4 text-[#28CD41] flex-shrink-0" />
+                          )}
+                          {isUserWrong && (
+                            <X className="w-4 h-4 text-[#FF3B30] flex-shrink-0" />
+                          )}
                         </div>
-                        <span className="text-sm">{option}</span>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
+
+                {/* Explanation for adaptive quiz after checking */}
+                {phase === 'adaptive_quiz' && checkedAnswer && (
+                  <AnimatePresence>
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    >
+                      <div className="rounded-xl p-3.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-800/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          {answers[currentQuestionIndex] === q.correctIndex ? (
+                            <CheckCircle2 className="w-4 h-4 text-[#28CD41]" />
+                          ) : (
+                            <X className="w-4 h-4 text-[#FF3B30]" />
+                          )}
+                          <span className={`text-xs font-semibold ${
+                            answers[currentQuestionIndex] === q.correctIndex
+                              ? 'text-[#28CD41]'
+                              : 'text-[#FF3B30]'
+                          }`}>
+                            {answers[currentQuestionIndex] === q.correctIndex
+                              ? 'Правильно!'
+                              : 'Неправильно'
+                            }
+                          </span>
+                        </div>
+                        {q.explanation && (
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {q.explanation}
+                          </p>
+                        )}
+                        {answers[currentQuestionIndex] !== q.correctIndex && (
+                          <div className="mt-2 pt-2 border-t border-blue-200/50 dark:border-blue-800/30">
+                            <p className="text-xs text-[#28CD41] font-medium">
+                              Правильный ответ: {['А', 'Б', 'В', 'Г'][q.correctIndex]}. {q.options[q.correctIndex]}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
               </CardContent>
             </Card>
           </motion.div>
         </AnimatePresence>
 
         <Button
-          className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-12 text-sm font-semibold"
+          className={`w-full squircle-sm h-12 text-sm font-semibold ${
+            phase === 'adaptive_quiz' && checkedAnswer
+              ? 'bg-[#007AFF] hover:bg-[#0066CC] text-white'
+              : 'bg-[#28CD41] hover:bg-[#1FA833] text-white'
+          }`}
           onClick={handleNextQuestion}
           disabled={answers[currentQuestionIndex] === null}
         >
-          {currentQuestionIndex < assessmentQuestions.length - 1 ? (
-            <>Следующий вопрос <ChevronRight className="w-4 h-4 ml-1" /></>
-          ) : (
-            isAnalyzing ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Анализирую...</>
-            ) : isPlacementPhase ? (
-              <>Завершить тестирование <GraduationCap className="w-4 h-4 ml-1" /></>
+          {/* Adaptive quiz: two-step flow (check → continue) */}
+          {phase === 'adaptive_quiz' ? (
+            checkedAnswer ? (
+              currentQuestionIndex < assessmentQuestions.length - 1 ? (
+                <>Продолжить <ChevronRight className="w-4 h-4 ml-1" /></>
+              ) : (
+                isAnalyzing ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Анализирую...</>
+                ) : (
+                  <>Завершить тест <Sparkles className="w-4 h-4 ml-1" /></>
+                )
+              )
             ) : (
-              <>Завершить тест <Sparkles className="w-4 h-4 ml-1" /></>
+              <>Проверить ответ <CheckCircle2 className="w-4 h-4 ml-1" /></>
+            )
+          ) : (
+            /* Placement quiz: simple flow */
+            currentQuestionIndex < assessmentQuestions.length - 1 ? (
+              <>Следующий вопрос <ChevronRight className="w-4 h-4 ml-1" /></>
+            ) : (
+              isAnalyzing ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Анализирую...</>
+              ) : (
+                <>Завершить тестирование <GraduationCap className="w-4 h-4 ml-1" /></>
+              )
             )
           )}
         </Button>
@@ -776,11 +886,104 @@ export function AdaptiveLearningTab() {
               setQuizStartTime(Date.now());
               setElapsedSeconds(0);
               setAssessmentResult(null);
+              setCheckedAnswer(false);
             }}
           >
             <RotateCcw className="w-4 h-4 mr-2" /> Повторить ошибки ({wrongQuestions.length})
           </Button>
         )}
+
+        {/* Detailed Question Review Section */}
+        <Card className="squircle-sm border-0 shadow-sm">
+          <CardContent className="p-4">
+            <button
+              onClick={() => setShowResultsReview(prev => !prev)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#007AFF]" /> Разбор вопросов
+              </h3>
+              <motion.div
+                animate={{ rotate: showResultsReview ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {showResultsReview && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3 space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar">
+                    {assessmentResult.questions.map((q: any, i: number) => {
+                      const userAnswer = assessmentResult.answers[i];
+                      const isCorrect = userAnswer === q.correctIndex;
+
+                      return (
+                        <div
+                          key={i}
+                          className={`rounded-xl p-3 border ${
+                            isCorrect
+                              ? 'bg-[#E8F9EC]/50 dark:bg-[#1A3D22]/30 border-[#28CD41]/20'
+                              : 'bg-[#FFE5E5]/50 dark:bg-[#3D1A1A]/30 border-[#FF3B30]/20'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2 mb-1.5">
+                            {isCorrect ? (
+                              <CheckCircle2 className="w-4 h-4 text-[#28CD41] mt-0.5 flex-shrink-0" />
+                            ) : (
+                              <X className="w-4 h-4 text-[#FF3B30] mt-0.5 flex-shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] text-muted-foreground mb-0.5">
+                                Вопрос {i + 1} из {assessmentResult.questions.length}
+                              </p>
+                              <p className="text-sm font-medium leading-relaxed">{q.question}</p>
+                            </div>
+                          </div>
+
+                          {isCorrect ? (
+                            <div className="ml-6 mt-1">
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-[#28CD41]">
+                                <CheckCircle2 className="w-3 h-3" /> Правильно!
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="ml-6 mt-1.5 space-y-1.5">
+                              <div className="text-xs">
+                                <span className="text-[#FF3B30]">
+                                  Ваш ответ: {['А', 'Б', 'В', 'Г'][userAnswer]}. {q.options[userAnswer]}
+                                </span>
+                              </div>
+                              <div className="text-xs">
+                                <span className="text-[#28CD41] font-medium">
+                                  Правильный ответ: {['А', 'Б', 'В', 'Г'][q.correctIndex]}. {q.options[q.correctIndex]}
+                                </span>
+                              </div>
+                              {q.explanation && (
+                                <div className="mt-1.5 p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-800/30">
+                                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                    {q.explanation}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </CardContent>
+        </Card>
 
         <Button
           className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-12"

@@ -68,3 +68,33 @@ Stage Summary:
 - Созданные файлы: /src/components/LearningTrajectory.tsx
 - Изменённые файлы: DashboardTab.tsx, globals.css
 - 7 вех: Начало → Диагностика → Фундамент → Клиническое мышление → Кейсы → Эксперт → Мастер
+---
+Task ID: 1-4
+Agent: Main Agent (4 parallel subagents)
+Task: Implement 4 new features: Flashcards, Wrong Answer Explanations, AI Mock Exam, PWA
+
+Work Log:
+- Created API route /api/flashcards/generate (AI-generated veterinary flashcards)
+- Created FlashcardsTab component (3D flip, quiz mode, keyboard support)
+- Added flashcard types to types.ts and store state to store.ts
+- Modified AdaptiveLearningTab to add per-question feedback during adaptive quiz
+- Added collapsible "Разбор вопросов" section in adaptive results
+- Created API route /api/exam (conversational AI examiner with start/answer actions)
+- Created MockExamTab component (free-text exam with AI evaluation)
+- Created service worker /public/sw.js (cache-first for static, network-first for API)
+- Created ServiceWorkerRegistration component with offline banner
+- Generated PWA icons (192px, 512px)
+- Updated manifest.json with categories, scope, new icons
+- Updated BottomNav with flashcards + exam entries
+- Updated page.tsx with new tab routes
+- Fixed useSyncExternalStore SSR issue (replaced with useState+useEffect)
+- Build verified: compiled successfully, all 15 routes generated
+
+Stage Summary:
+- 4 new components created: FlashcardsTab, MockExamTab, ServiceWorkerRegistration
+- 2 new API routes: /api/flashcards/generate, /api/exam
+- 1 new static asset: /public/sw.js
+- 3 icons: logo.svg, icon-192.png, icon-512.png
+- Modified files: store.ts, types.ts, page.tsx, layout.tsx, BottomNav.tsx, AdaptiveLearningTab.tsx, manifest.json
+- Bottom nav now has 8 items (may need optimization for mobile)
+- All features build successfully

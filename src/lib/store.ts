@@ -7,6 +7,8 @@ import {
   TutorMessage,
   Resource,
   LearningPathItem,
+  Flashcard,
+  FlashcardDeck,
 } from './types';
 
 const DEFAULT_PROFILE: StudentProfile = {
@@ -72,6 +74,12 @@ interface VetLearnStore {
 
   // Learning Path
   updateLearningPath: (path: LearningPathItem[]) => void;
+
+  // Flashcards
+  flashcards: Flashcard[];
+  setFlashcards: (cards: Flashcard[]) => void;
+  flashcardHistory: FlashcardDeck[];
+  addFlashcardDeckToHistory: (deck: FlashcardDeck) => void;
 
   // UI State
   activeTab: string;
@@ -191,6 +199,15 @@ export const useStore = create<VetLearnStore>()(
           profile: { ...state.profile, learningPath: path },
         })),
 
+      // Flashcards
+      flashcards: [],
+      setFlashcards: (cards) => set({ flashcards: cards }),
+      flashcardHistory: [],
+      addFlashcardDeckToHistory: (deck) =>
+        set((state) => ({
+          flashcardHistory: [deck, ...state.flashcardHistory].slice(0, 30),
+        })),
+
       // UI State
       activeTab: 'dashboard',
       setActiveTab: (tab) => set({ activeTab: tab }),
@@ -264,6 +281,8 @@ export const useStore = create<VetLearnStore>()(
           tutorMessages: [],
           resources: [],
           bookmarkedResources: [],
+          flashcards: [],
+          flashcardHistory: [],
           activeTab: 'dashboard',
           isAssessmentActive: false,
           isCaseActive: false,
