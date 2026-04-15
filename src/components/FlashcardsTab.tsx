@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS } from '@/lib/vet-topics';
 import type { Flashcard, FlashcardDeck } from '@/lib/types';
@@ -38,6 +38,8 @@ export function FlashcardsTab() {
 
   // Results
   const [showResults, setShowResults] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedTopicData = VET_TOPICS.find(t => t.id === selectedTopic);
   const subtopics = selectedTopicData?.subtopics || [];
@@ -104,7 +106,9 @@ export function FlashcardsTab() {
       setIsFlipped(false);
       setIsRevealed(false);
     } else if (mode === 'quiz') {
-      // Quiz finished
+      finishQuiz();
+    } else {
+      // Learn mode: finished, show results or just go back
       finishQuiz();
     }
   };
@@ -164,6 +168,13 @@ export function FlashcardsTab() {
 
   const currentCard = flashcards[currentIndex];
 
+  // Scroll to top when entering deck view
+  useEffect(() => {
+    if (hasFlashcards && !showResults && containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [hasFlashcards, showResults]);
+
   // Keyboard navigation
   useEffect(() => {
     if (!hasFlashcards || showResults) return;
@@ -195,7 +206,7 @@ export function FlashcardsTab() {
   // === GENERATION VIEW ===
   if (!hasFlashcards) {
     return (
-      <div className="space-y-4 pb-4">
+      <div className="space-y-4 pb-4" ref={containerRef}>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <h2 className="text-lg font-bold mb-1">AI Карточки</h2>
           <p className="text-sm text-muted-foreground">Сгенерируйте карточки для запоминания ветеринарных терминов</p>
@@ -349,7 +360,7 @@ export function FlashcardsTab() {
     const pct = total > 0 ? Math.round((knownCards.size / total) * 100) : 0;
 
     return (
-      <div className="space-y-4 pb-4">
+      <div className="space-y-4 pb-4" ref={containerRef}>
         <Button variant="ghost" size="sm" onClick={handleBackToGen}>
           <RotateCcw className="w-4 h-4 mr-1" /> Новые карточки
         </Button>
@@ -412,8 +423,13 @@ export function FlashcardsTab() {
     ? ((currentIndex + 1) / flashcards.length) * 100
     : 0;
 
+  const isLastCard = currentIndex >= flashcards.length - 1;
+
+  // In quiz mode on last card, must reveal before finishing
+  const isNextDisabled = mode === 'quiz' && !isRevealed && isLastCard;
+
   return (
-    <div className="space-y-4 pb-4">
+    <div className="space-y-4 pb-4" ref={containerRef}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={handleExit}>
@@ -455,102 +471,96 @@ export function FlashcardsTab() {
         <Progress value={progressPct} className="h-1.5" />
       </div>
 
-      {/* Card */}
+      {/* Card — simple fade between cards, 3D flip inside */}
       {currentCard && (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -30 }}
+          transition={{ duration: 0.25 }}
+        >
+          <div
+            className="cursor-pointer select-none"
+            onClick={() => {
+              if (mode === 'learn') {
+                setIsFlipped(prev => !prev);
+              } else if (!isRevealed) {
+                setIsRevealed(true);
+                setIsFlipped(true);
+              }
+            }}
+            style={{ perspective: '1000px' }}
           >
-            <div
-              className="perspective-1000 cursor-pointer select-none"
-              onClick={() => {
-                if (mode === 'learn') {
-                  setIsFlipped(prev => !prev);
-                } else if (!isRevealed) {
-                  setIsRevealed(true);
-                  setIsFlipped(true);
-                }
-              }}
-              style={{ perspective: '1000px' }}
+            <motion.div
+              className="relative w-full"
+              style={{ minHeight: '280px' }}
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.5, type: 'spring', stiffness: 200, damping: 25 }}
             >
-              <motion.div
-                className="relative w-full"
-                style={{ minHeight: '280px' }}
-                animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.5, type: 'spring', stiffness: 260, damping: 30 }}
+              {/* Front of card (term) */}
+              <div
+                className="absolute inset-0 w-full"
+                style={{ backfaceVisibility: 'hidden' }}
               >
-                {/* Front of card */}
-                <div
-                  className="absolute inset-0 w-full"
-                  style={{ backfaceVisibility: 'hidden' }}
-                >
-                  <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 h-[280px] flex flex-col justify-between">
-                    <CardContent className="p-5 flex flex-col h-full justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-4">
-                          <Badge variant="outline" className="text-[10px]">
-                            #{currentIndex + 1}
-                          </Badge>
-                          {!isFlipped && (
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              className="text-[10px] text-muted-foreground"
-                            >
-                              {mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
-                            </motion.div>
-                          )}
-                        </div>
-                        <div className="flex-1 flex items-center justify-center">
-                          <h3 className="text-xl font-bold text-center leading-tight">
-                            {currentCard.term}
-                          </h3>
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <span className="text-xs text-muted-foreground">Термин</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Back of card */}
-                <div
-                  className="absolute inset-0 w-full"
-                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-                >
-                  <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 h-[280px] flex flex-col justify-between">
-                    <CardContent className="p-5 flex flex-col h-full justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <Badge className="text-[10px] bg-[#007AFF] text-white">
-                            Определение
-                          </Badge>
-                        </div>
-                        <p className="text-sm leading-relaxed font-medium">
-                          {currentCard.definition}
-                        </p>
-                        {currentCard.example && (
-                          <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border/30">
-                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Пример:</p>
-                            <p className="text-xs leading-relaxed">{currentCard.example}</p>
-                          </div>
+                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 h-[280px] flex flex-col justify-between">
+                  <CardContent className="p-5 flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge variant="outline" className="text-[10px]">
+                          #{currentIndex + 1}
+                        </Badge>
+                        {!isFlipped && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
+                          </span>
                         )}
                       </div>
-                      <div className="text-center">
-                        <span className="text-xs text-muted-foreground">{currentCard.term}</span>
+                      <div className="flex-1 flex items-center justify-center">
+                        <h3 className="text-xl font-bold text-center leading-tight">
+                          {currentCard.term}
+                        </h3>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                    </div>
+                    <div className="text-center">
+                      <span className="text-xs text-muted-foreground">Термин</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Back of card (definition) */}
+              <div
+                className="absolute inset-0 w-full"
+                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+              >
+                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 h-[280px] flex flex-col justify-between">
+                  <CardContent className="p-5 flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge className="text-[10px] bg-[#007AFF] text-white">
+                          Определение
+                        </Badge>
+                      </div>
+                      <p className="text-sm leading-relaxed font-medium">
+                        {currentCard.definition}
+                      </p>
+                      {currentCard.example && (
+                        <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border/30">
+                          <p className="text-[10px] font-medium text-muted-foreground mb-1">Пример:</p>
+                          <p className="text-xs leading-relaxed">{currentCard.example}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <span className="text-xs text-muted-foreground">{currentCard.term}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       )}
 
       {/* Quiz mode: rate buttons */}
@@ -615,19 +625,11 @@ export function FlashcardsTab() {
           variant="outline"
           size="sm"
           onClick={handleNext}
-          disabled={
-            mode === 'quiz' && !isRevealed
-              ? currentIndex >= flashcards.length - 1
-              : currentIndex >= flashcards.length - 1
-          }
+          disabled={isNextDisabled}
           className="squircle-sm h-10"
         >
-          {currentIndex === flashcards.length - 1 && (mode === 'learn' || isRevealed) ? (
-            mode === 'quiz' ? (
-              <><Trophy className="w-4 h-4 mr-1" /> Результат</>
-            ) : (
-              <><Sparkles className="w-4 h-4 mr-1" /> Готово</>
-            )
+          {isLastCard ? (
+            <><Trophy className="w-4 h-4 mr-1" /> Готово</>
           ) : (
             <>Далее <ChevronRight className="w-4 h-4 ml-1" /></>
           )}

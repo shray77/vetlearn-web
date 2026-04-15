@@ -194,7 +194,22 @@ function validateAndFixCase(data: any): ClinicalCase | null {
         question: q.question,
         type: q.type || 'diagnosis',
         options: Array.isArray(q.options) && q.options.length >= 2
-          ? q.options.map(String)
+          ? q.options.map((opt: unknown) => {
+              // If option is an object, stringify it properly or use default
+              if (typeof opt === 'string') return opt;
+              if (opt && typeof opt === 'object') {
+                // Try to extract a text field from the object
+                const obj = opt as Record<string, unknown>;
+                if (typeof obj.text === 'string') return obj.text;
+                if (typeof obj.value === 'string') return obj.value;
+                if (typeof obj.label === 'string') return obj.label;
+                if (typeof obj.answer === 'string') return obj.answer;
+                // Last resort: JSON stringify, but truncate if too long
+                const jsonStr = JSON.stringify(opt);
+                return jsonStr.length > 100 ? `Вариант ${String.fromCharCode(1040 + validQuestions.length)}` : jsonStr;
+              }
+              return String(opt);
+            })
           : ['Вариант А', 'Вариант Б', 'Вариант В', 'Вариант Г'],
         correctIndex: typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < (q.options?.length || 4)
           ? q.correctIndex

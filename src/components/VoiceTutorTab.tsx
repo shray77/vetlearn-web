@@ -73,13 +73,15 @@ export function VoiceTutorTab() {
     setIsLoading(true);
     try {
       const history = tutorMessages.slice(-10).map(m => ({ role: m.role, content: m.content }));
+      const topicName = selectedTopic ? VET_TOPICS.find(t => t.id === selectedTopic)?.name : undefined;
       const res = await fetch('/api/tutor/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
-          topic: selectedTopic || undefined,
-          context: `Студент уровня ${profile.level},.accuracy: ${profile.totalAnswers > 0 ? Math.round((profile.correctAnswers / profile.totalAnswers) * 100) : 0}%`,
+          topic: topicName || undefined,
+          topicId: selectedTopic || undefined,
+          context: `Студент уровня ${profile.level}, точность: ${profile.totalAnswers > 0 ? Math.round((profile.correctAnswers / profile.totalAnswers) * 100) : 0}%. ${topicName ? `Фокус на теме: ${topicName}. Отвечай ТОЛЬКО по этой теме, если вопрос не связан — мягко перенаправляй.` : ''}`,
           history,
         }),
       });
