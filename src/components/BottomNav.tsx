@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  BookOpen, Brain, Stethoscope, Mic, Lightbulb, PawPrint,
-  Info, BarChart3, Layers, GraduationCap,
+  BookOpen, Stethoscope, Mic, Lightbulb, PawPrint,
+  Info, BarChart3, Layers, GraduationCap, Grid3X3,
 } from 'lucide-react';
 import {
   Dialog,
@@ -13,18 +13,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 
-const NAV_ITEMS = [
+// ===== MAIN TABS (always visible in bottom bar) =====
+const MAIN_TABS = [
   { id: 'dashboard', label: 'Главная', icon: PawPrint },
   { id: 'learning', label: 'Обучение', icon: BookOpen },
   { id: 'cases', label: 'Кейсы', icon: Stethoscope },
   { id: 'tutor', label: 'Репетитор', icon: Mic },
-  { id: 'flashcards', label: 'Карточки', icon: Layers },
-  { id: 'exam', label: 'Экзамен', icon: GraduationCap },
-  { id: 'resources', label: 'Ресурсы', icon: Lightbulb },
-  { id: 'about', label: 'О проекте', icon: Info },
 ];
 
+// ===== EXTRA TABS (in "Ещё" sheet) =====
+const EXTRA_TABS = [
+  { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#28CD41', desc: 'Термин ↔ определение' },
+  { id: 'exam', label: 'Экзамен', icon: GraduationCap, color: '#E74C3C', desc: 'Устный ИИ-экзамен' },
+  { id: 'resources', label: 'Ресурсы', icon: Lightbulb, color: '#FF9500', desc: 'Учебные материалы' },
+];
+
+// ===== ABOUT MODAL =====
 function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,20 +82,6 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Lightbulb className="w-4 h-4 text-[#FF9500] mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium text-xs">Ресурсы</p>
-                  <p className="text-[11px] text-muted-foreground">Персонализированные учебные материалы и рекомендации на основе знаний</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <BarChart3 className="w-4 h-4 text-[#FF3B30] mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium text-xs">Карта знаний</p>
-                  <p className="text-[11px] text-muted-foreground">Визуализация уровня знаний по всем дисциплинам в виде радарной диаграммы</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
                 <Layers className="w-4 h-4 text-[#28CD41] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Карточки</p>
@@ -95,6 +93,20 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
                 <div>
                   <p className="font-medium text-xs">Экзамен</p>
                   <p className="text-[11px] text-muted-foreground">AI-экзаменатор в формате устного экзамена с оценкой свободных ответов</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
+                <Lightbulb className="w-4 h-4 text-[#FF9500] mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-xs">Ресурсы</p>
+                  <p className="text-[11px] text-muted-foreground">Персонализированные учебные материалы и рекомендации на основе знаний</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
+                <BarChart3 className="w-4 h-4 text-[#FF3B30] mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-xs">Карта знаний</p>
+                  <p className="text-[11px] text-muted-foreground">Визуализация уровня знаний по всем дисциплинам в виде радарной диаграммы</p>
                 </div>
               </div>
             </div>
@@ -109,7 +121,7 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
           </div>
           <div className="p-3 rounded-xl bg-[#28CD41]/5 border border-[#28CD41]/20">
             <p className="text-xs text-center text-muted-foreground">
-              🏆 Создано для конкурса «Центр-инвест»
+              Создано для конкурса «Центр-инвест»
             </p>
           </div>
         </div>
@@ -118,26 +130,34 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
   );
 }
 
+// ===== MAIN NAVIGATION =====
 export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) {
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  const isExtraTabActive = EXTRA_TABS.some(t => t.id === activeTab);
+
+  const handleTabClick = (tabId: string) => {
+    setMoreOpen(false);
+    if (tabId === 'about') {
+      setAboutOpen(true);
+    } else {
+      onTabChange(tabId);
+    }
+  };
 
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
-        <div className="max-w-4xl mx-auto flex items-center justify-around h-16 px-1">
-          {NAV_ITEMS.map((item) => {
+        <div className="max-w-4xl mx-auto flex items-center justify-around h-16 px-2">
+          {/* 4 main tabs */}
+          {MAIN_TABS.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => {
-                  if (item.id === 'about') {
-                    setAboutOpen(true);
-                  } else {
-                    onTabChange(item.id);
-                  }
-                }}
-                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-all duration-200 ${
+                onClick={() => onTabChange(item.id)}
+                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-xl transition-all duration-200 ${
                   isActive
                     ? 'text-[#28CD41]'
                     : 'text-muted-foreground hover:text-foreground'
@@ -158,8 +178,91 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
               </button>
             );
           })}
+
+          {/* "Ещё" button */}
+          <button
+            onClick={() => setMoreOpen(true)}
+            className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-xl transition-all duration-200 ${
+              isExtraTabActive
+                ? 'text-[#007AFF]'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <div className="relative">
+              <Grid3X3 className={`w-5 h-5 transition-transform duration-200 ${isExtraTabActive ? 'scale-110' : ''}`} />
+              {isExtraTabActive && (
+                <motion.div
+                  layoutId="nav-dot"
+                  className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#007AFF]"
+                />
+              )}
+            </div>
+            <span className={`text-[10px] font-medium ${isExtraTabActive ? 'font-semibold text-[#007AFF]' : ''}`}>
+              Ещё
+            </span>
+          </button>
         </div>
       </nav>
+
+      {/* "Ещё" bottom sheet */}
+      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[70vh] px-4 pb-8">
+          <SheetHeader className="text-left mb-2">
+            <SheetTitle className="text-base">Разделы</SheetTitle>
+            <SheetDescription className="text-xs">
+              Выберите раздел для перехода
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="grid gap-2">
+            {EXTRA_TABS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleTabClick(item.id)}
+                  className={`flex items-center gap-4 p-3.5 rounded-2xl border-2 transition-all duration-200 ${
+                    isActive
+                      ? 'border-[#007AFF]/30 bg-[#007AFF]/5'
+                      : 'border-transparent bg-muted/50 hover:bg-muted active:scale-[0.98]'
+                  }`}
+                >
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: `${item.color}15` }}
+                  >
+                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-semibold">{item.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{item.desc}</p>
+                  </div>
+                  {isActive && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#007AFF] shrink-0" />
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Divider + About */}
+            <div className="border-t border-border/50 my-1" />
+
+            <button
+              onClick={() => { setMoreOpen(false); setAboutOpen(true); }}
+              className="flex items-center gap-4 p-3.5 rounded-2xl bg-muted/50 hover:bg-muted transition-all active:scale-[0.98]"
+            >
+              <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                <Info className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold">О проекте</p>
+                <p className="text-[11px] text-muted-foreground">Информация о VetLearn AI</p>
+              </div>
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
     </>
   );
