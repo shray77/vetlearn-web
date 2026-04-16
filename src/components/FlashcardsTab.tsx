@@ -473,97 +473,90 @@ export function FlashcardsTab() {
         <Progress value={progressPct} className="h-1.5" />
       </div>
 
-      {/* Card — CSS 3D flip, NO Framer Motion (it breaks preserve-3d) */}
+      {/* Card — crossfade between term and definition */}
       {currentCard && (
-        <div key={currentIndex}>
+        <div key={currentIndex} className="cursor-pointer select-none" onClick={() => {
+          if (mode === 'learn') {
+            setIsFlipped(prev => !prev);
+          } else if (!isRevealed) {
+            setIsRevealed(true);
+            setIsFlipped(true);
+          }
+        }}>
+          {/* Front: term */}
           <div
-            className="cursor-pointer select-none"
-            style={{ perspective: '1200px' }}
-            onClick={() => {
-              if (mode === 'learn') {
-                setIsFlipped(prev => !prev);
-              } else if (!isRevealed) {
-                setIsRevealed(true);
-                setIsFlipped(true);
-              }
+            className="relative"
+            style={{
+              height: '280px',
+              opacity: isFlipped ? 0 : 1,
+              transform: isFlipped ? 'scale(0.95)' : 'scale(1)',
+              transition: 'opacity 0.3s ease, transform 0.3s ease',
+              pointerEvents: isFlipped ? 'none' : 'auto',
+              position: isFlipped ? 'absolute' : 'relative',
+              inset: isFlipped ? 0 : undefined,
+              zIndex: isFlipped ? 0 : 1,
             }}
           >
-            {/* Flip container — pure CSS 3D */}
-            <div
-              className="relative w-full"
-              style={{
-                height: '280px',
-                transformStyle: 'preserve-3d',
-                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-              }}
-            >
-              {/* Front of card (term) */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                }}
-              >
-                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 w-full h-full flex flex-col justify-between overflow-hidden">
-                  <CardContent className="p-5 flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge variant="outline" className="text-[10px]">
-                          #{currentIndex + 1}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground">
-                          {mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
-                        </span>
-                      </div>
-                      <div className="flex-1 flex items-center justify-center">
-                        <h3 className="text-xl font-bold text-center leading-tight">
-                          {currentCard.term}
-                        </h3>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <span className="text-xs text-muted-foreground">Термин</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+            <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 w-full h-full flex flex-col justify-between">
+              <CardContent className="p-5 flex flex-col h-full justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge variant="outline" className="text-[10px]">
+                      #{currentIndex + 1}
+                    </Badge>
+                    <span className="text-[10px] text-muted-foreground">
+                      {mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
+                    </span>
+                  </div>
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="text-xl font-bold text-center leading-tight">
+                      {currentCard.term}
+                    </h3>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground">Термин</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              {/* Back of card (definition) */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                  transform: 'rotateY(180deg)',
-                }}
-              >
-                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 w-full h-full flex flex-col justify-between overflow-hidden">
-                  <CardContent className="p-5 flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <Badge className="text-[10px] bg-[#007AFF] text-white">
-                          Определение
-                        </Badge>
-                      </div>
-                      <p className="text-sm leading-relaxed font-medium">
-                        {currentCard.definition}
-                      </p>
-                      {currentCard.example && (
-                        <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border/30">
-                          <p className="text-[10px] font-medium text-muted-foreground mb-1">Пример:</p>
-                          <p className="text-xs leading-relaxed">{currentCard.example}</p>
-                        </div>
-                      )}
+          {/* Back: definition */}
+          <div
+            style={{
+              height: '280px',
+              opacity: isFlipped ? 1 : 0,
+              transform: isFlipped ? 'scale(1)' : 'scale(0.95)',
+              transition: 'opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s',
+              pointerEvents: isFlipped ? 'auto' : 'none',
+              position: isFlipped ? 'relative' : 'absolute',
+              inset: isFlipped ? undefined : 0,
+              zIndex: isFlipped ? 1 : 0,
+            }}
+          >
+            <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 w-full h-full flex flex-col justify-between">
+              <CardContent className="p-5 flex flex-col h-full justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge className="text-[10px] bg-[#007AFF] text-white">
+                      Определение
+                    </Badge>
+                  </div>
+                  <p className="text-sm leading-relaxed font-medium">
+                    {currentCard.definition}
+                  </p>
+                  {currentCard.example && (
+                    <div className="mt-3 p-2.5 rounded-lg bg-muted/50 border border-border/30">
+                      <p className="text-[10px] font-medium text-muted-foreground mb-1">Пример:</p>
+                      <p className="text-xs leading-relaxed">{currentCard.example}</p>
                     </div>
-                    <div className="text-center">
-                      <span className="text-xs text-muted-foreground">{currentCard.term}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground">{currentCard.term}</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
