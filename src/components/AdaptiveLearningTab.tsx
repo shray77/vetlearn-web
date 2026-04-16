@@ -66,8 +66,8 @@ export function AdaptiveLearningTab() {
 
     if (correctCount === window.length) return 'increasing';
     if (correctCount === 0) return 'decreasing';
-    if (correctCount >= window.length * 0.75) return 'increasing';
-    if (correctCount <= window.length * 0.25) return 'decreasing';
+    if (correctCount >= window.length * 0.9) return 'increasing';
+    if (correctCount <= window.length * 0.4) return 'decreasing';
     return 'stable';
   }, [answers, currentQuestionIndex, assessmentQuestions]);
 
@@ -629,16 +629,19 @@ export function AdaptiveLearningTab() {
       beginner: 'Начинающий',
       intermediate: 'Средний',
       advanced: 'Продвинутый',
+      expert: 'Экспертный',
     };
     const levelColors: Record<string, string> = {
       beginner: '#28CD41',
       intermediate: '#FF9500',
       advanced: '#FF3B30',
+      expert: '#AF52DE',
     };
     const levelIcons: Record<string, string> = {
       beginner: '🌱',
       intermediate: '🔥',
       advanced: '👑',
+      expert: '⭐',
     };
 
     const level = assessmentResult.level;

@@ -5,7 +5,7 @@
 import type { AssessmentQuestion } from './types';
 
 export interface QuestionBankItem extends AssessmentQuestion {
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
 }
 
 // ===== ФАРМАКОЛОГИЯ =====
@@ -901,7 +901,7 @@ export function determineLevel(
   questions: AssessmentQuestion[],
   answers: (number | null)[]
 ): {
-  level: 'beginner' | 'intermediate' | 'advanced';
+  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
   score: number;
   beginnerScore: number;
   intermediateScore: number;
@@ -953,11 +953,13 @@ export function determineLevel(
   const advancedScore = advancedTotal > 0 ? Math.round((advancedCorrect / advancedTotal) * 100) : 0;
 
   // Алгоритм определения уровня
-  let level: 'beginner' | 'intermediate' | 'advanced';
+  let level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
-  if (score >= 80 && advancedScore >= 60) {
+  if (score >= 90 && advancedScore >= 70) {
+    level = 'expert';
+  } else if (score >= 75 && advancedScore >= 50) {
     level = 'advanced';
-  } else if (score >= 50 && intermediateScore >= 50) {
+  } else if (score >= 40 && intermediateScore >= 40) {
     level = 'intermediate';
   } else {
     level = 'beginner';
@@ -969,9 +971,9 @@ export function determineLevel(
 
   for (const [topicId, topicStats] of Object.entries(stats)) {
     const pct = topicStats.total > 0 ? Math.round((topicStats.correct / topicStats.total) * 100) : 0;
-    if (pct < 50) {
+    if (pct < 40) {
       weakTopics.push(topicStats.topicName);
-    } else if (pct >= 80) {
+    } else if (pct >= 90) {
       strongTopics.push(topicStats.topicName);
     }
   }
@@ -1002,7 +1004,7 @@ function shuffleArray<T>(array: T[]): T[] {
  */
 export function getStaticQuestionsForTopic(
   topicId: string,
-  difficulty: 'beginner' | 'intermediate' | 'advanced',
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert',
   count: number = 5
 ): AssessmentQuestion[] {
   const filtered = QUESTION_BANK.filter(

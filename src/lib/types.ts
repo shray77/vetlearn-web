@@ -17,7 +17,7 @@ export interface StudentProfile {
   joinedDate: string;
   avatarUrl?: string;
   // Placement Test — определённый уровень студента
-  determinedLevel?: 'beginner' | 'intermediate' | 'advanced' | null;
+  determinedLevel?: 'beginner' | 'intermediate' | 'advanced' | 'expert' | null;
   placementCompleted?: boolean;
   placementScore?: number;
   placementDate?: string;
@@ -136,7 +136,7 @@ export interface VetSubtopic {
 }
 
 export type SpeciesType = 'КРС' | 'МРС' | 'свиньи' | 'птица' | 'собаки' | 'кошки' | 'лошади';
-export type DifficultyType = 'beginner' | 'intermediate' | 'advanced';
+export type DifficultyType = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
 export interface CaseGenerationParams {
   species: SpeciesType;
