@@ -108,7 +108,9 @@ export function FlashcardsTab() {
     } else if (mode === 'quiz') {
       finishQuiz();
     } else {
-      // Learn mode: finished, show results or just go back
+      // Learn mode: mark all as "known" and finish
+      flashcards.forEach(c => knownCards.add(c.id));
+      setKnownCards(new Set(knownCards));
       finishQuiz();
     }
   };
@@ -494,9 +496,9 @@ export function FlashcardsTab() {
           >
             <motion.div
               className="relative w-full"
-              style={{ minHeight: '280px' }}
+              style={{ minHeight: '280px', transformStyle: 'preserve-3d' }}
               animate={{ rotateY: isFlipped ? 180 : 0 }}
-              transition={{ duration: 0.5, type: 'spring', stiffness: 200, damping: 25 }}
+              transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             >
               {/* Front of card (term) */}
               <div
@@ -622,11 +624,10 @@ export function FlashcardsTab() {
         </div>
 
         <Button
-          variant="outline"
           size="sm"
           onClick={handleNext}
           disabled={isNextDisabled}
-          className="squircle-sm h-10"
+          className={`squircle-sm h-10 font-semibold ${isLastCard ? 'bg-[#28CD41] hover:bg-[#1FA833] text-white' : 'bg-[#007AFF] hover:bg-[#0066DD] text-white'}`}
         >
           {isLastCard ? (
             <><Trophy className="w-4 h-4 mr-1" /> Готово</>
