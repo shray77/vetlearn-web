@@ -95,7 +95,7 @@ interface VetLearnStore {
 
   // Placement Test
   savePlacementResult: (data: {
-    level: 'beginner' | 'intermediate' | 'advanced';
+    level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
     score: number;
     beginnerScore: number;
     intermediateScore: number;

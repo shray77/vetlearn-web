@@ -102,6 +102,58 @@ export const VET_TOPICS: VetTopic[] = [
       { id: 'coagulopathy', name: 'Коагулопатии', parentTopicId: 'hematology', description: 'Нарушения свёртываемости, терапия', questionCount: 14 },
     ],
   },
+  {
+    id: 'anatomy',
+    name: 'Анатомия и физиология',
+    icon: '🦴',
+    color: '#8B6914',
+    description: 'Опорно-двигательная, сердечно-сосудистая, пищеварительная, нервная системы',
+    subtopics: [
+      { id: 'musculoskeletal', name: 'Опорно-двигательная система', parentTopicId: 'anatomy', description: 'Кости, суставы, мышцы, связки', questionCount: 20 },
+      { id: 'cardiovascular_anat', name: 'Сердечно-сосудистая система', parentTopicId: 'anatomy', description: 'Сердце, сосуды, кровообращение', questionCount: 18 },
+      { id: 'digestive_anat', name: 'Пищеварительная система', parentTopicId: 'anatomy', description: 'Желудок, кишечник, печень, поджелудочная', questionCount: 18 },
+      { id: 'nervous_anat', name: 'Нервная система', parentTopicId: 'anatomy', description: 'Головной и спинной мозг, периферические нервы', questionCount: 16 },
+    ],
+  },
+  {
+    id: 'pathophysiology',
+    name: 'Патологическая физиология',
+    icon: '🧬',
+    color: '#6C3483',
+    description: 'Воспаление, гипоксия, шок, опухолевый рост',
+    subtopics: [
+      { id: 'inflammation', name: 'Воспаление и лихорадка', parentTopicId: 'pathophysiology', description: 'Медиаторы, фазы воспаления, местные и общие реакции', questionCount: 18 },
+      { id: 'circulation_disorders', name: 'Нарушения кровообращения', parentTopicId: 'pathophysiology', description: 'Стаз, тромбоз, эмболия, кровотечения', questionCount: 16 },
+      { id: 'hypoxia_shock', name: 'Гипоксия и шок', parentTopicId: 'pathophysiology', description: 'Виды гипоксии, патогенез шока, компенсаторные механизмы', questionCount: 16 },
+      { id: 'neoplasia', name: 'Опухолевый рост', parentTopicId: 'pathophysiology', description: 'Бенigna и злокачественные опухоли, метастазирование', questionCount: 14 },
+    ],
+  },
+  {
+    id: 'microbiology',
+    name: 'Микробиология',
+    icon: '🔬',
+    color: '#2C3E50',
+    description: 'Бактерии, вирусы, грибы, иммунитет',
+    subtopics: [
+      { id: 'bacteria', name: 'Бактерии и их свойства', parentTopicId: 'microbiology', description: 'Морфология, физиология, классификация', questionCount: 20 },
+      { id: 'viruses', name: 'Вирусы', parentTopicId: 'microbiology', description: 'Строение, репликация, патогенность', questionCount: 18 },
+      { id: 'fungi_protozoa', name: 'Грибы и простейшие', parentTopicId: 'microbiology', description: 'Микозы, патогенные простейшие', questionCount: 14 },
+      { id: 'immunity', name: 'Иммунитет', parentTopicId: 'microbiology', description: 'Врождённый и адаптивный, вакцинальный иммунитет', questionCount: 18 },
+    ],
+  },
+  {
+    id: 'zoohygiene',
+    name: 'Зоогигиена и кормление',
+    icon: '🏡',
+    color: '#27AE60',
+    description: 'Гигиена содержания, кормление, санитарные требования',
+    subtopics: [
+      { id: 'housing_hygiene', name: 'Гигиена содержания', parentTopicId: 'zoohygiene', description: 'Микроклимат, плотность посадки, параметры воздуха', questionCount: 16 },
+      { id: 'animal_nutrition', name: 'Кормление животных', parentTopicId: 'zoohygiene', description: 'Нормы кормления, рационы, витамины', questionCount: 20 },
+      { id: 'sanitary', name: 'Санитарные требования', parentTopicId: 'zoohygiene', description: 'Дезинфекция, дератизация, утилизация отходов', questionCount: 14 },
+      { id: 'water_ventilation', name: 'Водоснабжение и вентиляция', parentTopicId: 'zoohygiene', description: 'Качество воды, системы вентиляции, требования', questionCount: 12 },
+    ],
+  },
 ];
 
 export const SPECIES_OPTIONS: { value: SpeciesType; label: string; icon: string }[] = [
@@ -118,6 +170,7 @@ export const DIFFICULTY_OPTIONS: { value: DifficultyType; label: string; color: 
   { value: 'beginner', label: 'Начинающий', color: '#28CD41' },
   { value: 'intermediate', label: 'Средний', color: '#FF9500' },
   { value: 'advanced', label: 'Продвинутый', color: '#FF3B30' },
+  { value: 'expert', label: 'Экспертный', color: '#AF52DE' },
 ];
 
 export function getTopicById(id: string): VetTopic | undefined {
