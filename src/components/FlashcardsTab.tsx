@@ -473,7 +473,7 @@ export function FlashcardsTab() {
         <Progress value={progressPct} className="h-1.5" />
       </div>
 
-      {/* Card — simple fade between cards, 3D flip inside */}
+      {/* Card — slide transition between cards, CSS 3D flip */}
       {currentCard && (
         <motion.div
           key={currentIndex}
@@ -484,6 +484,7 @@ export function FlashcardsTab() {
         >
           <div
             className="cursor-pointer select-none"
+            style={{ perspective: '1000px' }}
             onClick={() => {
               if (mode === 'learn') {
                 setIsFlipped(prev => !prev);
@@ -492,18 +493,24 @@ export function FlashcardsTab() {
                 setIsFlipped(true);
               }
             }}
-            style={{ perspective: '1000px' }}
           >
-            <motion.div
+            {/* Flip container — pure CSS, no Framer Motion on transforms */}
+            <div
               className="relative w-full"
-              style={{ minHeight: '280px', transformStyle: 'preserve-3d' }}
-              animate={{ rotateY: isFlipped ? 180 : 0 }}
-              transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                minHeight: '280px',
+                transformStyle: 'preserve-3d',
+                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+              }}
             >
               {/* Front of card (term) */}
               <div
                 className="absolute inset-0 w-full"
-                style={{ backfaceVisibility: 'hidden' }}
+                style={{
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                }}
               >
                 <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 h-[280px] flex flex-col justify-between">
                   <CardContent className="p-5 flex flex-col h-full justify-between">
@@ -512,11 +519,9 @@ export function FlashcardsTab() {
                         <Badge variant="outline" className="text-[10px]">
                           #{currentIndex + 1}
                         </Badge>
-                        {!isFlipped && (
-                          <span className="text-[10px] text-muted-foreground">
-                            {mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
-                          </span>
-                        )}
+                        <span className="text-[10px] text-muted-foreground">
+                          {mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
+                        </span>
                       </div>
                       <div className="flex-1 flex items-center justify-center">
                         <h3 className="text-xl font-bold text-center leading-tight">
@@ -534,7 +539,11 @@ export function FlashcardsTab() {
               {/* Back of card (definition) */}
               <div
                 className="absolute inset-0 w-full"
-                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                style={{
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                }}
               >
                 <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 h-[280px] flex flex-col justify-between">
                   <CardContent className="p-5 flex flex-col h-full justify-between">
@@ -560,7 +569,7 @@ export function FlashcardsTab() {
                   </CardContent>
                 </Card>
               </div>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       )}
