@@ -473,18 +473,12 @@ export function FlashcardsTab() {
         <Progress value={progressPct} className="h-1.5" />
       </div>
 
-      {/* Card — slide transition between cards, CSS 3D flip */}
+      {/* Card — CSS 3D flip, NO Framer Motion (it breaks preserve-3d) */}
       {currentCard && (
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -30 }}
-          transition={{ duration: 0.25 }}
-        >
+        <div key={currentIndex}>
           <div
             className="cursor-pointer select-none"
-            style={{ perspective: '1000px' }}
+            style={{ perspective: '1200px' }}
             onClick={() => {
               if (mode === 'learn') {
                 setIsFlipped(prev => !prev);
@@ -494,11 +488,11 @@ export function FlashcardsTab() {
               }
             }}
           >
-            {/* Flip container — pure CSS, no Framer Motion on transforms */}
+            {/* Flip container — pure CSS 3D */}
             <div
               className="relative w-full"
               style={{
-                minHeight: '280px',
+                height: '280px',
                 transformStyle: 'preserve-3d',
                 transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
                 transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -506,13 +500,13 @@ export function FlashcardsTab() {
             >
               {/* Front of card (term) */}
               <div
-                className="absolute inset-0 w-full"
+                className="absolute inset-0"
                 style={{
                   backfaceVisibility: 'hidden',
                   WebkitBackfaceVisibility: 'hidden',
                 }}
               >
-                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 h-[280px] flex flex-col justify-between">
+                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10 w-full h-full flex flex-col justify-between overflow-hidden">
                   <CardContent className="p-5 flex flex-col h-full justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-4">
@@ -538,14 +532,14 @@ export function FlashcardsTab() {
 
               {/* Back of card (definition) */}
               <div
-                className="absolute inset-0 w-full"
+                className="absolute inset-0"
                 style={{
                   backfaceVisibility: 'hidden',
                   WebkitBackfaceVisibility: 'hidden',
                   transform: 'rotateY(180deg)',
                 }}
               >
-                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 h-[280px] flex flex-col justify-between">
+                <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 w-full h-full flex flex-col justify-between overflow-hidden">
                   <CardContent className="p-5 flex flex-col h-full justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-3">
@@ -571,7 +565,7 @@ export function FlashcardsTab() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Quiz mode: rate buttons */}
