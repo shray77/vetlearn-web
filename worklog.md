@@ -98,3 +98,95 @@ Stage Summary:
 - Modified files: store.ts, types.ts, page.tsx, layout.tsx, BottomNav.tsx, AdaptiveLearningTab.tsx, manifest.json
 - Bottom nav now has 8 items (may need optimization for mobile)
 - All features build successfully
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Fix Dashboard contrast and improve flashcards UX
+
+Work Log:
+- Fixed XP progress bar contrast on DashboardTab green profile card:
+  - Changed track from `bg-white/20` to `bg-black/20` (darker, more visible)
+  - Changed fill from `bg-white/80` to yellow-to-orange gradient (`#FFD60A → #FF9500`) via inline style
+  - Increased bar height from `h-2` to `h-2.5` for better visibility
+- Made "Next" (Далее) button visually heavier in FlashcardsTab navigation:
+  - Back button: `variant="ghost"` + `text-muted-foreground` (de-emphasized)
+  - Next button: `size="lg"`, `h-11 px-6`, `font-bold`, `shadow-md` (primary action prominence)
+- Added touch swipe gesture support for flashcard navigation:
+  - Swipe left → next card (with quiz mode reveal guard)
+  - Swipe right → previous card
+  - 50px minimum swipe threshold
+  - `onTouchStart`, `onTouchMove`, `onTouchEnd` handlers on card container
+  - Uses `useRef` for touch coordinates (already imported)
+- Lint check passed (pre-existing error in ServiceWorkerRegistration.tsx is unrelated)
+
+Stage Summary:
+- Changed files: DashboardTab.tsx, FlashcardsTab.tsx
+- No new files created
+- No breaking changes — all existing functionality preserved
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Add "Create Flashcard" button on wrong answers + smooth transitions + line spacing fixes
+
+Work Log:
+- Added "Создать карточку для повторения" button (with Layers icon) to AdaptiveLearningTab.tsx wrong-answer explanation section
+  - Creates flashcard from question, correct answer, and explanation
+  - Uses `useStore.getState().setFlashcards()` to write to zustand store outside React hook
+  - Orange-themed button with hover state
+- Added `Layers` import from lucide-react
+- Fixed line spacing (`leading-relaxed`) in adaptive results learning path items (2 occurrences)
+- Verified `leading-relaxed` already present on "Анализ" summary paragraph
+- Smoothed question transitions in AdaptiveLearningTab.tsx:
+  - Added `scale: 0.98` on initial/exit, `scale: 1` on animate
+  - Changed ease to `[0.25, 0.1, 0.25, 1]` (custom cubic bezier)
+  - Increased duration from 0.3s to 0.35s
+  - Reduced x offset from ±50 to ±30
+- Applied same transition smoothing to ClinicalCasesTab.tsx
+- Fixed line spacing in MockExamTab.tsx results:
+  - Added `leading-relaxed` to strengths, weaknesses, and recommendations text items
+
+Stage Summary:
+- Changed files: AdaptiveLearningTab.tsx, ClinicalCasesTab.tsx, MockExamTab.tsx
+- No new files created
+- No breaking changes — all existing functionality preserved
+- Pre-existing lint error in ServiceWorkerRegistration.tsx is unrelated
+
+---
+
+## Sprint: Fix ClinicalCasesTab [object Object] Bug, Format Vitals, Add Sprint Mode
+
+**Date:** 2025-01-XX
+
+### Part 1: Fix [object Object] Bug in ClinicalCasesTab
+- **File:** `src/components/ClinicalCasesTab.tsx`
+- Added `normalizeOptions()` helper function that converts option objects to strings by trying `.text`, `.value`, `.label`, `.answer` properties, falling back to `JSON.stringify`
+- Applied normalization in `handleGenerateCase` after receiving case data from API, before setting state
+- This prevents `[object Object]` from rendering when AI returns options as objects instead of strings
+
+### Part 2: Format Vitals in Case Description with Icons
+- **File:** `src/components/ClinicalCasesTab.tsx`
+- Replaced plain-text vitals display (Жалобы, Анамнез, Осмотр, Лаборатория) with structured layout
+- Each vital now has a colored icon badge (AlertTriangle/FF3B30, FileText/007AFF, Stethoscope/28CD41, BarChart3/AF52DE)
+- Labels use uppercase muted text, values use relaxed leading
+- Added imports: `AlertTriangle`, `BarChart3`, `FileText` from lucide-react
+
+### Part 3: Add Sprint Mode to AdaptiveLearningTab
+- **File:** `src/components/AdaptiveLearningTab.tsx`
+- Added `sprintMode` and `sprintTimeLeft` state variables
+- Added sprint countdown timer effect (2-minute countdown, auto-submits when time's up)
+- Added Sprint Mode card above topic selection with gradient styling and Play button
+- Sprint picks 3 random topics, generates 5 questions
+- Timer display in quiz header switches to sprint countdown (orange, pulses red when ≤30s)
+- Sprint state resets on quiz exit (`handleExitQuiz`) and quiz submission (`handleAdaptiveSubmit`)
+- Added `Play` to lucide-react imports
+
+### Files Changed:
+- `src/components/ClinicalCasesTab.tsx` — normalizeOptions helper, vitals formatting with icons
+- `src/components/AdaptiveLearningTab.tsx` — sprint mode state, timer, card, timer display, reset logic
+
+### Notes:
+- No new files created
+- No breaking changes — all existing functionality preserved
+- Pre-existing lint error in ServiceWorkerRegistration.tsx is unrelated

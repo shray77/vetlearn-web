@@ -168,6 +168,39 @@ export function FlashcardsTab() {
     resetQuiz();
   };
 
+  // Touch swipe handling
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0].screenX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].screenX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchEndX.current === null) return;
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipe = 50; // minimum px to register swipe
+    
+    if (Math.abs(diff) > minSwipe) {
+      if (diff > 0) {
+        // Swiped left → next
+        if (mode === 'learn') {
+          handleNext();
+        } else if (isRevealed || !isLastCard) {
+          handleNext();
+        }
+      } else {
+        // Swiped right → prev
+        handlePrev();
+      }
+    }
+    touchEndX.current = null;
+  };
+
   const currentCard = flashcards[currentIndex];
 
   // Scroll to top when entering deck view
@@ -475,7 +508,11 @@ export function FlashcardsTab() {
 
       {/* Card — crossfade between term and definition */}
       {currentCard && (
-        <div key={currentIndex} className="cursor-pointer select-none" onClick={() => {
+        <div key={currentIndex} className="cursor-pointer select-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onClick={() => {
           if (mode === 'learn') {
             setIsFlipped(prev => !prev);
           } else if (!isRevealed) {
@@ -591,11 +628,11 @@ export function FlashcardsTab() {
       {/* Navigation */}
       <div className="flex items-center justify-between gap-3">
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={handlePrev}
           disabled={currentIndex === 0}
-          className="squircle-sm h-10"
+          className="squircle-sm h-10 text-muted-foreground"
         >
           <ChevronLeft className="w-4 h-4 mr-1" /> Назад
         </Button>
@@ -620,10 +657,10 @@ export function FlashcardsTab() {
         </div>
 
         <Button
-          size="sm"
+          size="lg"
           onClick={handleNext}
           disabled={isNextDisabled}
-          className={`squircle-sm h-10 font-semibold ${isLastCard ? 'bg-[#28CD41] hover:bg-[#1FA833] text-white' : 'bg-[#007AFF] hover:bg-[#0066DD] text-white'}`}
+          className={`squircle-sm h-11 px-6 font-bold shadow-md ${isLastCard ? 'bg-[#28CD41] hover:bg-[#1FA833] text-white' : 'bg-[#007AFF] hover:bg-[#0066DD] text-white'}`}
         >
           {isLastCard ? (
             <><Trophy className="w-4 h-4 mr-1" /> Готово</>

@@ -112,6 +112,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
       beginner: { label: 'Начинающий', color: 'text-[#28CD41]', bg: 'bg-[#E8F9EC] dark:bg-[#1A3D22]', borderColor: 'border-[#28CD41]/30' },
       intermediate: { label: 'Средний', color: 'text-[#FF9500]', bg: 'bg-[#FFF3CD] dark:bg-[#3D3000]', borderColor: 'border-[#FF9500]/30' },
       advanced: { label: 'Продвинутый', color: 'text-[#FF3B30]', bg: 'bg-[#FFE5E3] dark:bg-[#3D1510]', borderColor: 'border-[#FF3B30]/30' },
+      expert: { label: 'Экспертный', color: 'text-[#AF52DE]', bg: 'bg-[#F3E8FF] dark:bg-[#2D1A3D]', borderColor: 'border-[#AF52DE]/30' },
     };
     return configs[profile.determinedLevel] || null;
   }, [profile.determinedLevel]);
@@ -163,9 +164,10 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     <span>Опыт</span>
                     <span>{xpInLevel} / 100 XP</span>
                   </div>
-                  <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-2.5 bg-black/20 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-white/80 rounded-full"
+                      className="h-full rounded-full"
+                      style={{ background: 'linear-gradient(90deg, #FFD60A, #FF9500)' }}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(0, Math.min(100, xpInLevel))}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
