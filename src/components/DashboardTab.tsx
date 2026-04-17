@@ -180,6 +180,14 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         </Card>
       </motion.div>
 
+      {/* Version Badge */}
+      <div className="flex justify-center">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-muted/80 text-muted-foreground border border-border/50">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#28CD41] animate-pulse" />
+          VetLearn AI v0.2.0-beta
+        </span>
+      </div>
+
       {/* Quick Stats */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -190,3 +190,18 @@ Stage Summary:
 - No new files created
 - No breaking changes — all existing functionality preserved
 - Pre-existing lint error in ServiceWorkerRegistration.tsx is unrelated
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Add version badge to app UI + update worklog
+
+Work Log:
+- Added version plaque "v0.2.0-beta" to About modal (BottomNav.tsx) — green rounded pill badge + "Версия в разработке" disclaimer, inside the green contest card
+- Added version badge to DashboardTab.tsx — small centered pill below profile card with pulsing green dot: "VetLearn AI v0.2.0-beta"
+- Updated worklog.md with all sessions' history (Tasks 1-5)
+
+Stage Summary:
+- Changed files: BottomNav.tsx (About modal), DashboardTab.tsx (below profile card)
+- Version displayed in 2 visible locations: Dashboard (main screen) and About modal (Ещё → О проекте)
+- Label: "v0.2.0-beta" with "Версия в разработке" disclaimer
