@@ -120,6 +120,13 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
             </p>
           </div>
           <div className="p-3 rounded-xl bg-[#28CD41]/5 border border-[#28CD41]/20">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#28CD41]/15 text-[#28CD41] border border-[#28CD41]/25">
+                v0.2.0-beta
+              </span>
+              <span className="text-[10px] text-muted-foreground">•</span>
+              <span className="text-[10px] text-muted-foreground">Версия в разработке</span>
+            </div>
             <p className="text-xs text-center text-muted-foreground">
               Создано для конкурса «Центр-инвест»
             </p>

@@ -50,6 +50,9 @@ export function Header() {
           </div>
 
         <div className="flex items-center gap-2">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground border border-border/50 shrink-0">
+            v0.2.0-beta
+          </span>
           <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF3CD] dark:bg-[#3D3000] text-[#856404] dark:text-[#FFD666] text-xs font-medium">
             <Flame className="w-3 h-3" />
             <span>{profile.streak}</span>

@@ -894,7 +894,7 @@ export function MockExamTab() {
                 </div>
                 <div className="space-y-1">
                   {results.strengths.map((s, i) => (
-                    <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5 leading-relaxed">
                       <CheckCircle2 className="w-3 h-3 text-[#28CD41] mt-0.5 shrink-0" />
                       {s}
                     </p>
@@ -911,7 +911,7 @@ export function MockExamTab() {
                 </div>
                 <div className="space-y-1">
                   {results.weaknesses.map((w, i) => (
-                    <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5 leading-relaxed">
                       <XCircle className="w-3 h-3 text-[#FF3B30] mt-0.5 shrink-0" />
                       {w}
                     </p>
@@ -962,7 +962,7 @@ export function MockExamTab() {
               </h3>
               <div className="space-y-1">
                 {results.recommendations.map((r, i) => (
-                  <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                  <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5 leading-relaxed">
                     <ArrowRight className="w-3 h-3 mt-0.5 shrink-0" />
                     {r}
                   </p>

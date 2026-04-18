@@ -15,7 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import {
   Brain, TrendingUp, BarChart3, ChevronRight, ChevronDown, CheckCircle2,
   Loader2, X, ArrowRight, RotateCcw, Sparkles, GraduationCap,
-  Shield, Zap, Target, BookOpen, Lock, Unlock, AlertTriangle,
+  Shield, Zap, Target, BookOpen, Lock, Unlock, AlertTriangle, Play, Layers,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -48,6 +48,8 @@ export function AdaptiveLearningTab() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [checkedAnswer, setCheckedAnswer] = useState(false);
   const [showResultsReview, setShowResultsReview] = useState(false);
+  const [sprintMode, setSprintMode] = useState(false);
+  const [sprintTimeLeft, setSprintTimeLeft] = useState(120); // 2 minutes
 
   // ===== REAL-TIME ADAPTIVE DIFFICULTY TRACKER =====
   type DifficultyTrend = 'increasing' | 'decreasing' | 'stable';
@@ -121,6 +123,22 @@ export function AdaptiveLearningTab() {
     return () => clearInterval(interval);
   }, [quizStartTime]);
 
+  // Sprint countdown timer
+  useEffect(() => {
+    if (!sprintMode || sprintTimeLeft <= 0) return;
+    const interval = setInterval(() => {
+      setSprintTimeLeft(prev => {
+        if (prev <= 1) {
+          // Time's up — auto-submit
+          handleAdaptiveSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sprintMode, sprintTimeLeft]);
+
   // ===== PLACEMENT TEST LOGIC =====
 
   const handleStartPlacement = async () => {
@@ -181,7 +199,7 @@ export function AdaptiveLearningTab() {
         setPhase('placement_results');
         setQuizStartTime(null);
 
-        toast.success(`Уровень определён: ${data.level === 'advanced' ? 'Продвинутый' : data.level === 'intermediate' ? 'Средний' : 'Начинающий'}`);
+        toast.success(`Уровень определён: ${data.level === 'expert' ? 'Экспертный' : data.level === 'advanced' ? 'Продвинутый' : data.level === 'intermediate' ? 'Средний' : 'Начинающий'}`);
       } else {
         toast.error(data.error || 'Ошибка анализа');
       }
@@ -236,6 +254,8 @@ export function AdaptiveLearningTab() {
   };
 
   const handleAdaptiveSubmit = async () => {
+    setSprintMode(false);
+    setSprintTimeLeft(120);
     if (answers.some(a => a === null)) {
       toast.error('Ответьте на все вопросы');
       return;
@@ -326,6 +346,8 @@ export function AdaptiveLearningTab() {
     setQuizStartTime(null);
     setElapsedSeconds(0);
     setCheckedAnswer(false);
+    setSprintMode(false);
+    setSprintTimeLeft(120);
     if (phase === 'placement_quiz') {
       setPhase('placement_intro');
     } else {
@@ -456,9 +478,15 @@ export function AdaptiveLearningTab() {
             <X className="w-4 h-4 mr-1" /> Выход
           </Button>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground tabular-nums">
-              {String(Math.floor(elapsedSeconds / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
-            </span>
+            {sprintMode ? (
+              <span className={`text-sm font-bold tabular-nums ${sprintTimeLeft <= 30 ? 'text-[#FF3B30] animate-pulse' : 'text-[#FF9500]'}`}>
+                {String(Math.floor(sprintTimeLeft / 60)).padStart(2, '0')}:{String(sprintTimeLeft % 60).padStart(2, '0')}
+              </span>
+            ) : (
+              <span className="text-sm font-medium text-muted-foreground tabular-nums">
+                {String(Math.floor(elapsedSeconds / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
+              </span>
+            )}
             <span className="text-sm font-medium">
               {currentQuestionIndex + 1} / {assessmentQuestions.length}
             </span>
@@ -473,10 +501,10 @@ export function AdaptiveLearningTab() {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentQuestionIndex}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, x: 30, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -30, scale: 0.98 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <Card className="squircle border-0 shadow-sm">
               <CardContent className="p-5">
@@ -572,6 +600,25 @@ export function AdaptiveLearningTab() {
                               Правильный ответ: {['А', 'Б', 'В', 'Г'][q.correctIndex]}. {q.options[q.correctIndex]}
                             </p>
                           </div>
+                        )}
+                        {answers[currentQuestionIndex] !== q.correctIndex && (
+                          <button
+                            onClick={() => {
+                              const card = {
+                                id: `fc_${Date.now()}`,
+                                term: q.question,
+                                definition: q.options[q.correctIndex],
+                                example: q.explanation || undefined,
+                              };
+                              const { setFlashcards } = useStore.getState();
+                              setFlashcards([card]);
+                              toast.success('Карточка создана! Откройте вкладку "Карточки" для изучения.');
+                            }}
+                            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-[#FF9500]/10 hover:bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9500] text-xs font-semibold transition-colors"
+                          >
+                            <Layers className="w-3.5 h-3.5" />
+                            Создать карточку для повторения
+                          </button>
                         )}
                       </div>
                     </motion.div>
@@ -676,7 +723,7 @@ export function AdaptiveLearningTab() {
             </CardHeader>
             <CardContent className="space-y-3">
               {[
-                { label: 'Базовый', score: assessmentResult.beginnerScore, color: '#28CD41' },
+                { label: 'Начальный', score: assessmentResult.beginnerScore, color: '#28CD41' },
                 { label: 'Средний', score: assessmentResult.intermediateScore, color: '#FF9500' },
                 { label: 'Продвинутый', score: assessmentResult.advancedScore, color: '#FF3B30' },
               ].map((item) => (
@@ -798,7 +845,7 @@ export function AdaptiveLearningTab() {
             <Sparkles className="w-3 h-3 mr-1" /> ИИ-генерация
           </Badge>
           <Badge variant="secondary" className="text-[10px]">
-            Уровень: {profile.determinedLevel === 'advanced' ? 'Продвинутый' : profile.determinedLevel === 'intermediate' ? 'Средний' : 'Базовый'}
+            Уровень: {profile.determinedLevel === 'expert' ? 'Экспертный' : profile.determinedLevel === 'advanced' ? 'Продвинутый' : profile.determinedLevel === 'intermediate' ? 'Средний' : 'Начинающий'}
           </Badge>
         </div>
 
@@ -861,8 +908,8 @@ export function AdaptiveLearningTab() {
                       {item.priority === 'high' ? 'Важно' : item.priority === 'medium' ? 'Среднее' : 'Низкое'}
                     </Badge>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{item.topicName}</p>
-                      <p className="text-xs text-muted-foreground">{item.reason}</p>
+                      <p className="text-sm font-medium leading-relaxed">{item.topicName}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.reason}</p>
                       {item.mastery !== undefined && (
                         <div className="mt-1.5">
                           <Progress value={item.mastery} className="h-1.5" />
@@ -1082,7 +1129,7 @@ export function AdaptiveLearningTab() {
   // ===== RENDER: ADAPTIVE TOPIC SELECTION =====
   if (phase === 'adaptive_select') {
     const userLevel = profile.determinedLevel || 'intermediate';
-    const levelLabel = userLevel === 'advanced' ? 'Продвинутый' : userLevel === 'intermediate' ? 'Средний' : 'Базовый';
+    const levelLabel = userLevel === 'expert' ? 'Экспертный' : userLevel === 'advanced' ? 'Продвинутый' : userLevel === 'intermediate' ? 'Средний' : 'Начинающий';
 
     return (
       <div className="space-y-4 pb-4">
@@ -1185,6 +1232,63 @@ export function AdaptiveLearningTab() {
           </CardContent>
         </Card>
 
+        {/* Sprint Mode Card */}
+        <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#FF9500]/5 to-[#FF3B30]/5">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF9500] to-[#FF3B30] flex items-center justify-center shrink-0">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold">Спринт-режим</h3>
+                <p className="text-xs text-muted-foreground">5 вопросов, 2 минуты, случайные темы</p>
+              </div>
+              <Button
+                size="sm"
+                className="bg-[#FF9500] hover:bg-[#E08600] text-white squircle-sm font-semibold"
+                onClick={async () => {
+                  setSprintMode(true);
+                  setSprintTimeLeft(120);
+                  // Pick 3 random topics
+                  const shuffled = [...VET_TOPICS].sort(() => Math.random() - 0.5);
+                  const randomTopics = shuffled.slice(0, 3).map(t => ({ id: t.id, name: t.name }));
+                  setSelectedTopics(randomTopics.map(t => t.id));
+                  setIsGenerating(true);
+                  try {
+                    const effectiveDifficulty = profile.determinedLevel || difficulty;
+                    const res = await fetch('/api/assessment', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ topics: randomTopics, difficulty: effectiveDifficulty, count: 5 }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      setAssessmentQuestions(data.questions);
+                      setAnswers(new Array(data.questions.length).fill(null));
+                      setCurrentQuestionIndex(0);
+                      setPhase('adaptive_quiz');
+                      setQuizStartTime(Date.now());
+                      setElapsedSeconds(0);
+                      setCheckedAnswer(false);
+                      addXP(5);
+                      toast.success('Спринт начат! 2 минуты на 5 вопросов');
+                    } else {
+                      toast.error(data.error || 'Ошибка генерации');
+                    }
+                  } catch {
+                    toast.error('Ошибка соединения');
+                  } finally {
+                    setIsGenerating(false);
+                  }
+                }}
+                disabled={isGenerating}
+              >
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Topic selection */}
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-4">
@@ -1275,8 +1379,8 @@ export function AdaptiveLearningTab() {
                       item.priority === 'medium' ? 'bg-[#FF9500]' : 'bg-[#28CD41]'
                     }`} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{item.topicName}</p>
-                      <p className="text-xs text-muted-foreground">{item.reason}</p>
+                      <p className="text-sm font-medium leading-relaxed">{item.topicName}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.reason}</p>
                     </div>
                     <span className="text-xs text-muted-foreground">{item.mastery}%</span>
                   </div>

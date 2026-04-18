@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
   Stethoscope, Lightbulb, ChevronRight, CheckCircle2, XCircle,
-  Loader2, X, ArrowRight, Sparkles,
+  Loader2, X, ArrowRight, Sparkles, AlertTriangle, BarChart3, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -30,6 +30,19 @@ export function ClinicalCasesTab() {
   // Per-question immediate feedback state
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackCorrect, setFeedbackCorrect] = useState(false);
+
+  // Normalize options to strings — API sometimes returns objects
+  const normalizeOptions = (opts: unknown[]): string[] => {
+    return opts.map(opt => {
+      if (typeof opt === 'string') return opt;
+      if (typeof opt === 'object' && opt !== null) {
+        // Try common property names
+        const obj = opt as Record<string, unknown>;
+        return String(obj.text || obj.value || obj.label || obj.answer || JSON.stringify(obj));
+      }
+      return String(opt);
+    });
+  };
 
   const handleGenerateCase = async () => {
     setIsGenerating(true);
@@ -51,7 +64,15 @@ export function ClinicalCasesTab() {
           toast.error('Получен некорректный формат кейса. Попробуйте ещё раз.');
           return;
         }
-        setCurrentCase(data.case);
+        // Fix [object Object] bug — normalize options to strings
+        const normalizedCase = {
+          ...data.case,
+          questions: data.case.questions.map((q: any) => ({
+            ...q,
+            options: normalizeOptions(q.options || []),
+          })),
+        };
+        setCurrentCase(normalizedCase);
         setCaseAnswers(new Array(data.case.questions.length).fill(null));
         setCurrentQuestionIndex(0);
         setShowCaseResult(false);
@@ -342,11 +363,45 @@ export function ClinicalCasesTab() {
                 {currentCase.topic && <Badge variant="outline" className="text-xs">{currentCase.topic}</Badge>}
               </div>
               <h3 className="text-base font-bold">{currentCase.title}</h3>
-              <div className="space-y-2 text-sm">
-                <p><span className="font-semibold">Жалобы:</span> {currentCase.presentation}</p>
-                <p><span className="font-semibold">Анамнез:</span> {currentCase.history}</p>
-                <p><span className="font-semibold">Осмотр:</span> {currentCase.examination}</p>
-                {currentCase.labResults && <p><span className="font-semibold">Лаборатория:</span> {currentCase.labResults}</p>}
+              <div className="space-y-2.5 text-sm">
+                <div className="flex gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#FF3B30]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-[#FF3B30]" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Жалобы</span>
+                    <p className="text-sm leading-relaxed mt-0.5">{currentCase.presentation}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#007AFF]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <FileText className="w-3.5 h-3.5 text-[#007AFF]" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Анамнез</span>
+                    <p className="text-sm leading-relaxed mt-0.5">{currentCase.history}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#28CD41]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Stethoscope className="w-3.5 h-3.5 text-[#28CD41]" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Осмотр</span>
+                    <p className="text-sm leading-relaxed mt-0.5">{currentCase.examination}</p>
+                  </div>
+                </div>
+                {currentCase.labResults && (
+                  <div className="flex gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#AF52DE]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <BarChart3 className="w-3.5 h-3.5 text-[#AF52DE]" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Лаборатория</span>
+                      <p className="text-sm leading-relaxed mt-0.5">{currentCase.labResults}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -358,10 +413,10 @@ export function ClinicalCasesTab() {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestionIndex}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, x: 30, scale: 0.98 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: -30, scale: 0.98 }}
+          transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <Card className="squircle border-0 shadow-sm">
             <CardContent className="p-5">
