@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Stethoscope, Mic, Lightbulb, PawPrint,
-  Info, BarChart3, Layers, GraduationCap, Grid3X3,
+  Info, BarChart3, Layers, GraduationCap, Grid3X3, Activity,
 } from 'lucide-react';
 import {
   Dialog,
@@ -31,9 +31,11 @@ const MAIN_TABS = [
 
 // ===== EXTRA TABS (in "Ещё" sheet) =====
 const EXTRA_TABS = [
-  { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#28CD41', desc: 'Термин ↔ определение' },
+  { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#28CD41', desc: 'Термин ↔ определение + интервальное повторение' },
+  { id: 'mindmap', label: 'Карта знаний', icon: BarChart3, color: '#007AFF', desc: 'AI интеллект-карты по темам' },
   { id: 'exam', label: 'Экзамен', icon: GraduationCap, color: '#E74C3C', desc: 'Устный ИИ-экзамен' },
   { id: 'resources', label: 'Ресурсы', icon: Lightbulb, color: '#FF9500', desc: 'Учебные материалы' },
+  { id: 'simulator', label: 'Симулятор', icon: Activity, color: '#5856D6', desc: 'Практика: осмотр, диагноз, лечение' },
 ];
 
 // ===== ABOUT MODAL =====
@@ -84,8 +86,15 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
                 <Layers className="w-4 h-4 text-[#28CD41] mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-medium text-xs">Карточки</p>
-                  <p className="text-[11px] text-muted-foreground">AI-генерированные карточки с терминами и определениями для быстрого запоминания</p>
+                  <p className="font-medium text-xs">Карточки + SM-2</p>
+                  <p className="text-[11px] text-muted-foreground">AI-карточки с интервальным повторением, сканирование конспектов</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
+                <BarChart3 className="w-4 h-4 text-[#007AFF] mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-xs">Интеллект-карты</p>
+                  <p className="text-[11px] text-muted-foreground">AI создаёт иерархические карты знаний по ветеринарным темам</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">

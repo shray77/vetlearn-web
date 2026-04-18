@@ -15,16 +15,38 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  PawPrint, Flame, Zap, Settings, Moon, Trash2,
+  PawPrint, Flame, Zap, Settings, Moon, Trash2, Bell, BellOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
-  const { profile, clearAllData } = useStore();
+  const { profile, clearAllData, notificationsEnabled, setNotificationsEnabled, notificationPermission, setNotificationPermission } = useStore();
   const [adminOpen, setAdminOpen] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const requestNotifications = async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      setNotificationPermission('granted');
+      setNotificationsEnabled(true);
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      setNotificationPermission('denied');
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+    if (permission === 'granted') {
+      setNotificationsEnabled(true);
+      new Notification('VetLearn AI', {
+        body: 'Уведомления включены! Теперь вы будете получать напоминания об учёбе.',
+        icon: '/icon-192.png',
+      });
+    }
+  };
 
   const handleLogoTap = () => {
     tapCountRef.current++;
@@ -91,6 +113,26 @@ export function Header() {
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                   >
                     {theme === 'dark' ? 'Светлая' : 'Тёмная'}
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    {notificationsEnabled ? <Bell className="w-4 h-4 text-[#FF9500]" /> : <BellOff className="w-4 h-4 text-muted-foreground" />}
+                    <div>
+                      <span className="text-sm">Уведомления</span>
+                      {notificationPermission === 'denied' && (
+                        <p className="text-[10px] text-[#FF3B30]">Заблокированы в настройках браузера</p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={requestNotifications}
+                    disabled={notificationPermission === 'denied'}
+                  >
+                    {notificationsEnabled ? 'Вкл.' : 'Включить'}
                   </Button>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#FF3B30]/5 border border-[#FF3B30]/20">

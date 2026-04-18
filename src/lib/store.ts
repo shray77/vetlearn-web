@@ -9,7 +9,11 @@ import {
   LearningPathItem,
   Flashcard,
   FlashcardDeck,
+  SRCardData,
+  SRRating,
 } from './types';
+import { createSRCard, reviewSRCard } from './sm2';
+import type { SimulatorSession } from './simulator-types';
 
 const DEFAULT_PROFILE: StudentProfile = {
   id: 'demo-student-1',
@@ -80,6 +84,34 @@ interface VetLearnStore {
   setFlashcards: (cards: Flashcard[]) => void;
   flashcardHistory: FlashcardDeck[];
   addFlashcardDeckToHistory: (deck: FlashcardDeck) => void;
+
+  // Spaced Repetition (SM-2)
+  srCards: Record<string, SRCardData>;
+  /** Add a new card to the SR system (called when cards are generated) */
+  registerSRCard: (cardId: string) => void;
+  /** Register multiple cards at once */
+  registerSRCards: (cardIds: string[]) => void;
+  /** Process a review: update the card's SR state based on rating */
+  reviewCard: (cardId: string, rating: SRRating) => void;
+  /** Process multiple reviews at once (batch) */
+  reviewCards: (reviews: Array<{ cardId: string; rating: SRRating }>) => void;
+  /** Get SR data for a specific card */
+  getSRCard: (cardId: string) => SRCardData | undefined;
+
+  // Notifications
+  notificationPermission: 'default' | 'granted' | 'denied';
+  setNotificationPermission: (perm: 'default' | 'granted' | 'denied') => void;
+  notificationsEnabled: boolean;
+  setNotificationsEnabled: (enabled: boolean) => void;
+  lastReminderDate: string;
+  setLastReminderDate: (date: string) => void;
+
+  // Simulator
+  simulatorHistory: SimulatorSession[];
+  addSimulatorToHistory: (session: SimulatorSession) => void;
+  completedSimulations: number;
+  isSimulatorActive: boolean;
+  setIsSimulatorActive: (active: boolean) => void;
 
   // UI State
   activeTab: string;
@@ -208,6 +240,68 @@ export const useStore = create<VetLearnStore>()(
           flashcardHistory: [deck, ...state.flashcardHistory].slice(0, 30),
         })),
 
+      // Spaced Repetition (SM-2)
+      srCards: {},
+      registerSRCard: (cardId) =>
+        set((state) => ({
+          srCards: {
+            ...state.srCards,
+            [cardId]: createSRCard(cardId),
+          },
+        })),
+      registerSRCards: (cardIds) =>
+        set((state) => {
+          const newSR = { ...state.srCards };
+          for (const id of cardIds) {
+            if (!newSR[id]) {
+              newSR[id] = createSRCard(id);
+            }
+          }
+          return { srCards: newSR };
+        }),
+      reviewCard: (cardId, rating) =>
+        set((state) => {
+          const card = state.srCards[cardId];
+          if (!card) return state;
+          return {
+            srCards: {
+              ...state.srCards,
+              [cardId]: reviewSRCard(card, rating),
+            },
+          };
+        }),
+      reviewCards: (reviews) =>
+        set((state) => {
+          const newSR = { ...state.srCards };
+          for (const { cardId, rating } of reviews) {
+            const card = newSR[cardId];
+            if (card) {
+              newSR[cardId] = reviewSRCard(card, rating);
+            }
+          }
+          return { srCards: newSR };
+        }),
+      getSRCard: (cardId) => get().srCards[cardId],
+
+      // Notifications
+      notificationPermission: 'default',
+      setNotificationPermission: (perm) => set({ notificationPermission: perm }),
+      notificationsEnabled: false,
+      setNotificationsEnabled: (enabled) => set({ notificationsEnabled: enabled }),
+      lastReminderDate: '',
+      setLastReminderDate: (date) => set({ lastReminderDate: date }),
+
+      // Simulator
+      simulatorHistory: [],
+      addSimulatorToHistory: (session) =>
+        set((state) => ({
+          simulatorHistory: [session, ...state.simulatorHistory].slice(0, 20),
+          completedSimulations: state.completedSimulations + 1,
+        })),
+      completedSimulations: 0,
+      isSimulatorActive: false,
+      setIsSimulatorActive: (active) => set({ isSimulatorActive: active }),
+
       // UI State
       activeTab: 'dashboard',
       setActiveTab: (tab) => set({ activeTab: tab }),
@@ -283,14 +377,21 @@ export const useStore = create<VetLearnStore>()(
           bookmarkedResources: [],
           flashcards: [],
           flashcardHistory: [],
+          srCards: {},
           activeTab: 'dashboard',
           isAssessmentActive: false,
           isCaseActive: false,
+          simulatorHistory: [],
+          completedSimulations: 0,
+          isSimulatorActive: false,
+          notificationPermission: 'default',
+          notificationsEnabled: false,
+          lastReminderDate: '',
         }),
     }),
     {
       name: 'vetlearn-storage',
-      version: 2,
+      version: 3,
     }
   )
 );

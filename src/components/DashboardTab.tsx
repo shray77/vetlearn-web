@@ -13,11 +13,22 @@ import { Badge } from '@/components/ui/badge';
 import {
   Flame, Star, Target, Award, TrendingUp, TrendingDown, Minus, Stethoscope, Mic,
   ArrowRight, Clock, Sparkles, BarChart3, Copy, FileText, Brain, Lightbulb,
+  Timer, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
-  const { profile, assessmentHistory, caseHistory, addXP, updateStreak } = useStore();
+  const { profile, assessmentHistory, caseHistory, addXP, updateStreak, srCards, flashcards } = useStore();
+  // SR due cards count
+  const srDueCount = useMemo(() => {
+    const allIds = flashcards.map(c => c.id);
+    const today = new Date().toISOString().split('T')[0];
+    return allIds.filter(id => {
+      const card = srCards[id];
+      return card && card.nextReview <= today;
+    }).length;
+  }, [srCards, flashcards]);
+
   const accuracy = profile.totalAnswers > 0
     ? Math.min(100, Math.max(0, Math.round(((profile.correctAnswers || 0) / profile.totalAnswers) * 100)))
     : 0;
@@ -407,6 +418,37 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           </Card>
         )}
       </motion.div>
+
+      {/* SR Due Cards Alert */}
+      {srDueCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+        >
+          <Card
+            className="squircle border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => onNavigate('flashcards')}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#FF9500]/10 flex items-center justify-center">
+                    <Timer className="w-5 h-5 text-[#FF9500]" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Повторение</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {srDueCount} карточек ждут повторения
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-[#FF9500]" />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Quick Actions Grid */}
       <motion.div

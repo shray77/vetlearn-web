@@ -285,6 +285,45 @@ Stage Summary:
 
 6. **UX фиксы** — анимация гамбургер-меню, плавные переходы вопросов
 
+---
+Task ID: 9
+Agent: fullstack-developer
+Task: Build interactive veterinary simulator for VetLearn Web
+
+Work Log:
+- Created simulator-types.ts with all type definitions (BodyRegion, VetTool, ExaminationFinding, LabTest, SimulatorScenario, SimulatorSession, SimulatorEvaluation, constants)
+- Created /api/simulator/generate/route.ts with AI scenario generation (same JSON extraction patterns as existing APIs, fallback scenario: бабезиоз у собаки)
+- Created /api/simulator/evaluate/route.ts with AI session evaluation (4-criteria scoring: diagnosis 0-40, treatment 0-25, examination 0-20, economy 0-15)
+- Created AnimalSVG.tsx component with interactive SVG animals (dog, cat, cow + generic animals for pig/sheep/horse/bird)
+  - Clickable body region overlays with hover/selected/examined/abnormal states
+  - Hover labels, green checkmarks for normal findings, red pulse for abnormal
+  - Species-specific colors and shapes (dog with wagging tail, cat with whiskers, cow with spots/horns)
+- Created SimulatorTab.tsx with 7-phase game flow:
+  - Setup: species + difficulty + topic selection
+  - Anamnesis: owner complaint speech bubble, ask questions (max 6)
+  - Examination: interactive SVG animal + 8 tool selection + findings panel with color-coded relevance
+  - Laboratory: order lab tests with budget management
+  - Diagnosis: choose from 4 options with confirmation dialog
+  - Treatment: choose from 4 options with confirmation dialog
+  - Results: animated score, grade badge, 4-criteria breakdown, detailed feedback, key takeaways, XP earned
+- Updated store.ts with simulator state (simulatorHistory, completedSimulations, isSimulatorActive)
+- Updated BottomNav.tsx to add simulator to "Ещё" menu (Activity icon, #007AFF)
+- Updated page.tsx to render SimulatorTab with ErrorBoundary
+- Updated globals.css with simulator animations (sim-pulse, finding-slide)
+
+Stage Summary:
+- Full interactive veterinary simulator implemented with:
+  - Interactive SVG animals with clickable body regions
+  - 8 veterinary tools (осмотр, стетоскоп, термометр, пальпация, отоскоп, офтальмоскоп, перкуссия, соскоб)
+  - Budget system for lab tests
+  - AI-powered scenario generation and evaluation
+  - 4-criteria scoring system (diagnosis, treatment, examination, economy)
+  - Integration into existing navigation and XP system
+- Created files: src/lib/simulator-types.ts, src/app/api/simulator/generate/route.ts, src/app/api/simulator/evaluate/route.ts, src/components/simulator/AnimalSVG.tsx, src/components/simulator/SimulatorTab.tsx
+- Modified files: src/lib/store.ts, src/components/BottomNav.tsx, src/app/page.tsx, src/app/globals.css
+
+---
+
 ### Отложено / Идеи
 - Конкурентный режим (сравнение с другими студентами)
 - Голосовой ввод ответов в тестах

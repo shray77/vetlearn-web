@@ -168,3 +168,32 @@ export interface FlashcardDeck {
   unknown: number;
   createdAt: string;
 }
+
+// ===== Spaced Repetition (SM-2) Types =====
+
+export interface SRCardData {
+  cardId: string;
+  /** Days until next review (after last review) */
+  interval: number;
+  /** Ease factor (1.3 – 2.5+). Higher = easier. Affects interval growth. */
+  easeFactor: number;
+  /** Consecutive successful reviews. Resets to 0 on "Again". */
+  repetitions: number;
+  /** ISO date string (YYYY-MM-DD) when the card is next due */
+  nextReview: string;
+  /** ISO date string of the last review (if any) */
+  lastReview?: string;
+}
+
+/** Rating for SM-2 review: 0=Again, 1=Hard, 2=Good, 3=Easy */
+export type SRRating = 0 | 1 | 2 | 3;
+
+// ===== Mind Map Types =====
+
+export interface MindMapNode {
+  id: string;
+  label: string;
+  description?: string;
+  color?: string;
+  children: MindMapNode[];
+}
