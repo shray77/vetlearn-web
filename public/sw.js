@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vetlearn-v1';
+const CACHE_NAME = 'vetlearn-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -24,25 +24,33 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for static
+// Fetch: smart caching
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   if (url.pathname.startsWith('/api/')) {
-    // Network-first for API calls
+    // Network-first for API calls — never serve cached API responses
     event.respondWith(
       fetch(request).catch(() =>
-        caches.match(request).then(cached => {
-          if (cached) return cached;
-          return new Response(JSON.stringify({ error: 'Нет подключения к интернету', offline: true }), {
-            headers: { 'Content-Type': 'application/json' }
-          });
+        new Response(JSON.stringify({ error: 'Нет подключения к интернету', offline: true }), {
+          headers: { 'Content-Type': 'application/json' }
         })
       )
     );
+  } else if (url.pathname.startsWith('/_next/')) {
+    // Network-first for Next.js build assets (they have content hashes anyway)
+    event.respondWith(
+      fetch(request).then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(request))
+    );
   } else {
-    // Cache-first for static assets
+    // Cache-first for static assets (images, icons, etc.)
     event.respondWith(
       caches.match(request).then(cached => {
         if (cached) return cached;
