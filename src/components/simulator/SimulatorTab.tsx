@@ -112,19 +112,25 @@ export function SimulatorTab() {
   }, [discoveredFindings]);
 
   // ===== Scenario Generation =====
-  const handleGenerate = async () => {
+  const handleGenerate = async (speciesOverride?: string) => {
+    const sp = speciesOverride || selectedSpecies;
     setIsGenerating(true);
     setIsSimulatorActive(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120_000); // 2 min timeout
+
     try {
       const res = await fetch('/api/simulator/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
-          species: selectedSpecies,
+          species: sp,
           difficulty: selectedDifficulty,
           topic: selectedTopic || undefined,
         }),
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       if (data.success && data.scenario) {
         const s = data.scenario as SimulatorScenario;
@@ -162,10 +168,15 @@ export function SimulatorTab() {
         toast.error(data.error || 'Ошибка генерации');
         setIsSimulatorActive(false);
       }
-    } catch {
-      toast.error('Ошибка соединения');
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        toast.error('Превышено время ожидания. Попробуйте ещё раз.');
+      } else {
+        toast.error('Ошибка соединения с сервером');
+      }
       setIsSimulatorActive(false);
     } finally {
+      clearTimeout(timeoutId);
       setIsGenerating(false);
     }
   };
@@ -255,6 +266,9 @@ export function SimulatorTab() {
   const handleSubmitEvaluation = async () => {
     if (!session || !scenario) return;
     setIsEvaluating(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90_000); // 90s timeout
+
     try {
       const evalSession: SimulatorSession = {
         ...session,
@@ -269,8 +283,10 @@ export function SimulatorTab() {
       const res = await fetch('/api/simulator/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({ session: evalSession }),
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       if (data.success) {
         const ev: SimulatorEvaluation = {
@@ -295,9 +311,14 @@ export function SimulatorTab() {
       } else {
         toast.error(data.error || 'Ошибка оценки');
       }
-    } catch {
-      toast.error('Ошибка соединения');
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        toast.error('Превышено время ожидания оценки. Попробуйте ещё раз.');
+      } else {
+        toast.error('Ошибка соединения с сервером');
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsEvaluating(false);
     }
   };
