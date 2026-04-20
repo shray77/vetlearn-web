@@ -112,8 +112,8 @@ export function SimulatorTab() {
   }, [discoveredFindings]);
 
   // ===== Scenario Generation =====
-  const handleGenerate = async (speciesOverride?: string) => {
-    const sp = speciesOverride || selectedSpecies;
+  const handleGenerate = async () => {
+    const sp = selectedSpecies;
     setIsGenerating(true);
     setIsSimulatorActive(true);
     const controller = new AbortController();
@@ -495,7 +495,7 @@ export function SimulatorTab() {
 
         <Button
           className="w-full squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-14 text-sm font-bold shadow-lg"
-          onClick={handleGenerate}
+          onClick={() => { void handleGenerate(); }}
           disabled={isGenerating}
         >
           {isGenerating ? (
@@ -669,7 +669,7 @@ export function SimulatorTab() {
               </Button>
               <Button
                 className="flex-1 squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-12"
-                onClick={handleGenerate}
+                onClick={() => { void handleGenerate(); }}
                 disabled={isGenerating}
               >
                 {isGenerating ? (
