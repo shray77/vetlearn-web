@@ -46,6 +46,7 @@ interface QuestionRecord {
   question: string;
   answer: string;
   feedback: ExamFeedback;
+  followUp?: string;
   followUpAnswer?: string;
   followUpFeedback?: ExamFeedback;
 }
