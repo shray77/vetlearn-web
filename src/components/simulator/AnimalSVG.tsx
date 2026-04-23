@@ -74,20 +74,22 @@ function getRegionStyle(
   isExamined: boolean,
   isAbnormal: boolean,
 ): React.CSSProperties {
+  // skin zone всегда самый низкий z-index чтобы не перекрывать клики по другим зонам
+  const zoneZ = zone.region === 'skin' ? 1 : 10;
   if (isSelected) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.22)', borderColor: 'rgba(0,122,255,0.7)', borderStyle: 'solid' };
+    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.22)', borderColor: 'rgba(0,122,255,0.7)', borderStyle: 'solid', zIndex: zoneZ };
   }
   if (isHovered) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.14)', borderColor: 'rgba(0,122,255,0.55)', borderStyle: 'solid' };
+    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.14)', borderColor: 'rgba(0,122,255,0.55)', borderStyle: 'solid', zIndex: zoneZ };
   }
   if (isExamined && isAbnormal) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.4)', borderStyle: 'solid' };
+    return { ...baseRect(zone), backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.4)', borderStyle: 'solid', zIndex: zoneZ };
   }
   if (isExamined) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(40,205,65,0.06)', borderColor: 'rgba(40,205,65,0.35)', borderStyle: 'solid' };
+    return { ...baseRect(zone), backgroundColor: 'rgba(40,205,65,0.06)', borderColor: 'rgba(40,205,65,0.35)', borderStyle: 'solid', zIndex: zoneZ };
   }
   // Default: subtle dashed border
-  return { ...baseRect(zone), backgroundColor: 'transparent', borderColor: 'rgba(0,122,255,0.18)', borderStyle: 'dashed' };
+  return { ...baseRect(zone), backgroundColor: 'transparent', borderColor: 'rgba(0,122,255,0.18)', borderStyle: 'dashed', zIndex: zoneZ };
 }
 
 function baseRect(zone: ZoneDef) {
