@@ -26,40 +26,41 @@ const SPECIES_IMAGES: Record<string, string> = {
 };
 
 // Zone definitions: percentage-based for responsive overlay
+// Each zone defined as % of the animal image container
 interface ZoneDef {
   region: BodyRegion;
+  // Bounding box in percentages (left, top, width, height)
   x: number;
   y: number;
   w: number;
   h: number;
+  // Label anchor position
   labelX: number;
   labelY: number;
-  zIndex: number;  // Higher = on top (clicks go to topmost zone)
 }
 
 // Zones for typical side-view quadruped (dog, cat, cow, pig, sheep, horse)
-// IMPORTANT: skin has LOWEST z-index so specific zones can receive clicks on top
 const QUADRUPOD_ZONES: ZoneDef[] = [
-  { region: 'skin', x: 3, y: 3, w: 94, h: 66, labelX: 50, labelY: 5, zIndex: 1 },
-  { region: 'head', x: 70, y: 2, w: 27, h: 30, labelX: 84, labelY: 18, zIndex: 10 },
-  { region: 'neck', x: 52, y: 10, w: 22, h: 25, labelX: 63, labelY: 22, zIndex: 10 },
-  { region: 'thorax', x: 30, y: 15, w: 28, h: 35, labelX: 44, labelY: 33, zIndex: 10 },
-  { region: 'abdomen', x: 8, y: 22, w: 30, h: 33, labelX: 23, labelY: 38, zIndex: 10 },
-  { region: 'tail', x: 0, y: 14, w: 10, h: 28, labelX: 5, labelY: 28, zIndex: 10 },
-  { region: 'front_legs', x: 38, y: 50, w: 20, h: 44, labelX: 48, labelY: 72, zIndex: 10 },
-  { region: 'hind_legs', x: 6, y: 52, w: 20, h: 42, labelX: 16, labelY: 73, zIndex: 10 },
+  { region: 'head', x: 68, y: 5, w: 28, h: 30, labelX: 82, labelY: 20 },
+  { region: 'neck', x: 55, y: 18, w: 20, h: 22, labelX: 65, labelY: 30 },
+  { region: 'thorax', x: 35, y: 22, w: 28, h: 32, labelX: 49, labelY: 38 },
+  { region: 'abdomen', x: 12, y: 28, w: 30, h: 30, labelX: 27, labelY: 43 },
+  { region: 'skin', x: 5, y: 8, w: 88, h: 60, labelX: 50, labelY: 14 },
+  { region: 'front_legs', x: 42, y: 56, w: 18, h: 38, labelX: 51, labelY: 75 },
+  { region: 'hind_legs', x: 10, y: 56, w: 18, h: 38, labelX: 19, labelY: 75 },
+  { region: 'tail', x: 1, y: 20, w: 12, h: 22, labelX: 7, labelY: 30 },
 ];
 
 // Zones for bird (bipedal)
 const BIRD_ZONES: ZoneDef[] = [
-  { region: 'skin', x: 5, y: 3, w: 90, h: 58, labelX: 50, labelY: 5, zIndex: 1 },
-  { region: 'head', x: 62, y: 2, w: 28, h: 20, labelX: 76, labelY: 12, zIndex: 10 },
-  { region: 'neck', x: 48, y: 10, w: 22, h: 22, labelX: 59, labelY: 22, zIndex: 10 },
-  { region: 'thorax', x: 25, y: 15, w: 32, h: 32, labelX: 41, labelY: 32, zIndex: 10 },
-  { region: 'abdomen', x: 12, y: 28, w: 28, h: 28, labelX: 26, labelY: 42, zIndex: 10 },
-  { region: 'tail', x: 0, y: 20, w: 15, h: 22, labelX: 8, labelY: 31, zIndex: 10 },
-  { region: 'front_legs', x: 32, y: 47, w: 22, h: 48, labelX: 43, labelY: 70, zIndex: 10 },
-  { region: 'hind_legs', x: 22, y: 50, w: 15, h: 45, labelX: 30, labelY: 72, zIndex: 10 },
+  { region: 'head', x: 65, y: 5, w: 25, h: 22, labelX: 78, labelY: 16 },
+  { region: 'neck', x: 52, y: 15, w: 20, h: 20, labelX: 62, labelY: 25 },
+  { region: 'thorax', x: 30, y: 20, w: 30, h: 30, labelX: 45, labelY: 35 },
+  { region: 'abdomen', x: 15, y: 30, w: 25, h: 25, labelX: 28, labelY: 42 },
+  { region: 'skin', x: 10, y: 5, w: 82, h: 55, labelX: 50, labelY: 10 },
+  { region: 'front_legs', x: 35, y: 55, w: 20, h: 40, labelX: 45, labelY: 75 },
+  { region: 'hind_legs', x: 25, y: 55, w: 15, h: 40, labelX: 32, labelY: 75 },
+  { region: 'tail', x: 0, y: 25, w: 18, h: 22, labelX: 9, labelY: 36 },
 ];
 
 function getZones(species: string): ZoneDef[] {
@@ -73,37 +74,35 @@ function getRegionStyle(
   isExamined: boolean,
   isAbnormal: boolean,
 ): React.CSSProperties {
-  const base: React.CSSProperties = {
-    position: 'absolute',
+  if (isSelected) {
+    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.22)', borderColor: 'rgba(0,122,255,0.7)', borderStyle: 'solid' };
+  }
+  if (isHovered) {
+    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.14)', borderColor: 'rgba(0,122,255,0.55)', borderStyle: 'solid' };
+  }
+  if (isExamined && isAbnormal) {
+    return { ...baseRect(zone), backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.4)', borderStyle: 'solid' };
+  }
+  if (isExamined) {
+    return { ...baseRect(zone), backgroundColor: 'rgba(40,205,65,0.06)', borderColor: 'rgba(40,205,65,0.35)', borderStyle: 'solid' };
+  }
+  // Default: subtle dashed border
+  return { ...baseRect(zone), backgroundColor: 'transparent', borderColor: 'rgba(0,122,255,0.18)', borderStyle: 'dashed' };
+}
+
+function baseRect(zone: ZoneDef) {
+  return {
+    position: 'absolute' as const,
     left: `${zone.x}%`,
     top: `${zone.y}%`,
     width: `${zone.w}%`,
     height: `${zone.h}%`,
-    borderWidth: zone.region === 'skin' ? '1px' : '2px',
+    borderWidth: '2px',
     borderRadius: '8px',
     transition: 'all 0.2s ease',
     cursor: 'pointer',
-    boxSizing: 'border-box',
-    zIndex: zone.zIndex,
+    boxSizing: 'border-box' as const,
   };
-
-  if (isSelected) {
-    return { ...base, backgroundColor: 'rgba(0,122,255,0.22)', borderColor: 'rgba(0,122,255,0.7)', borderStyle: 'solid' };
-  }
-  if (isHovered) {
-    return { ...base, backgroundColor: 'rgba(0,122,255,0.14)', borderColor: 'rgba(0,122,255,0.55)', borderStyle: 'solid' };
-  }
-  if (isExamined && isAbnormal) {
-    return { ...base, backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.4)', borderStyle: 'solid' };
-  }
-  if (isExamined) {
-    return { ...base, backgroundColor: 'rgba(40,205,65,0.06)', borderColor: 'rgba(40,205,65,0.35)', borderStyle: 'solid' };
-  }
-  // Default
-  if (zone.region === 'skin') {
-    return { ...base, backgroundColor: 'transparent', borderColor: 'rgba(0,122,255,0.08)', borderStyle: 'dashed' };
-  }
-  return { ...base, backgroundColor: 'transparent', borderColor: 'rgba(0,122,255,0.18)', borderStyle: 'dashed' };
 }
 
 function IndicatorBadge({
@@ -123,7 +122,6 @@ function IndicatorBadge({
         left: `${zone.labelX}%`,
         top: `${zone.labelY}%`,
         transform: 'translate(-50%, -50%)',
-        zIndex: zone.zIndex + 5,
       }}
     >
       {isAbnormal ? (
@@ -203,11 +201,11 @@ export function AnimalSVG({
           />
         ) : null}
 
-        {/* Fallback: emoji silhouette if image fails */}
+        {/* Fallback: simple silhouette if image fails */}
         {imgError && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-7xl mb-2 opacity-50">
+              <div className="text-6xl mb-2 opacity-40">
                 {species === 'собаки' ? '🐕' : species === 'кошки' ? '🐈' : species === 'КРС' ? '🐄' : species === 'свиньи' ? '🐷' : species === 'МРС' ? '🐑' : species === 'лошади' ? '🐴' : '🐔'}
               </div>
               <p className="text-xs text-muted-foreground">{species}</p>

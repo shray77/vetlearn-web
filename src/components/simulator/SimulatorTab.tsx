@@ -113,24 +113,18 @@ export function SimulatorTab() {
 
   // ===== Scenario Generation =====
   const handleGenerate = async () => {
-    const sp = selectedSpecies;
     setIsGenerating(true);
     setIsSimulatorActive(true);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120_000); // 2 min timeout
-
     try {
       const res = await fetch('/api/simulator/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
         body: JSON.stringify({
-          species: sp,
+          species: selectedSpecies,
           difficulty: selectedDifficulty,
           topic: selectedTopic || undefined,
         }),
       });
-      clearTimeout(timeoutId);
       const data = await res.json();
       if (data.success && data.scenario) {
         const s = data.scenario as SimulatorScenario;
@@ -168,15 +162,10 @@ export function SimulatorTab() {
         toast.error(data.error || 'Ошибка генерации');
         setIsSimulatorActive(false);
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
-        toast.error('Превышено время ожидания. Попробуйте ещё раз.');
-      } else {
-        toast.error('Ошибка соединения с сервером');
-      }
+    } catch {
+      toast.error('Ошибка соединения');
       setIsSimulatorActive(false);
     } finally {
-      clearTimeout(timeoutId);
       setIsGenerating(false);
     }
   };
@@ -266,9 +255,6 @@ export function SimulatorTab() {
   const handleSubmitEvaluation = async () => {
     if (!session || !scenario) return;
     setIsEvaluating(true);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90_000); // 90s timeout
-
     try {
       const evalSession: SimulatorSession = {
         ...session,
@@ -283,10 +269,8 @@ export function SimulatorTab() {
       const res = await fetch('/api/simulator/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
         body: JSON.stringify({ session: evalSession }),
       });
-      clearTimeout(timeoutId);
       const data = await res.json();
       if (data.success) {
         const ev: SimulatorEvaluation = {
@@ -311,14 +295,9 @@ export function SimulatorTab() {
       } else {
         toast.error(data.error || 'Ошибка оценки');
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
-        toast.error('Превышено время ожидания оценки. Попробуйте ещё раз.');
-      } else {
-        toast.error('Ошибка соединения с сервером');
-      }
+    } catch {
+      toast.error('Ошибка соединения');
     } finally {
-      clearTimeout(timeoutId);
       setIsEvaluating(false);
     }
   };
@@ -495,7 +474,7 @@ export function SimulatorTab() {
 
         <Button
           className="w-full squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-14 text-sm font-bold shadow-lg"
-          onClick={() => { void handleGenerate(); }}
+          onClick={handleGenerate}
           disabled={isGenerating}
         >
           {isGenerating ? (
@@ -669,7 +648,7 @@ export function SimulatorTab() {
               </Button>
               <Button
                 className="flex-1 squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-12"
-                onClick={() => { void handleGenerate(); }}
+                onClick={handleGenerate}
                 disabled={isGenerating}
               >
                 {isGenerating ? (
