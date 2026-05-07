@@ -65,13 +65,16 @@ function buildFallbackEvaluation(
   ).length;
 
   const feedback: FeedbackItem[] = questions.map(
-    (q: any, i: number) => ({
-      questionIndex: i,
-      correct: safeAnswers[i] === q?.correctIndex,
-      studentAnswer: q?.options?.[safeAnswers[i]] ?? 'Не ответил',
-      correctAnswer: q?.options?.[q?.correctIndex] ?? 'Не указан',
-      explanation: q?.explanation || 'Объяснение недоступно.',
-    })
+    (q: any, i: number) => {
+      const ansIdx = safeAnswers[i];
+      return {
+        questionIndex: i,
+        correct: ansIdx !== null && ansIdx === q?.correctIndex,
+        studentAnswer: ansIdx !== null && q?.options?.[ansIdx] ? q.options[ansIdx] : 'Не ответил',
+        correctAnswer: q?.options?.[q?.correctIndex] ?? 'Не указан',
+        explanation: q?.explanation || 'Объяснение недоступно.',
+      };
+    }
   );
 
   return {
@@ -151,12 +154,12 @@ export async function POST(req: NextRequest) {
 Ответы студента:
 ${clinicalCase.questions
   .map(
-    (q: { question: string; options: string[]; correctIndex: number }, i: number) =>
+    (q: { question: string; options: string[]; correctIndex: number; explanation?: string }, i: number) =>
       `Вопрос ${i + 1}: "${q.question}"
 Варианты: ${q.options.map((o: string, j: number) => `${['А', 'Б', 'В', 'Г'][j]}) ${o}`).join('; ')}
 Ответ студента: ${['А', 'Б', 'В', 'Г'][answers[i]]} - "${q.options[answers[i]] || 'Не ответил'}"
 Правильный ответ: ${['А', 'Б', 'В', 'Г'][q.correctIndex]} - "${q.options[q.correctIndex]}"
-Объяснение из кейса: "${q.explanation}"`
+${q.explanation ? `Объяснение из кейса: "${q.explanation}"` : ''}`
   )
   .join('\n\n---\n\n')}
 

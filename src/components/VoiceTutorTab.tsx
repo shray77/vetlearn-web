@@ -24,7 +24,7 @@ export function VoiceTutorTab() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   // FIX #3: track current audio + object URL for proper cleanup
-  const audioRef = useRef<Audio | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   // FIX #4: track stream for cleanup
   const streamRef = useRef<MediaStream | null>(null);

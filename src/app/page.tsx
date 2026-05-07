@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { Header } from '@/components/Header';
@@ -24,12 +24,22 @@ export default function Home() {
   const { activeTab, setActiveTab, updateStreak, srCards, flashcards, notificationsEnabled, notificationPermission, lastReminderDate, setLastReminderDate, profile } = useStore();
   const mainRef = useRef<HTMLElement>(null);
 
+  // FIX: Hydration guard — wait until zustand persist rehydrates from localStorage
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
-    updateStreak();
-  }, [updateStreak]);
+    // useStore.persist.rehydrate() is synchronous after mount in zustand
+    // Wait one tick to ensure the store has hydrated from localStorage
+    const timer = setTimeout(() => setHydrated(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) updateStreak();
+  }, [hydrated, updateStreak]);
 
   // ===== Notification reminders on app open =====
   useEffect(() => {
+    if (!hydrated) return;
     if (!notificationsEnabled || notificationPermission !== 'granted') return;
 
     const today = new Date().toISOString().split('T')[0];
@@ -70,7 +80,7 @@ export default function Home() {
       } catch {}
       setLastReminderDate(today);
     }
-  }, [notificationsEnabled, notificationPermission, srCards, flashcards, lastReminderDate, setLastReminderDate, profile.streak, profile.streakLastDate]);
+  }, [hydrated, notificationsEnabled, notificationPermission, srCards, flashcards, lastReminderDate, setLastReminderDate, profile.streak, profile.streakLastDate]);
 
   // Auto-scroll to top when switching tabs
   useEffect(() => {
@@ -82,6 +92,26 @@ export default function Home() {
   const handleNavigate = useCallback((tab: string) => {
     setActiveTab(tab);
   }, [setActiveTab]);
+
+  // Show nothing until hydrated to avoid SSR/client mismatch
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 max-w-4xl mx-auto w-full px-4 pt-4 pb-20">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#28CD41] to-[#1FA833] flex items-center justify-center mx-auto mb-3 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-paw-print w-5 h-5 text-white"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>
+              </div>
+              <p className="text-sm text-muted-foreground">Загрузка...</p>
+            </div>
+          </div>
+        </main>
+        <BottomNav activeTab="dashboard" onTabChange={() => {}} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

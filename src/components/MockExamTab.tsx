@@ -46,6 +46,7 @@ interface QuestionRecord {
   question: string;
   answer: string;
   feedback: ExamFeedback;
+  followUp?: string;
   followUpAnswer?: string;
   followUpFeedback?: ExamFeedback;
 }
@@ -245,7 +246,7 @@ export function MockExamTab() {
             // Show follow-up question
             setCurrentFollowUp(feedback.followUp);
             setCurrentFollowUpAnswer('');
-            setQuestionRecords(prev => [...prev, record]);
+            setQuestionRecords(prev => [...prev, { ...record, followUp: feedback.followUp || undefined }]);
             setQuestionHistory(prev => [...prev, { question: currentQuestion.text, answer: answerText }]);
           } else {
             // No follow-up — move on

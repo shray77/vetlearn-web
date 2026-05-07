@@ -40,8 +40,8 @@ export function SkillRadarChart({ skillMap }: { skillMap: Record<string, number>
             fontSize: '12px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           }}
-          formatter={(value: number) => [`${value}%`, 'Мастерство']}
-          labelFormatter={(label: string) => {
+          formatter={(value) => [`${value}%`, 'Мастерство']}
+          labelFormatter={(label) => {
             const item = data.find(d => d.topic === label);
             return item?.fullName || label;
           }}

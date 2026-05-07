@@ -99,12 +99,12 @@ ${Object.entries(topicStats)
 
 Детали неправильных ответов:
 ${questions
-  .map((q: { question: string; options: string[]; correctIndex: number }, i: number) => {
+  .map((q: { question: string; options: string[]; correctIndex: number; explanation?: string }, i: number) => {
     if (answers[i] !== q.correctIndex) {
       return `Вопрос: "${q.question}"
 Студент ответил: "${q.options[answers[i]] || 'Не ответил'}"
 Правильный ответ: "${q.options[q.correctIndex]}"
-Объяснение: "${q.explanation}"`;
+${q.explanation ? `Объяснение: "${q.explanation}"` : ''}`;
     }
     return null;
   })
@@ -142,7 +142,7 @@ ${questions
       } else {
         // Fallback: generate basic analysis from our stats
         const skillMap: Record<string, number> = {};
-        const gaps = [];
+        const gaps: Array<{ topicId: string; topicName: string; currentLevel: number; targetLevel: number; priority: string }> = [];
         for (const [topic, stats] of Object.entries(topicStats)) {
           const mastery = Math.round((stats.correct / stats.total) * 100);
           skillMap[topic] = mastery;
