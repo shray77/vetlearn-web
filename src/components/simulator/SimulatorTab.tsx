@@ -125,6 +125,8 @@ export function SimulatorTab() {
     if (isGenerating) return;
     setIsGenerating(true);
     setIsSimulatorActive(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
     try {
       const res = await fetch('/api/simulator/generate', {
         method: 'POST',
@@ -134,7 +136,9 @@ export function SimulatorTab() {
           difficulty: selectedDifficulty,
           topic: selectedTopic || undefined,
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       if (data.success && data.scenario) {
         const s = data.scenario as SimulatorScenario;
@@ -172,8 +176,13 @@ export function SimulatorTab() {
         toast.error(data.error || 'Ошибка генерации');
         setIsSimulatorActive(false);
       }
-    } catch {
-      toast.error('Ошибка соединения');
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        toast.error('Сервер не отвечает. Попробуйте ещё раз.');
+      } else {
+        toast.error('Ошибка соединения');
+      }
       setIsSimulatorActive(false);
     } finally {
       setIsGenerating(false);

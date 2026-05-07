@@ -222,7 +222,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
 
       {/* "Ещё" bottom sheet */}
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[70vh] px-4 pb-8">
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[75vh] px-4 pb-12">
           <SheetHeader className="text-left mb-2">
             <SheetTitle className="text-base">Разделы</SheetTitle>
             <SheetDescription className="text-xs">
