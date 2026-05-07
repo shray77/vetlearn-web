@@ -214,7 +214,7 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
 const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   // 1. Кошка — воспаление мочевого пузыря
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fb_cystitis',
     species: 'кошки',
     breed: 'Британская короткошёрстная',
     age: '4 года',
@@ -257,7 +257,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   },
   // 2. Собака — отравление
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fb_antifreeze',
     species: 'собаки',
     breed: 'Лабрадор',
     age: '3 года',
@@ -299,7 +299,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   },
   // 3. Корова — мастит
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fb_mastitis',
     species: 'КРС',
     breed: 'Голштинская',
     age: '5 лет',
@@ -340,7 +340,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   },
   // 4. Лошадь — колика
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fb_colic',
     species: 'лошади',
     breed: 'Ахалтекинец',
     age: '8 лет',
@@ -381,7 +381,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   },
   // 5. Свинья — бронхопневмония
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fb_pneumonia',
     species: 'свиньи',
     breed: 'Йоркширская',
     age: '3 месяца',
@@ -422,7 +422,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   },
   // 6. Овца — копытная гниль
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fid_footrot',
     species: 'МРС',
     breed: 'Дорпер',
     age: '4 года',
@@ -460,7 +460,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
   },
   // 7. Курица — сальмонеллёз
   {
-    id: `sim_${Date.now()}`,
+    id: 'sim_fb_pullorosis',
     species: 'птица',
     breed: 'Леггорн',
     age: '6 месяцев',

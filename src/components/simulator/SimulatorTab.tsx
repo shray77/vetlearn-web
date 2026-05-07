@@ -233,13 +233,17 @@ export function SimulatorTab() {
     const test = scenario.availableTests[testIndex];
     if (!test || test.isRevealed) return;
 
-    const remainingBudget = (scenario?.budget || 6000) - budgetSpent;
-    if (test.cost > remainingBudget) {
+    // Use optimistic budget tracking to prevent race conditions
+    const cost = test.cost;
+    const newBudgetSpent = budgetSpent + cost;
+    const budget = scenario?.budget || 6000;
+    if (cost > budget - budgetSpent) {
       toast.error('Недостаточно средств');
       return;
     }
 
-    setBudgetSpent(prev => prev + test.cost);
+    // Update budget first (optimistic) to block double-clicks
+    setBudgetSpent(newBudgetSpent);
     setScenario(prev => {
       if (!prev) return prev;
       const updated = { ...prev };
@@ -248,7 +252,7 @@ export function SimulatorTab() {
       return updated;
     });
 
-    toast.success(`🧪 Результат: ${test.result}`);
+    toast.success(`🧪 ${test.name}: результат получен`);
   }, [scenario, budgetSpent]);
 
   // ===== Anamnesis =====
@@ -266,6 +270,14 @@ export function SimulatorTab() {
   const handleSubmitEvaluation = async () => {
     if (isEvaluating) return;
     if (!session || !scenario) return;
+    if (!selectedDiagnosis) {
+      toast.error('Поставьте диагноз перед завершением');
+      return;
+    }
+    if (!selectedTreatment) {
+      toast.error('Выберите лечение перед завершением');
+      return;
+    }
     setIsEvaluating(true);
     try {
       const evalSession: SimulatorSession = {
@@ -859,7 +871,7 @@ export function SimulatorTab() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-xs font-semibold flex items-center gap-1.5">
-                      📋 Найки ({discoveredFindings.length})
+                      📋 Находки ({discoveredFindings.length})
                     </h3>
                     {criticalMissed > 0 && (
                       <Badge variant="outline" className="text-[9px] text-[#FF3B30] border-[#FF3B30]/30">

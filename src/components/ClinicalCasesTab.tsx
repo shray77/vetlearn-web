@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS, SPECIES_OPTIONS, DIFFICULTY_OPTIONS } from '@/lib/vet-topics';
@@ -327,7 +327,9 @@ export function ClinicalCasesTab() {
     );
   }
   if (q.correctIndex == null) {
-    toast.error('Ошибка: вопрос не содержит правильного ответа.');
+    // Use effect to defer toast to avoid render-time side effect
+    const msg = 'Ошибка: вопрос не содержит правильного ответа.';
+    useEffect(() => { toast.error(msg); }, [msg]);
     return (
       <div className="space-y-4 pb-4">
         <p className="text-center text-sm text-muted-foreground py-8">Ошибка: вопрос повреждён.</p>
