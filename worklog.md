@@ -1,43 +1,61 @@
 # Worklog — Bug Fixes (3 issues)
 
-## Date: $(date)
+## Session 1: Initial audit & fixes
+- Merged MR !1
+- Fixed json-utils extraction, .gitignore, next.config
+- Removed examples/, vetlearn-web/ nested copy, skills/ directories
+- Fixed 6 TypeScript errors across files
+- Removed two middleware files breaking Next.js 16
+- Created HydrationGuard.tsx for Zustand persist SSR fix
 
-## ISSUE 1: Simulator generate route — timeout & fallback extraction
+## Session 2: Simulator + UI fixes
 
-### Problem
-- The generate route had a 120s timeout (too long), and a massive inline FALLBACK_SCENARIOS array (~300 lines) causing slow cold starts.
-- Client-side fetch in SimulatorTab.tsx had no timeout handling.
+### ISSUE 1: Simulator not working — double-call overhead & timeouts
+
+### Root cause
+All 11 API routes used `thinking: { type: 'disabled' }` parameter which may not be supported by the AI SDK. Combined with `response_format: { type: 'json_object' }` in a try/catch pattern, every AI call attempted twice:
+1. First attempt with `response_format` + `thinking` → fails
+2. Retry without `response_format` but WITH `thinking` → could also fail
+
+This doubled latency on every request. For the simulator's complex JSON generation (18 findings + 8 tests + 8 questions), the first call could take 30-40s, the retry another 30-40s, exceeding the client's 60s timeout.
 
 ### Changes
 
-**New file: `src/lib/fallback-scenarios.ts`**
-- Extracted all 7 fallback scenarios (FALLBACK_SCENARIOS array) + interfaces (ExaminationFinding, LabTest, SimulatorScenario) + getFallbackScenario() helper into a separate module.
-- This reduces the generate route from 636 lines to ~280 lines and avoids loading ~300 lines of static data on every cold start.
-
 **Modified: `src/app/api/simulator/generate/route.ts`**
-- Removed inline FALLBACK_SCENARIOS array and local interface declarations.
-- Added import: `import { FALLBACK_SCENARIOS, getFallbackScenario, type SimulatorScenario } from '@/lib/fallback-scenarios'`
-- Changed AbortController timeout from 120_000ms to 60_000ms.
-- (Already had `thinking: { type: 'disabled' }` and `response_format` with try/catch fallback — confirmed these are present.)
+- Removed dead AbortController (created but signal never passed anywhere)
+- Removed `thinking: { type: 'disabled' }` parameter
+- Removed `response_format: { type: 'json_object' }` double-call pattern
+- Single clean `zai.chat.completions.create()` call with just messages + temperature
+- Added empty response check with fallback
+
+**Modified: `src/app/api/simulator/evaluate/route.ts`**
+- Same fixes: removed dead AbortController, thinking param, double-call pattern
+- Single clean AI call with temperature: 0.7
 
 **Modified: `src/components/simulator/SimulatorTab.tsx`**
-- Added AbortController with 60s timeout to handleGenerate fetch call.
-- Added `signal: controller.signal` to the fetch options.
-- Catches AbortError specifically: shows "Сервер не отвечает. Попробуйте ещё раз." toast.
-- Falls back to generic "Ошибка соединения" for other errors.
-- Always calls `clearTimeout(timeoutId)` and `setIsSimulatorActive(false)` in error paths.
+- Increased client timeout from 60s to 120s for scenario generation
+- Added AbortController with 90s timeout for evaluation request
 
-## ISSUE 2: BottomNav sheet tabs going off screen
+**Modified: 6 more API route files (same pattern fix)**
+- `src/app/api/flashcards/generate/route.ts`
+- `src/app/api/flashcards/ocr/route.ts` (had triple-call: vision+format → vision only → no vision)
+- `src/app/api/case/evaluate/route.ts`
+- `src/app/api/case/generate/route.ts`
+- `src/app/api/mindmap/generate/route.ts`
+- `src/app/api/exam/route.ts` (2 instances)
 
-**Modified: `src/components/BottomNav.tsx`**
-- Changed Sheet `max-h-[70vh]` → `max-h-[75vh]` for more room.
-- Changed Sheet `pb-8` → `pb-12` to account for safe area at bottom on iOS devices.
+**Modified: 4 single-call API routes (removed `thinking` param)**
+- `src/app/api/resources/recommend/route.ts`
+- `src/app/api/assessment/route.ts`
+- `src/app/api/assessment/result/route.ts`
+- `src/app/api/tutor/chat/route.ts`
 
-## ISSUE 3: Missing `.safe-area-bottom` CSS class
+### ISSUE 2: UI — tabs going off-screen
 
-**Modified: `src/app/globals.css`**
-- Added `.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }` at the end of the file.
-- The BottomNav nav element already uses the `safe-area-bottom` class — now it actually applies the CSS.
+**Modified: `src/app/page.tsx`**
+- Increased bottom padding from `pb-20` (80px) to `pb-24` (96px)
+- Better coverage for fixed bottom nav (h-16 = 64px) + safe area on iOS
 
-## Build
-- ✅ `npx next build` passes successfully with no TypeScript errors.
+### Build
+- ✅ `npx next build` passes — 0 TypeScript errors, 0 warnings
+- Commit: `e339aff` pushed to main
