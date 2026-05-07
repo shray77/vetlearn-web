@@ -59,3 +59,28 @@ This doubled latency on every request. For the simulator's complex JSON generati
 ### Build
 - ✅ `npx next build` passes — 0 TypeScript errors, 0 warnings
 - Commit: `e339aff` pushed to main
+---
+Task ID: 1
+Agent: main
+Task: Git verification, simulator audit, Apple HIG design improvements
+
+Work Log:
+- Verified git push status: 3 commits on main (e339aff, 9c5eba2, bd9fecb)
+- Confirmed all pushes successful to GitLab
+- Read and audited SimulatorTab.tsx (1224 lines), both API routes, AnimalSVG, fallback-scenarios
+- Confirmed simulator images exist (7 species PNGs in /public/simulator-animals/)
+- Confirmed res.ok checks already present (added in commit 9c5eba2)
+- Fixed typography: text-[8px]->text-[9px], text-[9px]->text-[10px] in SimulatorTab
+- Header: added env(safe-area-inset-top) padding, reduced height 56px->48px
+- Header: replaced button toggles with iOS-style toggle switches (role="switch")
+- BottomNav: migrated to Phosphor Icons with duotone weight for SF Symbols-like appearance
+- BottomNav: increased label size text-[10px]->text-[11px]
+- Installed @phosphor-icons/react for Phosphor icon system
+- Added CSS utilities: .toggle-switch, .touch-target, .card-lift
+- Build passes cleanly, all changes pushed
+
+Stage Summary:
+- Commit bd9fecb pushed with all design improvements
+- Simulator code is solid: proper timeouts, res.ok checks, fallback scenarios
+- Phosphor Icons installed for incremental migration (bottom nav + header logo done)
+- Recommended: full migration to Phosphor duotone for all icon contexts (see research)
