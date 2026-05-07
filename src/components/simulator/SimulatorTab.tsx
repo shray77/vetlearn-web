@@ -126,7 +126,7 @@ export function SimulatorTab() {
     setIsGenerating(true);
     setIsSimulatorActive(true);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
     try {
       const res = await fetch('/api/simulator/generate', {
         method: 'POST',
@@ -299,11 +299,16 @@ export function SimulatorTab() {
         treatmentSubmitted: selectedTreatment,
       };
 
+      const evalController = new AbortController();
+      const evalTimeout = setTimeout(() => evalController.abort(), 90000);
+
       const res = await fetch('/api/simulator/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session: evalSession }),
+        signal: evalController.signal,
       });
+      clearTimeout(evalTimeout);
       const data = await res.json();
       if (data.success) {
         const ev: SimulatorEvaluation = {

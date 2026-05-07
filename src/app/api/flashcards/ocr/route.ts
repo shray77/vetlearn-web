@@ -107,57 +107,24 @@ export async function POST(req: NextRequest) {
     // Use VLM (vision model) via chat completions with image content
     let responseText = '';
 
-    try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: userPrompt },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: base64Data.startsWith('data:') ? image : `data:image/jpeg;base64,${base64Data}`,
-                },
-              },
-            ],
-          },
-        ] as any,
-        thinking: { type: 'disabled' },
-        response_format: { type: 'json_object' } as any,
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    } catch (visionError) {
-      console.warn('[ocr] Vision with format failed, retrying:', visionError);
-      try {
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+    const completion = await zai.chat.completions.create({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: userPrompt },
             {
-              role: 'user',
-              content: [
-                { type: 'text', text: userPrompt },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: base64Data.startsWith('data:') ? image : `data:image/jpeg;base64,${base64Data}`,
-                  },
-                },
-              ],
+              type: 'image_url',
+              image_url: {
+                url: base64Data.startsWith('data:') ? image : `data:image/jpeg;base64,${base64Data}`,
+              },
             },
-          ] as any,
-          thinking: { type: 'disabled' },
-        });
-        responseText = completion.choices[0]?.message?.content || '';
-      } catch (fallbackError) {
-        console.error('[ocr] Vision failed:', fallbackError);
-        return NextResponse.json(
-          { error: 'Не удалось обработать изображение. Попробуйте фото с более чётким текстом.' },
-          { status: 500 }
-        );
-      }
-    }
+          ],
+        },
+      ] as any,
+    });
+    responseText = completion.choices[0]?.message?.content || '';
 
     const parsed = extractJSON(responseText);
     if (!parsed) {

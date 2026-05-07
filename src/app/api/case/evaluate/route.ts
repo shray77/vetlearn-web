@@ -165,31 +165,15 @@ ${q.explanation ? `Объяснение из кейса: "${q.explanation}"` : '
 
 Дай детальную обратную связь по каждому ответу. Будь конструктивным и обучающим.`;
 
-    // --- AI call with response_format attempt ---
+    // --- AI call ---
     let responseText = '';
-
-    try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-        response_format: { type: 'json_object' } as any,
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    } catch (formatError) {
-      // response_format might not be supported, retry without it
-      console.warn('[case/evaluate] response_format not supported, retrying without it:', formatError);
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    }
+    const completion = await zai.chat.completions.create({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+    });
+    responseText = completion.choices[0]?.message?.content || '';
 
     // --- Multi-strategy JSON extraction ---
     let parsed: unknown = extractJSON(responseText);

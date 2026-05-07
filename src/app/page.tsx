@@ -117,7 +117,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main ref={mainRef} className="flex-1 max-w-4xl mx-auto w-full px-4 pt-4 pb-20">
+      <main ref={mainRef} className="flex-1 max-w-4xl mx-auto w-full px-4 pt-4 pb-24">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

@@ -65,7 +65,6 @@ export async function POST(req: NextRequest) {
 
     const completion = await zai.chat.completions.create({
       messages,
-      thinking: { type: 'disabled' },
     });
 
     const responseText = completion.choices[0]?.message?.content || 'Извините, не удалось получить ответ.';

@@ -155,26 +155,13 @@ async function handleStart(body: {
 Задай первый вопрос. Вопрос должен требовать развёрнутого ответа (не тестовый). Выбери тему для первого вопроса из списка тем.`;
 
   let responseText = '';
-  try {
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: EXAM_START_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      thinking: { type: 'disabled' },
-      response_format: { type: 'json_object' } as any,
-    });
-    responseText = completion.choices[0]?.message?.content || '';
-  } catch {
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: EXAM_START_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      thinking: { type: 'disabled' },
-    });
-    responseText = completion.choices[0]?.message?.content || '';
-  }
+  const completion = await zai.chat.completions.create({
+    messages: [
+      { role: 'system', content: EXAM_START_PROMPT },
+      { role: 'user', content: userPrompt },
+    ],
+  });
+  responseText = completion.choices[0]?.message?.content || '';
 
   const parsed = extractJSON(responseText);
   if (!parsed || typeof parsed !== 'object') {
@@ -274,26 +261,13 @@ ${historyContext ? `Предыдущие вопросы и ответы:\n${hist
 ${isLast ? 'Это ПОСЛЕДНИЙ вопрос экзамена. Подведи итоги по всем ответам.' : 'Задай следующий вопрос по другой теме из списка.'}`;
 
   let responseText = '';
-  try {
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      thinking: { type: 'disabled' },
-      response_format: { type: 'json_object' } as any,
-    });
-    responseText = completion.choices[0]?.message?.content || '';
-  } catch {
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      thinking: { type: 'disabled' },
-    });
-    responseText = completion.choices[0]?.message?.content || '';
-  }
+  const completion = await zai.chat.completions.create({
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+  });
+  responseText = completion.choices[0]?.message?.content || '';
 
   const parsed = extractJSON(responseText);
 

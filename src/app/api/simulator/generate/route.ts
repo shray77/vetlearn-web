@@ -210,10 +210,6 @@ export async function POST(req: NextRequest) {
 
     const zai = await ZAI.create();
 
-    // AbortController с таймаутом 60 секунд
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60_000);
-
     const difficultyDescriptions: Record<string, string> = {
       beginner: 'простой клинический случай с очевидной диагностикой, подходящий для начинающих студентов',
       intermediate: 'клинический случай средней сложности, требующий дифференциальной диагностики',
@@ -239,35 +235,22 @@ ${topic ? `- Тема: ${topic}` : ''}
 НЕ делай бабезиоз/пироплазмоз. Выбери другое заболевание.
 Верни ТОЛЬКО JSON.`;
 
-    // --- AI call with response_format attempt ---
+    // --- AI call (single attempt, no double-call overhead) ---
     let responseText = '';
 
-    try {
-      try {
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: userPrompt },
-          ],
-          thinking: { type: 'disabled' },
-          temperature: 0.9,
-          response_format: { type: 'json_object' } as any,
-        });
-        responseText = completion.choices[0]?.message?.content || '';
-      } catch (formatError) {
-        console.warn('[simulator/generate] response_format not supported, retrying without it:', formatError);
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: userPrompt },
-          ],
-          thinking: { type: 'disabled' },
-          temperature: 0.9,
-        });
-        responseText = completion.choices[0]?.message?.content || '';
-      }
-    } finally {
-      clearTimeout(timeout);
+    const completion = await zai.chat.completions.create({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.9,
+    });
+    responseText = completion.choices[0]?.message?.content || '';
+
+    if (!responseText) {
+      console.error('[simulator/generate] Empty response from AI');
+      const fallback = getFallbackScenario();
+      return NextResponse.json({ success: true, scenario: fallback, isFallback: true });
     }
 
     // --- Multi-strategy JSON extraction ---

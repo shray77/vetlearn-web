@@ -197,10 +197,6 @@ export async function POST(req: NextRequest) {
 
     const zai = await ZAI.create();
 
-    // AbortController с таймаутом 90 секунд
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90_000);
-
     const scenario = session.scenario;
     const findings = session.discoveredFindings || [];
 
@@ -251,46 +247,33 @@ ${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === c
 
 Дай детальную оценку. Будь конструктивным и обучающим.`;
 
-    // --- AI call with response_format attempt ---
+    // --- AI call (single attempt, no double-call overhead) ---
     let responseText = '';
 
-    try {
-      try {
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: userPrompt },
-          ],
-          thinking: { type: 'disabled' },
-          response_format: { type: 'json_object' } as any,
-        });
-        responseText = completion.choices[0]?.message?.content || '';
-      } catch (formatError) {
-        console.warn('[simulator/evaluate] response_format not supported, retrying without it:', formatError);
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: userPrompt },
-          ],
-          thinking: { type: 'disabled' },
-        });
-        responseText = completion.choices[0]?.message?.content || '';
-      }
-    } finally {
-      clearTimeout(timeout);
-    }
-
-    // --- Multi-strategy JSON extraction ---
-    let parsed: unknown = extractJSON(responseText);
+    const completion = await zai.chat.completions.create({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.7,
+    });
+    responseText = completion.choices[0]?.message?.content || '';
 
     let evaluation: SimulatorEvaluation;
 
-    if (parsed === null) {
-      console.error('[simulator/evaluate] All JSON parsing strategies failed. Using fallback evaluation.');
-      console.error('[simulator/evaluate] RAW RESPONSE TEXT:', responseText.substring(0, 1000));
+    if (!responseText) {
+      console.error('[simulator/evaluate] Empty response from AI');
       evaluation = buildFallbackEvaluation(session);
     } else {
-      evaluation = validateEvaluation(parsed, session);
+      // --- Multi-strategy JSON extraction ---
+      let parsed: unknown = extractJSON(responseText);
+
+      if (parsed === null) {
+        console.error('[simulator/evaluate] All JSON parsing strategies failed. Using fallback evaluation.');
+        evaluation = buildFallbackEvaluation(session);
+      } else {
+        evaluation = validateEvaluation(parsed, session);
+      }
     }
 
     return NextResponse.json({

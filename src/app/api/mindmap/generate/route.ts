@@ -124,27 +124,13 @@ export async function POST(req: NextRequest) {
 Все тексты на русском языке. Верни ТОЛЬКО JSON.`;
 
     let responseText = '';
-
-    try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-        response_format: { type: 'json_object' } as any,
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    } catch {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    }
+    const completion = await zai.chat.completions.create({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+    });
+    responseText = completion.choices[0]?.message?.content || '';
 
     let parsed = extractJSON(responseText);
 

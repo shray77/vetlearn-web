@@ -172,7 +172,6 @@ ${curatedList}
         },
         { role: 'user', content: userPrompt },
       ],
-      thinking: { type: 'disabled' },
     });
 
     let responseText = completion.choices[0]?.message?.content || '';
