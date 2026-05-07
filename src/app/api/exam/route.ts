@@ -160,6 +160,7 @@ async function handleStart(body: {
       { role: 'system', content: EXAM_START_PROMPT },
       { role: 'user', content: userPrompt },
     ],
+    max_tokens: 4096,
   });
   responseText = completion.choices[0]?.message?.content || '';
 
@@ -266,6 +267,7 @@ ${isLast ? 'Это ПОСЛЕДНИЙ вопрос экзамена. Подве�
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
+    max_tokens: 4096,
   });
   responseText = completion.choices[0]?.message?.content || '';
 

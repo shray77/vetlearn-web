@@ -256,6 +256,7 @@ ${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === c
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
+      max_tokens: 4096,
     });
     responseText = completion.choices[0]?.message?.content || '';
 

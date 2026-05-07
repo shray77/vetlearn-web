@@ -172,6 +172,7 @@ ${q.explanation ? `Объяснение из кейса: "${q.explanation}"` : '
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userPrompt },
       ],
+      max_tokens: 4096,
     });
     responseText = completion.choices[0]?.message?.content || '';
 

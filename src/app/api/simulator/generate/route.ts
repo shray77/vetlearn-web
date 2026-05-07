@@ -3,78 +3,30 @@ import ZAI from 'z-ai-web-dev-sdk';
 import { extractJSON } from '@/lib/json-utils';
 import { FALLBACK_SCENARIOS, getFallbackScenario, type SimulatorScenario } from '@/lib/fallback-scenarios';
 
-const SYSTEM_PROMPT = `Ты — опытный ветеринарный врач, создающий сценарии для интерактивного симулятора ветеринарной практики. Студент будет виртуально осматривать животное, назначать анализы и ставить диагноз.
+const SYSTEM_PROMPT = `Ты — ветеринарный врач, создаёшь сценарии для симулятора. Студент осматривает животное, назначает анализы, ставит диагноз.
 
-Ты создаёшь СКРЫТУЮ информацию — студент должен сам обнаружить находки, выбирая инструменты и области тела для осмотра.
-
-КРИТИЧЕСКИ ВАЖНО: ВСЕ тексты в ответе ДОЛЖНЫ быть ТОЛЬКО на русском языке. Никаких английских слов в текстах.
-
-ФОРМАТ ОТВЕТА — строго JSON:
+Верни СТРОГО JSON (без markdown, без комментариев):
 {
-  "id": "sim_${Date.now()}",
-  "species": "вид животного",
-  "breed": "порода",
-  "age": "возраст",
-  "sex": "пол",
-  "weight": "вес",
-  "difficulty": "beginner|intermediate|advanced",
-  "topic": "тема заболевания",
-  "ownerComplaint": "жалоба владельца (1-2 предложения от первого лица)",
-  "correctDiagnosis": "точный диагноз",
-  "diagnosisOptions": ["правильный диагноз", "похожий диагноз 1", "похожий диагноз 2", "неправильный диагноз"],
-  "treatmentPlan": "правильный план лечения (подробно)",
-  "treatmentOptions": ["правильное лечение", "частично правильное 1", "неправильное 1", "неправильное 2"],
-  "findings": [
-    {
-      "region": "head|neck|thorax|abdomen|skin|front_legs|hind_legs|tail",
-      "toolId": "inspection|stethoscope|thermometer|palpation|otoscope|ophthalmoscope|percussion|skin_scrape",
-      "finding": "что обнаруживает ветеринар при этом исследовании (подробно, 1-2 предложения)",
-      "isNormal": false,
-      "relevance": "critical|important|minor"
-    }
-  ],
-  "availableTests": [
-    {
-      "id": "cbc",
-      "name": "ОАК (общий анализ крови)",
-      "icon": "🩸",
-      "cost": 800,
-      "category": "blood",
-      "result": "результат анализа (подробно)",
-      "isRevealed": false
-    }
-  ],
-  "budget": 6000,
-  "xpReward": 75,
-  "anamnesisQuestions": [
-    { "question": "Когда начались симптомы?", "answer": "Ответ владельца..." },
-    { "question": "Изменился ли аппетит?", "answer": "Ответ владельца..." }
-  ]
+  "id": "sim_1", "species": "вид", "breed": "порода", "age": "возраст", "sex": "пол", "weight": "вес",
+  "difficulty": "beginner|intermediate|advanced", "topic": "тема",
+  "ownerComplaint": "жалоба от первого лица (1-2 предложения)",
+  "correctDiagnosis": "диагноз", "diagnosisOptions": [4 варианта, первый — правильный],
+  "treatmentPlan": "план лечения", "treatmentOptions": [4 варианта, первый — правильный],
+  "findings": [{"region":"head|neck|thorax|abdomen|skin|front_legs|hind_legs|tail","toolId":"inspection|stethoscope|thermometer|palpation|otoscope|ophthalmoscope|percussion|skin_scrape","finding":"описание","isNormal":false,"relevance":"critical|important|minor"}],
+  "availableTests": [{"id":"test1","name":"название","icon":"🔬","cost":800,"category":"blood|imaging|microscopy|other","result":"результат","isRevealed":false}],
+  "budget": 6000, "xpReward": 75,
+  "anamnesisQuestions": [{"question":"вопрос","answer":"ответ владельца"}]
 }
 
-ВАЖНЫЕ ПРАВИЛА:
-1. Создай 12-18 находок (findings) для разных комбинаций region + tool
-2. Хотя бы 6-8 находок должны быть НЕНОРМАЛЬНЫМИ (isNormal: false)
-3. Хотя бы 3-4 находки должны быть КРИТИЧЕСКИМИ (relevance: "critical") для постановки диагноза
-4. Некоторые комбинации region + tool могут показать норму (isNormal: true) — это тоже полезно для дифференциальной диагностики
-5. Создай 5-8 лабораторных тестов с реальными результатами (include the "result" field)
-6. Стоимость тестов реалистичная (в рублях)
-7. Бюджет: beginner=8000, intermediate=6000, advanced=4000
-8. Включи хотя бы 1-2 теста, которые НЕ нужны для диагноза (чтобы проверить экономность)
-9. Все тексты ТОЛЬКО на русском языке
-10. Варианты диагноза должны быть правдоподобными (реальные заболевания данного вида)
-11. Диагноз и лечение должны быть клинически достоверными
-12. Создай 6-8 вопросов для анамнеза (anamnesisQuestions) — вопросы, которые студент может задать владельцу
-
-Доступные инструменты: inspection (осмотр), stethoscope (стетоскоп), thermometer (термометр), palpation (пальпация), otoscope (отоскоп), ophthalmoscope (офтальмоскоп), percussion (перкуссия), skin_scrape (соскоб кожи)
-
-Доступные области тела: head (голова), neck (шея), thorax (грудная клетка), abdomen (живот), skin (кожа/шерсть), front_legs (передние лапы), hind_legs (задние лапы), tail (хвост)
-
-Верни ТОЛЬКО JSON.
-
-ЗАПРЕЩЕНО использовать английские слова, даже медицинские термины. Пиши по-русски: не "CBC" — "ОАК", не "X-ray" — "рентгенография", не "ultrasound" — "УЗИ", не "CT" — "КТ", не "findings" — "результаты", не "reveals" — "показывает", не "treatment" — "лечение", не "diagnosis" — "диагноз". Если напишешь хоть одно английское слово — это грубая ошибка.
-
-ВАЖНО: НЕ делай бабезиоз. Выбери любое другое заболевание, кроме бабезиоза, пироплазмоза и подобных клещевых инфекций. Есть сотни других болезней — пиши про них.`;
+ПРАВИЛА:
+- 10-14 находок: 5-6 ненормальных (2-3 critical), остальные норма
+- 4-6 тестов с результатами, 1-2 лишних (для экономности)
+- 5-6 вопросов анамнеза
+- Бюджет: beginner=8000, intermediate=6000, advanced=4000
+- ВСЁ на русском языке, никаких английских слов
+- НЕ делай бабезиоз/пироплазмоз
+- Диагноз и лечение клинически достоверны
+- Варианты диагноза правдоподобны`;
 
 // --- Structure validation ---
 
@@ -216,23 +168,9 @@ export async function POST(req: NextRequest) {
       advanced: 'сложный клинический случай с нетипичным течением и множественными патологиями',
     };
 
-    const userPrompt = `Создай уникальный сценарий для интерактивного симулятора ветеринарной практики:
-- Вид животного: ${species}
-- Уровень сложности: ${difficulty} (${difficultyDescriptions[difficulty]})
-${topic ? `- Тема: ${topic}` : ''}
+    const userPrompt = `Вид: ${species}. Сложность: ${difficulty} (${difficultyDescriptions[difficulty]}).${topic ? ` Тема: ${topic}.` : ''}
 
-Обязательно включи:
-1. Подробную жалобу владельца (от первого лица)
-2. 12-18 находок для комбинаций tool+region (хотя бы 6 ненормальных, 3 критических)
-3. 5-8 лабораторных тестов с результатами и стоимостью
-4. 4 варианта диагноза (первый — правильный)
-5. 4 варианта лечения (первый — правильный)
-6. 6-8 вопросов для анамнеза с ответами владельца
-7. Бюджет: beginner=8000, intermediate=6000, advanced=4000
-
-Все тексты — ТОЛЬКО на русском языке. Ни одного английского слова.
-
-НЕ делай бабезиоз/пироплазмоз. Выбери другое заболевание.
+Создай клинический сценарий. Жалоба от первого лица. Всё на русском. НЕ бабезиоз.
 Верни ТОЛЬКО JSON.`;
 
     // --- AI call (single attempt, no double-call overhead) ---
@@ -244,6 +182,7 @@ ${topic ? `- Тема: ${topic}` : ''}
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.9,
+      max_tokens: 8192,
     });
     responseText = completion.choices[0]?.message?.content || '';
 

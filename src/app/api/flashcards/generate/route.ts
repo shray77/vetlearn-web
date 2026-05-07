@@ -126,6 +126,7 @@ export async function POST(req: NextRequest) {
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userPrompt },
       ],
+      max_tokens: 8192,
     });
     responseText = completion.choices[0]?.message?.content || '';
 
