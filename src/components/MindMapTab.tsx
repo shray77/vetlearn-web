@@ -152,6 +152,7 @@ export function MindMapTab() {
           subtopic: subtopicName,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success && data.mindMap) {
         setMindMap(data.mindMap);

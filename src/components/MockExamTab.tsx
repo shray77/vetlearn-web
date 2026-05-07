@@ -266,9 +266,9 @@ export function MockExamTab() {
             } else if (newAnswered >= questionCount) {
               // Force complete if no next question
               const forcedResults: ExamResults = {
-                overallScore: Math.round(
+                overallScore: Math.min(100, Math.round(
                   newRecords.reduce((sum, r) => sum + r.feedback.score, 0) / newRecords.length * 10
-                ),
+                )),
                 grade: '',
                 summary: 'Экзамен завершён.',
                 strengths: [],
@@ -332,7 +332,7 @@ export function MockExamTab() {
     }
 
     toast.success(`Экзамен завершён! +${totalXP} XP`);
-  }, [addXP, updateSkillMap, selectedTopics, timer]);
+  }, [addXP, updateSkillMap, selectedTopics]);
 
   // End exam early
   const handleEndExam = useCallback(() => {

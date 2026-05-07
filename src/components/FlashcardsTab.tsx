@@ -121,6 +121,7 @@ export function FlashcardsTab() {
           count: 10,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         if (!data.flashcards || !Array.isArray(data.flashcards) || data.flashcards.length === 0) {
@@ -171,6 +172,7 @@ export function FlashcardsTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64 }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         if (data.flashcards && data.flashcards.length > 0) {
@@ -251,8 +253,9 @@ export function FlashcardsTab() {
         rating: 2 as SRRating, // "Good"
       }));
       reviewCards(reviews);
-      flashcards.forEach(c => knownCards.add(c.id));
-      setKnownCards(new Set(knownCards));
+      const newKnown = new Set(knownCards);
+      flashcards.forEach(c => newKnown.add(c.id));
+      setKnownCards(newKnown);
       finishQuiz();
     }
   };

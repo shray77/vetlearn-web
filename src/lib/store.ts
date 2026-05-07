@@ -15,6 +15,17 @@ import {
 import { createSRCard, reviewSRCard } from './sm2';
 import type { SimulatorSession } from './simulator-types';
 
+/** Slim entry stored in history to avoid localStorage bloat */
+type SimulatorHistoryEntry = {
+  id: string;
+  species: string;
+  breed: string;
+  chiefComplaint: string;
+  difficulty: string;
+  score: number;
+  completedAt?: string;
+};
+
 const DEFAULT_PROFILE: StudentProfile = {
   id: 'demo-student-1',
   name: 'Студент',
@@ -107,7 +118,7 @@ interface VetLearnStore {
   setLastReminderDate: (date: string) => void;
 
   // Simulator
-  simulatorHistory: SimulatorSession[];
+  simulatorHistory: SimulatorHistoryEntry[];
   addSimulatorToHistory: (session: SimulatorSession) => void;
   completedSimulations: number;
   isSimulatorActive: boolean;
@@ -295,7 +306,15 @@ export const useStore = create<VetLearnStore>()(
       simulatorHistory: [],
       addSimulatorToHistory: (session) =>
         set((state) => ({
-          simulatorHistory: [session, ...state.simulatorHistory].slice(0, 20),
+          simulatorHistory: [{
+            id: session.scenario.id,
+            species: session.scenario.species,
+            breed: session.scenario.breed,
+            chiefComplaint: session.scenario.ownerComplaint,
+            difficulty: session.scenario.difficulty,
+            score: session.evaluation?.score ?? 0,
+            completedAt: session.completedAt,
+          }, ...state.simulatorHistory].slice(0, 20),
           completedSimulations: state.completedSimulations + 1,
         })),
       completedSimulations: 0,
@@ -316,7 +335,7 @@ export const useStore = create<VetLearnStore>()(
           const newSkillMap = { ...state.profile.skillMap };
           for (const [key, value] of Object.entries(updates)) {
             const current = newSkillMap[key] || 0;
-            newSkillMap[key] = Math.min(100, Math.max(0, Math.round((current + value) / 2)));
+            newSkillMap[key] = Math.min(100, Math.max(0, Math.round(current * 0.6 + value * 0.4)));
           }
           return {
             profile: { ...state.profile, skillMap: newSkillMap },

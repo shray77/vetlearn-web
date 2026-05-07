@@ -68,8 +68,9 @@ function buildFallbackEvaluation(session: any): SimulatorEvaluation {
   if (diagnosisCorrect) diagnosisScore = 40;
 
   let treatmentScore = 0;
-  const treatmentCorrect = session?.treatmentSubmitted === scenario?.treatmentPlan ||
-    (Array.isArray(scenario?.treatmentOptions) && session?.treatmentSubmitted === scenario?.treatmentOptions[0]);
+  const treatmentCorrect = Array.isArray(scenario?.treatmentOptions)
+    ? scenario.treatmentOptions.some((opt: string) => session?.treatmentSubmitted === opt) && session?.treatmentSubmitted === scenario.treatmentOptions[0]
+    : session?.treatmentSubmitted === scenario?.treatmentPlan;
   if (treatmentCorrect) treatmentScore = 25;
 
   // Examination score: count critical and important findings found
@@ -254,28 +255,30 @@ ${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === c
     let responseText = '';
 
     try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-        response_format: { type: 'json_object' } as any,
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    } catch (formatError) {
-      console.warn('[simulator/evaluate] response_format not supported, retrying without it:', formatError);
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-      });
-      responseText = completion.choices[0]?.message?.content || '';
+      try {
+        const completion = await zai.chat.completions.create({
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: userPrompt },
+          ],
+          thinking: { type: 'disabled' },
+          response_format: { type: 'json_object' } as any,
+        });
+        responseText = completion.choices[0]?.message?.content || '';
+      } catch (formatError) {
+        console.warn('[simulator/evaluate] response_format not supported, retrying without it:', formatError);
+        const completion = await zai.chat.completions.create({
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: userPrompt },
+          ],
+          thinking: { type: 'disabled' },
+        });
+        responseText = completion.choices[0]?.message?.content || '';
+      }
+    } finally {
+      clearTimeout(timeout);
     }
-
-    clearTimeout(timeout);
 
     // --- Multi-strategy JSON extraction ---
     let parsed: unknown = extractJSON(responseText);

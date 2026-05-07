@@ -34,6 +34,7 @@ export function ResourcesTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gaps, interests: [] }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         setResources(data.resources);
@@ -74,7 +75,7 @@ export function ResourcesTab() {
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {profile.learningPath.filter(p => p.priority === 'high').map((item, i) => (
-                <Badge key={i} variant="secondary" className="text-xs">{item.topicName} ({item.mastery}%)</Badge>
+                <Badge key={i} variant="secondary" className="text-xs">{item.topicName} ({item.mastery ?? 0}%)</Badge>
               ))}
             </div>
           </CardContent>

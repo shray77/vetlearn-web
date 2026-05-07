@@ -56,6 +56,7 @@ export function ClinicalCasesTab() {
           topic: selectedTopic || undefined,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         // Validate the case structure before setting it
@@ -111,6 +112,7 @@ export function ClinicalCasesTab() {
           answers: caseAnswers,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         addXP(data.xpEarned || 25);
@@ -318,6 +320,17 @@ export function ClinicalCasesTab() {
     return (
       <div className="space-y-4 pb-4">
         <p className="text-center text-sm text-muted-foreground py-8">Ошибка: вопрос не найден.</p>
+        <Button variant="ghost" size="sm" onClick={() => setCurrentCase(null)}>
+          <ArrowRight className="w-4 h-4 mr-1 rotate-180" /> Новый кейс
+        </Button>
+      </div>
+    );
+  }
+  if (q.correctIndex == null) {
+    toast.error('Ошибка: вопрос не содержит правильного ответа.');
+    return (
+      <div className="space-y-4 pb-4">
+        <p className="text-center text-sm text-muted-foreground py-8">Ошибка: вопрос повреждён.</p>
         <Button variant="ghost" size="sm" onClick={() => setCurrentCase(null)}>
           <ArrowRight className="w-4 h-4 mr-1 rotate-180" /> Новый кейс
         </Button>

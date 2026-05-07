@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { SPECIES_OPTIONS, DIFFICULTY_OPTIONS, VET_TOPICS } from '@/lib/vet-topics';
 import type { SpeciesType, DifficultyType } from '@/lib/types';
-import { DIFFICULTY_LABELS, LoadingSpinner, AnimatedNumber } from '@/components/ui/utility';
+import { LoadingSpinner, AnimatedNumber } from '@/components/ui/utility';
 import { AnimalSVG } from '@/components/simulator/AnimalSVG';
 import type {
   BodyRegion,
@@ -13,7 +13,6 @@ import type {
   SimulatorScenario,
   SimulatorEvaluation,
   ExaminationFinding,
-  VetTool,
 } from '@/lib/simulator-types';
 import {
   BODY_REGION_LABELS,
@@ -35,7 +34,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   Activity, ArrowRight, ArrowLeft, ChevronRight, Loader2,
-  CheckCircle2, XCircle, AlertTriangle, Sparkles, Coins,
+  CheckCircle2, XCircle, AlertTriangle, Coins,
   Stethoscope, FlaskConical, ClipboardList, Pill, Star,
   RotateCcw, X, Lightbulb, MessageCircle, Eye, Beaker,
 } from 'lucide-react';
@@ -112,7 +111,18 @@ export function SimulatorTab() {
   }, [discoveredFindings]);
 
   // ===== Scenario Generation =====
+  // Timeout ref for lastFinding auto-clear
+  const findingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (findingTimeoutRef.current) clearTimeout(findingTimeoutRef.current);
+    };
+  }, []);
+
   const handleGenerate = async () => {
+    if (isGenerating) return;
     setIsGenerating(true);
     setIsSimulatorActive(true);
     try {
@@ -213,7 +223,8 @@ export function SimulatorTab() {
     }
 
     // Auto-clear last finding after delay
-    setTimeout(() => setLastFinding(null), 3000);
+    if (findingTimeoutRef.current) clearTimeout(findingTimeoutRef.current);
+    findingTimeoutRef.current = setTimeout(() => setLastFinding(null), 3000);
   }, [selectedTool, scenario, discoveredFindings]);
 
   // ===== Lab Tests =====
@@ -253,6 +264,7 @@ export function SimulatorTab() {
 
   // ===== Submit Evaluation =====
   const handleSubmitEvaluation = async () => {
+    if (isEvaluating) return;
     if (!session || !scenario) return;
     setIsEvaluating(true);
     try {
@@ -806,7 +818,7 @@ export function SimulatorTab() {
                 <AnimalSVG
                   species={scenario.species}
                   onRegionClick={handleRegionClick}
-                  selectedRegion={selectedTool ? null : null}
+                  selectedRegion={null}
                   examinedRegions={examinedRegions}
                   abnormalRegions={abnormalRegions}
                 />

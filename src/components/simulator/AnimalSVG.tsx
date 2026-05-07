@@ -221,7 +221,7 @@ export function AnimalSVG({
         )}
 
         {/* Interactive zone overlay */}
-        {imgLoaded && !imgError && (
+        {(
           <div className="absolute inset-0">
             {zones.map((zone) => {
               const isHov = hovered === zone.region;

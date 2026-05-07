@@ -85,6 +85,7 @@ export function VoiceTutorTab() {
           history,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         const aiMsg: TutorMessage = {

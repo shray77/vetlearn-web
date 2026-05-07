@@ -152,9 +152,11 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
       console.error('[simulator/generate] Validation failed: not enough findings');
       return null;
     }
+    const VALID_TOOL_IDS = ['inspection', 'stethoscope', 'thermometer', 'palpation', 'otoscope', 'ophthalmoscope', 'percussion', 'skin_scrape'];
+    const VALID_REGIONS = ['head', 'neck', 'thorax', 'abdomen', 'skin', 'front_legs', 'hind_legs', 'tail'];
     s.findings = s.findings.map((f: any, i: number) => ({
-      region: typeof f.region === 'string' ? f.region : 'thorax',
-      toolId: typeof f.toolId === 'string' ? f.toolId : 'inspection',
+      region: typeof f.region === 'string' && VALID_REGIONS.includes(f.region) ? f.region : 'skin',
+      toolId: typeof f.toolId === 'string' && VALID_TOOL_IDS.includes(f.toolId) ? f.toolId : 'inspection',
       finding: typeof f.finding === 'string' ? f.finding : 'Нет данных',
       isNormal: typeof f.isNormal === 'boolean' ? f.isNormal : false,
       relevance: ['critical', 'important', 'minor'].includes(f.relevance) ? f.relevance : 'minor',
@@ -352,7 +354,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
     treatmentPlan: 'Консервативная терапия: зондирование желудка, промывание (вышло 8 литров сока). Спазмолитики (но-шпа 10 мл в/в). Дротаверин + новокаиновая блокада. Инфузия: 10 литров физраствора + 5 литров 5% глюкозы в/в. При отсутствии эффекта через 4-6 часов — показана лапаротомия.',
     treatmentOptions: ['Зондирование + спазмолитики + инфузия (при неэффективности — хирургия)', 'Только спазмолитики и обезболивание', 'Промывание желудка', 'Сразу хирургическое вмешательство'],
     findings: [
-      { region: 'abdomen', toolId: 'auscultation', finding: 'Перистальтика отсутствует в правой подвздошной области. Глухие звуки слева.', isNormal: false, relevance: 'critical' },
+      { region: 'abdomen', toolId: 'stethoscope', finding: 'Перистальтика отсутствует в правой подвздошной области. Глухие звуки слева.', isNormal: false, relevance: 'critical' },
       { region: 'abdomen', toolId: 'palpation', finding: 'Живот вздут, при пальпации — напряжение. При ректальном исследовании: уплотнённая петля тонкого кишечника.', isNormal: false, relevance: 'critical' },
       { region: 'abdomen', toolId: 'thermometer', finding: 'Температура 38,9°C — верхняя граница нормы.', isNormal: true, relevance: 'minor' },
       { region: 'thorax', toolId: 'stethoscope', finding: 'Тоны сердца приглушены, тахикардия 55 уд/мин (норма 28-44).', isNormal: false, relevance: 'important' },
@@ -397,7 +399,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
       { region: 'thorax', toolId: 'percussion', finding: 'Укорочение перкуторного звука в передних долях лёгких (уплотнение).', isNormal: false, relevance: 'critical' },
       { region: 'abdomen', toolId: 'thermometer', finding: 'Температура 40,5°C (лихорадка).', isNormal: false, relevance: 'important' },
       { region: 'head', toolId: 'inspection', finding: 'Выделения из носа — серозно-катаральные, обильные. Конъюнктивит.', isNormal: false, relevance: 'important' },
-      { region: 'head', toolId: 'stethoscope', finding: 'Шум в носовой полости при дыхании — стридор.', isNormal: false, relevance: 'important' },
+      { region: 'head', toolId: 'inspection', finding: 'Шум в носовой полости при дыхании — стридор.', isNormal: false, relevance: 'important' },
       { region: 'skin', toolId: 'inspection', finding: 'Кожа цианотичная в области ушей и пятачка.', isNormal: false, relevance: 'important' },
       { region: 'skin', toolId: 'palpation', finding: 'Подкожные лимфоузлы увеличены, безболезненны.', isNormal: false, relevance: 'minor' },
       { region: 'abdomen', toolId: 'palpation', finding: 'Живот мягкий, безболезненный. Перистальтика сохранена.', isNormal: true, relevance: 'minor' },
@@ -474,7 +476,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
     findings: [
       { region: 'abdomen', toolId: 'palpation', finding: 'Живот увеличен. При пальпации — фибринозные наложения на кишечнике. Печень увеличена.', isNormal: false, relevance: 'critical' },
       { region: 'head', toolId: 'inspection', finding: 'Гребень бледный, сморщенный. Глаза полузакрыты. Из клоаки — белёсые испражнения, загрязнение перьев вокруг клоаки.', isNormal: false, relevance: 'critical' },
-      { region: 'head', toolId: 'inspection', finding: 'Слизистая ротовой полости сухая, покрыта налётом.', isNormal: false, relevance: 'important' },
+      { region: 'head', toolId: 'otoscope', finding: 'При осмотре ротовой полости через отоскоп: слизистая сухая, покрыта беловато-серым налётом.', isNormal: false, relevance: 'important' },
       { region: 'thorax', toolId: 'stethoscope', finding: 'Дыхание учащено, жёсткое. Хрипов нет.', isNormal: false, relevance: 'important' },
       { region: 'skin', toolId: 'inspection', finding: 'Перья взъерошены, тусклые. Птица истощена.', isNormal: false, relevance: 'important' },
       { region: 'front_legs', toolId: 'palpation', finding: 'Суставы без изменений.', isNormal: true, relevance: 'minor' },
@@ -500,7 +502,7 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
 function getFallbackScenario(): SimulatorScenario {
   // Выбираем случайный сценарий из 7 для разнообразия
   const idx = Math.floor(Math.random() * FALLBACK_SCENARIOS.length);
-  const base = FALLBACK_SCENARIOS[idx];
+  const base = JSON.parse(JSON.stringify(FALLBACK_SCENARIOS[idx]));
   // Обновляем id чтобы был уникальный
   return { ...base, id: `sim_${Date.now()}` };
 }
@@ -575,30 +577,32 @@ ${topic ? `- Тема: ${topic}` : ''}
     let responseText = '';
 
     try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-        temperature: 0.9,
-        response_format: { type: 'json_object' } as any,
-      });
-      responseText = completion.choices[0]?.message?.content || '';
-    } catch (formatError) {
-      console.warn('[simulator/generate] response_format not supported, retrying without it:', formatError);
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        thinking: { type: 'disabled' },
-        temperature: 0.9,
-      });
-      responseText = completion.choices[0]?.message?.content || '';
+      try {
+        const completion = await zai.chat.completions.create({
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: userPrompt },
+          ],
+          thinking: { type: 'disabled' },
+          temperature: 0.9,
+          response_format: { type: 'json_object' } as any,
+        });
+        responseText = completion.choices[0]?.message?.content || '';
+      } catch (formatError) {
+        console.warn('[simulator/generate] response_format not supported, retrying without it:', formatError);
+        const completion = await zai.chat.completions.create({
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: userPrompt },
+          ],
+          thinking: { type: 'disabled' },
+          temperature: 0.9,
+        });
+        responseText = completion.choices[0]?.message?.content || '';
+      }
+    } finally {
+      clearTimeout(timeout);
     }
-
-    clearTimeout(timeout);
 
     // --- Multi-strategy JSON extraction ---
     let parsed: unknown = extractJSON(responseText);

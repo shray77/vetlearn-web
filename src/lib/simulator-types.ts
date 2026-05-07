@@ -119,7 +119,7 @@ export const VET_TOOLS: VetTool[] = [
     name: 'Стетоскоп',
     icon: '🩺',
     description: 'Аускультация сердца и лёгких',
-    applicableRegions: ['thorax'],
+    applicableRegions: ['thorax', 'abdomen'],
   },
   {
     id: 'thermometer',

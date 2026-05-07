@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS, DIFFICULTY_OPTIONS, getTopicById } from '@/lib/vet-topics';
@@ -40,9 +40,7 @@ export function AdaptiveLearningTab() {
   const [assessmentQuestions, setAssessmentQuestions] = useState<AssessmentQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
-  const [showResults, setShowResults] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState<any>(null);
-  const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
   const [questionCount, setQuestionCount] = useState(10);
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -123,20 +121,23 @@ export function AdaptiveLearningTab() {
     return () => clearInterval(interval);
   }, [quizStartTime]);
 
+  // Ref to hold latest handleAdaptiveSubmit so the timer effect can call it safely
+  const handleAdaptiveSubmitRef = useRef<() => Promise<void>>(null!);
+
   // Sprint countdown timer
   useEffect(() => {
     if (!sprintMode || sprintTimeLeft <= 0) return;
     const interval = setInterval(() => {
-      setSprintTimeLeft(prev => {
-        if (prev <= 1) {
-          // Time's up — auto-submit
-          handleAdaptiveSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setSprintTimeLeft(prev => prev - 1);
     }, 1000);
     return () => clearInterval(interval);
+  }, [sprintMode, sprintTimeLeft]);
+
+  // Auto-submit when sprint timer hits 0
+  useEffect(() => {
+    if (sprintMode && sprintTimeLeft === 0) {
+      handleAdaptiveSubmitRef.current();
+    }
   }, [sprintMode, sprintTimeLeft]);
 
   // ===== PLACEMENT TEST LOGIC =====
@@ -149,6 +150,7 @@ export function AdaptiveLearningTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get_questions', count: placementCount }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         setAssessmentQuestions(data.questions);
@@ -183,6 +185,7 @@ export function AdaptiveLearningTab() {
           answers,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         // Save placement result to store
@@ -232,6 +235,7 @@ export function AdaptiveLearningTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topics, difficulty: effectiveDifficulty, count: questionCount }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         setAssessmentQuestions(data.questions);
@@ -271,6 +275,7 @@ export function AdaptiveLearningTab() {
           previousSkillMap: profile.skillMap,
         }),
       });
+      if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
         const correctCount = answers.filter((a, i) => a === assessmentQuestions[i]?.correctIndex).length;
@@ -307,6 +312,8 @@ export function AdaptiveLearningTab() {
       setIsAnalyzing(false);
     }
   };
+  // Keep ref in sync so the auto-submit effect always calls the latest closure
+  handleAdaptiveSubmitRef.current = handleAdaptiveSubmit;
 
   // ===== COMMON QUIZ HANDLERS =====
 
@@ -373,11 +380,11 @@ export function AdaptiveLearningTab() {
         {/* Phase indicator */}
         <div className="flex items-center gap-2 mb-1">
           {isPlacementPhase ? (
-            <Badge className="bg-purple-100 text-purple-700 border-0 text-[10px]">
+            <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border-0 text-[10px]">
               <GraduationCap className="w-3 h-3 mr-1" /> Входное тестирование
             </Badge>
           ) : (
-            <Badge className="bg-blue-100 text-blue-700 border-0 text-[10px]">
+            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border-0 text-[10px]">
               <Zap className="w-3 h-3 mr-1" /> AI генерация
             </Badge>
           )}
@@ -610,8 +617,8 @@ export function AdaptiveLearningTab() {
                                 definition: q.options[q.correctIndex],
                                 example: q.explanation || undefined,
                               };
-                              const { setFlashcards } = useStore.getState();
-                              setFlashcards([card]);
+                              const { flashcards, setFlashcards } = useStore.getState();
+                              setFlashcards([...flashcards, card]);
                               toast.success('Карточка создана! Откройте вкладку "Карточки" для изучения.');
                             }}
                             className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-[#FF9500]/10 hover:bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9500] text-xs font-semibold transition-colors"
@@ -841,7 +848,7 @@ export function AdaptiveLearningTab() {
         </Button>
 
         <div className="flex items-center gap-2 mb-1">
-          <Badge className="bg-blue-100 text-blue-700 border-0 text-[10px]">
+          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border-0 text-[10px]">
             <Sparkles className="w-3 h-3 mr-1" /> ИИ-генерация
           </Badge>
           <Badge variant="secondary" className="text-[10px]">
@@ -973,7 +980,7 @@ export function AdaptiveLearningTab() {
                   <div className="mt-3 space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar">
                     {assessmentResult.questions.map((q: any, i: number) => {
                       const userAnswer = assessmentResult.answers[i];
-                      const isCorrect = userAnswer === q.correctIndex;
+                      const isCorrect = userAnswer != null && userAnswer === q.correctIndex;
 
                       return (
                         <div
@@ -1008,7 +1015,10 @@ export function AdaptiveLearningTab() {
                             <div className="ml-6 mt-1.5 space-y-1.5">
                               <div className="text-xs">
                                 <span className="text-[#FF3B30]">
-                                  Ваш ответ: {['А', 'Б', 'В', 'Г'][userAnswer]}. {q.options[userAnswer]}
+                                  {userAnswer != null
+                                    ? <>Ваш ответ: {['А', 'Б', 'В', 'Г'][userAnswer]}. {q.options[userAnswer]}</>
+                                    : 'Пропущен'
+                                  }
                                 </span>
                               </div>
                               <div className="text-xs">
@@ -1140,7 +1150,7 @@ export function AdaptiveLearningTab() {
               <p className="text-sm text-muted-foreground">ИИ генерирует уникальные вопросы</p>
             </div>
             {profile.placementCompleted && (
-              <Badge className="bg-purple-100 text-purple-700 border-0 text-[10px]">
+              <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border-0 text-[10px]">
                 <Shield className="w-3 h-3 mr-1" /> {levelLabel}
               </Badge>
             )}
