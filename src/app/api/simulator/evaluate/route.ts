@@ -35,7 +35,9 @@ const SYSTEM_PROMPT = `Ты — профессор ветеринарной ме
 
 XP: score × 0.8 (округлённо, минимум 5)
 
-Все тексты ТОЛЬКО на русском языке. Верни ТОЛЬКО JSON.`;
+Все тексты ТОЛЬКО на русском языке. Верни ТОЛЬКО JSON.
+
+ЗАПРЕЩЕНО использовать английские слова, даже медицинские термины. Пиши по-русски: не "CBC" — "ОАК", не "X-ray" — "рентгенография", не "ultrasound" — "УЗИ", не "CT" — "КТ", не "findings" — "результаты", не "reveals" — "показывает", не "treatment" — "лечение", не "diagnosis" — "диагноз". Если напишешь хоть одно английское слово — это грубая ошибка.`;
 
 // --- Multi-strategy JSON extraction ---
 
@@ -229,6 +231,10 @@ export async function POST(req: NextRequest) {
 
     const zai = await ZAI.create();
 
+    // AbortController с таймаутом 90 секунд
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90_000);
+
     const scenario = session.scenario;
     const findings = session.discoveredFindings || [];
 
@@ -303,6 +309,8 @@ ${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === c
       });
       responseText = completion.choices[0]?.message?.content || '';
     }
+
+    clearTimeout(timeout);
 
     // --- Multi-strategy JSON extraction ---
     let parsed: unknown = extractJSON(responseText);
