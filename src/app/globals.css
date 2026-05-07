@@ -96,7 +96,7 @@
   --card-foreground: #F5F5F7;
   --popover: #1C1C1E;
   --popover-foreground: #F5F5F7;
-  --primary: #28CD41;
+  --primary: #30D158;
   --primary-foreground: #FFFFFF;
   --secondary: #2C2C2E;
   --secondary-foreground: #F5F5F7;
@@ -107,20 +107,20 @@
   --destructive: #FF453A;
   --border: #38383A;
   --input: #38383A;
-  --ring: #28CD41;
-  --chart-1: #28CD41;
+  --ring: #30D158;
+  --chart-1: #30D158;
   --chart-2: #0A84FF;
   --chart-3: #FF9F0A;
   --chart-4: #BF5AF2;
   --chart-5: #FF453A;
   --sidebar: #1C1C1E;
   --sidebar-foreground: #F5F5F7;
-  --sidebar-primary: #28CD41;
+  --sidebar-primary: #30D158;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #1A3D22;
   --sidebar-accent-foreground: #F5F5F7;
   --sidebar-border: #38383A;
-  --sidebar-ring: #28CD41;
+  --sidebar-ring: #30D158;
 }
 
 @layer base {
@@ -131,10 +131,50 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Apple HIG: prevent text selection on interactive elements */
+    -webkit-tap-highlight-color: transparent;
+    /* Smooth momentum scrolling */
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-/* Custom scrollbar */
+/* ===== Apple HIG: Typography Scale ===== */
+/* Matches SF Pro type scale for readability hierarchy */
+.text-title-lg {
+  font-size: 1.375rem;
+  line-height: 1.29;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.text-title-md {
+  font-size: 1.0625rem;
+  line-height: 1.33;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.text-title-sm {
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.text-body {
+  font-size: 0.875rem;
+  line-height: 1.47;
+  font-weight: 400;
+}
+.text-caption {
+  font-size: 0.75rem;
+  line-height: 1.33;
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+.text-caption-bold {
+  font-size: 0.75rem;
+  line-height: 1.33;
+  font-weight: 600;
+}
+
+/* ===== Custom Scrollbar ===== */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -156,7 +196,7 @@
   background: #636366;
 }
 
-/* Squircle corners */
+/* ===== Squircle Corners (Apple HIG: continuous corner radius) ===== */
 .squircle {
   border-radius: 20px;
 }
@@ -164,7 +204,7 @@
   border-radius: 14px;
 }
 
-/* Pulse animation for mic */
+/* ===== Pulse animation for mic ===== */
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
@@ -183,7 +223,7 @@
   animation: pulse-ring 1.5s ease-in-out infinite;
 }
 
-/* Float animation */
+/* ===== Float animation ===== */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-6px); }
@@ -192,7 +232,7 @@
   animation: float 3s ease-in-out infinite;
 }
 
-/* Gradient text */
+/* ===== Gradient text ===== */
 .gradient-text {
   background: linear-gradient(135deg, #28CD41, #007AFF);
   -webkit-background-clip: text;
@@ -200,7 +240,14 @@
   background-clip: text;
 }
 
-/* Road drawing animation */
+.dark .gradient-text {
+  background: linear-gradient(135deg, #30D158, #0A84FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Road drawing animation ===== */
 @keyframes draw-path {
   from { stroke-dashoffset: 1000; }
   to { stroke-dashoffset: 0; }
@@ -209,7 +256,7 @@
   animation: draw-path 2s ease-out forwards;
 }
 
-/* Shimmer animation */
+/* ===== Shimmer animation ===== */
 @keyframes shimmer {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -218,7 +265,7 @@
   animation: shimmer 2s ease-in-out infinite;
 }
 
-/* Simulator pulse for abnormal findings */
+/* ===== Simulator pulse for abnormal findings ===== */
 @keyframes sim-pulse {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
@@ -227,7 +274,7 @@
   animation: sim-pulse 2s ease-in-out infinite;
 }
 
-/* Finding slide in */
+/* ===== Finding slide in ===== */
 @keyframes finding-slide {
   from { transform: translateX(-20px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -236,12 +283,12 @@
   animation: finding-slide 0.3s ease-out;
 }
 
-/* Safe area insets for iOS devices */
+/* ===== Safe area insets for iOS devices ===== */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* iOS-style toggle switch */
+/* ===== iOS-style toggle switch ===== */
 .toggle-switch {
   position: relative;
   display: inline-flex;
@@ -265,7 +312,7 @@
   transition: transform 0.2s ease-in-out;
 }
 .toggle-switch[aria-checked='true'] {
-  background-color: #28CD41;
+  background-color: #34C759;
 }
 .toggle-switch[aria-checked='true']::after {
   transform: translateX(20px);
@@ -273,8 +320,14 @@
 .toggle-switch[aria-checked='false'] {
   background-color: #E5E5EA;
 }
+.dark .toggle-switch[aria-checked='true'] {
+  background-color: #30D158;
+}
+.dark .toggle-switch[aria-checked='false'] {
+  background-color: #39393D;
+}
 
-/* Touch target minimum (Apple HIG: 44x44pt) */
+/* ===== Touch target minimum (Apple HIG: 44x44pt) ===== */
 .touch-target {
   min-width: 44px;
   min-height: 44px;
@@ -283,15 +336,71 @@
   justify-content: center;
 }
 
-/* Card hover lift (Apple-style) */
+/* ===== Card press feedback (Apple HIG: tactile interaction) ===== */
 .card-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .card-lift:active {
-  transform: scale(0.98);
- }
+  transform: scale(0.97);
+}
 
-/* Smooth page transitions */
+/* ===== Smooth page transitions ===== */
 .page-transition {
   transition: opacity 0.15s ease;
+}
+
+/* ===== Apple HIG: Elevated surface shadow levels ===== */
+.shadow-elevation-1 {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+}
+.shadow-elevation-2 {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+}
+.shadow-elevation-3 {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* ===== Focus ring (Apple HIG: subtle focus indicators) ===== */
+.focus-ring:focus-visible {
+  outline: 2px solid #007AFF;
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+.dark .focus-ring:focus-visible {
+  outline-color: #0A84FF;
+}
+
+/* ===== Separator (Apple-style thin divider) ===== */
+.separator-apple {
+  height: 0.5px;
+  background-color: rgba(60,60,67,0.12);
+}
+.dark .separator-apple {
+  background-color: rgba(84,84,88,0.65);
+}
+
+/* ===== Badge pill (Apple HIG-style semantic badges) ===== */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.27;
+}
+
+/* ===== Tabular numbers for data display ===== */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Reduced motion preference ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

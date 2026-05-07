@@ -4,9 +4,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Stethoscope, Mic, Lightbulb, PawPrint,
-  Info, BarChart3, Layers, GraduationCap, Grid3X3, Activity,
+  Info, BarChart3, Layers, GraduationCap, Activity, Map,
 } from 'lucide-react';
-// Phosphor Icons — SF Symbols-like duotone for tab bar
 import {
   PawPrint as PhPawPrint,
   BookOpen as PhBookOpen,
@@ -46,7 +45,7 @@ const MAIN_TABS = [
   { id: 'tutor', label: 'Репетитор' },
 ];
 
-// ===== EXTRA TABS (in "Ещё" sheet) — still using Lucide for consistency =====
+// ===== EXTRA TABS (in "Ещё" sheet) =====
 const EXTRA_TABS = [
   { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#28CD41', desc: 'Термин ↔ определение + интервальное повторение' },
   { id: 'mindmap', label: 'Карта знаний', icon: BarChart3, color: '#007AFF', desc: 'AI интеллект-карты по темам' },
@@ -108,7 +107,7 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <BarChart3 className="w-4 h-4 text-[#007AFF] mt-0.5 shrink-0" />
+                <Map className="w-4 h-4 text-[#007AFF] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Интеллект-карты</p>
                   <p className="text-[11px] text-muted-foreground">AI создаёт иерархические карты знаний по ветеринарным темам</p>
@@ -150,7 +149,7 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#28CD41]/15 text-[#28CD41] border border-[#28CD41]/25">
                 v0.2.0-beta
               </span>
-              <span className="text-[10px] text-muted-foreground">•</span>
+              <span className="text-[10px] text-muted-foreground">·</span>
               <span className="text-[10px] text-muted-foreground">Версия в разработке</span>
             </div>
             <p className="text-xs text-center text-muted-foreground">
@@ -182,7 +181,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
-        <div className="max-w-4xl mx-auto flex items-center justify-around h-16 px-2">
+        <div className="max-w-4xl mx-auto flex items-center justify-around h-[52px] px-1">
           {/* 4 main tabs — Phosphor duotone icons (SF Symbols-like) */}
           {MAIN_TABS.map((item) => {
             const isActive = activeTab === item.id;
@@ -191,10 +190,10 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-xl transition-all duration-200 ${
+                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-2xl transition-all duration-200 touch-target ${
                   isActive
-                    ? 'text-[#28CD41]'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-[#28CD41] dark:text-[#30D158]'
+                    : 'text-muted-foreground hover:text-foreground active:text-foreground/70'
                 }`}
               >
                 <div className="relative">
@@ -202,17 +201,17 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                     <PhIcon
                       size={22}
                       weight={isActive ? 'duotone' : 'regular'}
-                      className={`transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}
+                      className={`transition-all duration-200 ${isActive ? 'scale-110' : ''}`}
                     />
                   )}
                   {isActive && (
                     <motion.div
                       layoutId="nav-dot"
-                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#28CD41]"
+                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#28CD41] dark:bg-[#30D158]"
                     />
                   )}
                 </div>
-                <span className={`text-[11px] font-medium ${isActive ? 'font-semibold' : ''}`}>
+                <span className={`text-[10px] leading-none ${isActive ? 'font-semibold' : 'font-medium'}`}>
                   {item.label}
                 </span>
               </button>
@@ -222,26 +221,26 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
           {/* "Ещё" button */}
           <button
             onClick={() => setMoreOpen(true)}
-            className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-xl transition-all duration-200 ${
+            className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-2xl transition-all duration-200 touch-target ${
               isExtraTabActive
-                ? 'text-[#007AFF]'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'text-[#007AFF] dark:text-[#0A84FF]'
+                : 'text-muted-foreground hover:text-foreground active:text-foreground/70'
             }`}
           >
             <div className="relative">
               <PhSquaresFour
                 size={22}
                 weight={isExtraTabActive ? 'duotone' : 'regular'}
-                className={`transition-transform duration-200 ${isExtraTabActive ? 'scale-110' : ''}`}
+                className={`transition-all duration-200 ${isExtraTabActive ? 'scale-110' : ''}`}
               />
               {isExtraTabActive && (
                 <motion.div
                   layoutId="nav-dot"
-                  className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#007AFF]"
+                  className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF]"
                 />
               )}
             </div>
-            <span className={`text-[11px] font-medium ${isExtraTabActive ? 'font-semibold text-[#007AFF]' : ''}`}>
+            <span className={`text-[10px] leading-none ${isExtraTabActive ? 'font-semibold text-[#007AFF] dark:text-[#0A84FF]' : 'font-medium'}`}>
               Ещё
             </span>
           </button>
@@ -250,10 +249,10 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
 
       {/* "Ещё" bottom sheet */}
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[75vh] px-4 pb-12">
-          <SheetHeader className="text-left mb-2">
-            <SheetTitle className="text-base">Разделы</SheetTitle>
-            <SheetDescription className="text-xs">
+        <SheetContent side="bottom" className="rounded-t-[20px] max-h-[75vh] px-4 pb-12">
+          <SheetHeader className="text-left mb-3">
+            <SheetTitle className="text-title-md">Разделы</SheetTitle>
+            <SheetDescription className="text-caption">
               Выберите раздел для перехода
             </SheetDescription>
           </SheetHeader>
@@ -265,9 +264,9 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                 <button
                   key={item.id}
                   onClick={() => handleTabClick(item.id)}
-                  className={`flex items-center gap-4 p-3.5 rounded-2xl border-2 transition-all duration-200 ${
+                  className={`flex items-center gap-4 p-3.5 rounded-2xl border-2 transition-all duration-200 touch-target justify-start ${
                     isActive
-                      ? 'border-[#007AFF]/30 bg-[#007AFF]/5'
+                      ? 'border-[#007AFF]/30 bg-[#007AFF]/5 dark:bg-[#0A84FF]/10'
                       : 'border-transparent bg-muted/50 hover:bg-muted active:scale-[0.98]'
                   }`}
                 >
@@ -282,18 +281,18 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                     <p className="text-[11px] text-muted-foreground">{item.desc}</p>
                   </div>
                   {isActive && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#007AFF] shrink-0" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] shrink-0" />
                   )}
                 </button>
               );
             })}
 
             {/* Divider + About */}
-            <div className="border-t border-border/50 my-1" />
+            <div className="separator-apple my-1" />
 
             <button
               onClick={() => { setMoreOpen(false); setAboutOpen(true); }}
-              className="flex items-center gap-4 p-3.5 rounded-2xl bg-muted/50 hover:bg-muted transition-all active:scale-[0.98]"
+              className="flex items-center gap-4 p-3.5 rounded-2xl bg-muted/50 hover:bg-muted transition-all active:scale-[0.98] touch-target justify-start"
             >
               <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
                 <Info className="w-5 h-5 text-muted-foreground" />

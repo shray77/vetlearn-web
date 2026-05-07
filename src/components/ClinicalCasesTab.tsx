@@ -327,9 +327,6 @@ export function ClinicalCasesTab() {
     );
   }
   if (q.correctIndex == null) {
-    // Use effect to defer toast to avoid render-time side effect
-    const msg = 'Ошибка: вопрос не содержит правильного ответа.';
-    useEffect(() => { toast.error(msg); }, [msg]);
     return (
       <div className="space-y-4 pb-4">
         <p className="text-center text-sm text-muted-foreground py-8">Ошибка: вопрос повреждён.</p>

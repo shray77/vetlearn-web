@@ -111,10 +111,9 @@ export function AdaptiveLearningTab() {
 
   // Timer
   useEffect(() => {
-    if (!quizStartTime) {
-      setElapsedSeconds(0);
-      return;
-    }
+    if (!quizStartTime) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setElapsedSeconds(0);
     const interval = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - quizStartTime) / 1000));
     }, 1000);
@@ -313,7 +312,9 @@ export function AdaptiveLearningTab() {
     }
   };
   // Keep ref in sync so the auto-submit effect always calls the latest closure
-  handleAdaptiveSubmitRef.current = handleAdaptiveSubmit;
+  useEffect(() => {
+    handleAdaptiveSubmitRef.current = handleAdaptiveSubmit;
+  });
 
   // ===== COMMON QUIZ HANDLERS =====
 

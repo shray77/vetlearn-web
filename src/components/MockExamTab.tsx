@@ -176,6 +176,40 @@ export function MockExamTab() {
     }
   }, [selectedTopics, difficulty, questionCount]);
 
+  // Finish exam (declared before handleSubmitAnswer to avoid access-before-declaration)
+  const finishExam = useCallback((
+    examResults: ExamResults,
+    records: QuestionRecord[]
+  ) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    // Calculate XP
+    const baseXP = records.length * 5;
+    let bonusXP = 0;
+    if (examResults.overallScore >= 90) bonusXP = 50;
+    else if (examResults.overallScore >= 75) bonusXP = 30;
+    else if (examResults.overallScore >= 60) bonusXP = 15;
+    const totalXP = baseXP + bonusXP;
+
+    setXpEarned(totalXP);
+    setResults(examResults);
+    setView('results');
+
+    // Award XP
+    addXP(totalXP);
+
+    // Update skill map based on topics
+    const skillUpdates: Record<string, number> = {};
+    selectedTopics.forEach(topicId => {
+      skillUpdates[topicId] = examResults.overallScore;
+    });
+    if (Object.keys(skillUpdates).length > 0) {
+      updateSkillMap(skillUpdates);
+    }
+
+    toast.success(`Экзамен завершён! +${totalXP} XP`);
+  }, [addXP, updateSkillMap, selectedTopics]);
+
   // Submit answer
   const handleSubmitAnswer = useCallback(async () => {
     if (!currentAnswer.trim() || !currentQuestion || isLoading) return;
@@ -299,41 +333,7 @@ export function MockExamTab() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentAnswer, currentFollowUpAnswer, currentQuestion, isLoading, questionHistory, questionRecords, answeredCount, examId, questionCount, selectedTopics, difficulty]);
-
-  // Finish exam
-  const finishExam = useCallback((
-    examResults: ExamResults,
-    records: QuestionRecord[]
-  ) => {
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    // Calculate XP
-    const baseXP = records.length * 5;
-    let bonusXP = 0;
-    if (examResults.overallScore >= 90) bonusXP = 50;
-    else if (examResults.overallScore >= 75) bonusXP = 30;
-    else if (examResults.overallScore >= 60) bonusXP = 15;
-    const totalXP = baseXP + bonusXP;
-
-    setXpEarned(totalXP);
-    setResults(examResults);
-    setView('results');
-
-    // Award XP
-    addXP(totalXP);
-
-    // Update skill map based on topics
-    const skillUpdates: Record<string, number> = {};
-    selectedTopics.forEach(topicId => {
-      skillUpdates[topicId] = examResults.overallScore;
-    });
-    if (Object.keys(skillUpdates).length > 0) {
-      updateSkillMap(skillUpdates);
-    }
-
-    toast.success(`Экзамен завершён! +${totalXP} XP`);
-  }, [addXP, updateSkillMap, selectedTopics]);
+  }, [currentAnswer, currentFollowUpAnswer, currentQuestion, isLoading, questionHistory, questionRecords, answeredCount, examId, questionCount, selectedTopics, difficulty, finishExam]);
 
   // End exam early
   const handleEndExam = useCallback(() => {

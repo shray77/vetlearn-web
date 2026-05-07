@@ -11,7 +11,9 @@ export function useIsMobile() {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    // Initial sync from external media query API
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMobile(mql.matches)
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
