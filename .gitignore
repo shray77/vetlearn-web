@@ -36,7 +36,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -50,5 +49,25 @@ test
 prompt
 
 server.log
+
 # Skills directory
 /skills/
+
+# Database
+/db/
+
+# Uploads (binaries, docs, images)
+/upload/
+/download/
+
+# Deployment scripts
+/.zscripts/
+
+# Examples
+/examples/
+
+# Worklog
+/worklog.md
+
+# vetlearn-web clone
+/vetlearn-web/
