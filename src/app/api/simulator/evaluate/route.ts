@@ -309,6 +309,7 @@ ${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === c
       });
       responseText = completion.choices[0]?.message?.content || '';
     }
+
     clearTimeout(timeout);
 
     // --- Multi-strategy JSON extraction ---

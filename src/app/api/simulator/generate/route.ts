@@ -547,7 +547,6 @@ const FALLBACK_SCENARIOS: SimulatorScenario[] = [
       { region: 'thorax', toolId: 'stethoscope', finding: 'Дыхание учащено, жёсткое. Хрипов нет.', isNormal: false, relevance: 'important' },
       { region: 'skin', toolId: 'inspection', finding: 'Перья взъерошены, тусклые. Птица истощена.', isNormal: false, relevance: 'important' },
       { region: 'front_legs', toolId: 'palpation', finding: 'Суставы без изменений.', isNormal: true, relevance: 'minor' },
-      { region: 'hind_legs', toolId: 'inspection', finding: 'Видимых изменений нет.', isNormal: true, relevance: 'minor' },
     ],
     availableTests: [
       { id: 'cbc', name: 'ОАК', icon: '🩸', cost: 600, category: 'blood', result: 'Лейкоциты: 35×10⁹/л (выраженный лейкоцитоз). Гематокрит: 28% (анемия).', isRevealed: false },
@@ -629,8 +628,8 @@ ${topic ? `- Тема: ${topic}` : ''}
           { role: 'user', content: userPrompt },
         ],
         thinking: { type: 'disabled' },
-        response_format: { type: 'json_object' } as any,
         temperature: 0.9,
+        response_format: { type: 'json_object' } as any,
       });
       responseText = completion.choices[0]?.message?.content || '';
     } catch (formatError) {
@@ -645,6 +644,7 @@ ${topic ? `- Тема: ${topic}` : ''}
       });
       responseText = completion.choices[0]?.message?.content || '';
     }
+
     clearTimeout(timeout);
 
     // --- Multi-strategy JSON extraction ---
