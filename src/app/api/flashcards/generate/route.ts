@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ZAI from 'z-ai-web-dev-sdk';
+<<<<<<< HEAD
 import { extractJSON } from '@/lib/json-utils';
+=======
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 
 const SYSTEM_PROMPT = `Ты — опытный профессор ветеринарной медицины, создающий обучающие карточки для студентов. ALL text in your response MUST be in Russian only.
 
@@ -28,7 +31,80 @@ const SYSTEM_PROMPT = `Ты — опытный профессор ветерин
 
 Верни ТОЛЬКО JSON без дополнительных комментариев.`;
 
+<<<<<<< HEAD
 
+=======
+// --- Multi-strategy JSON extraction ---
+
+function tryDirectParse(text: string): unknown | null {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function tryStripMarkdownFences(text: string): unknown | null {
+  try {
+    let cleaned = text
+      .replace(/^```(?:json|JSON)?\s*\n?/gm, '')
+      .replace(/\n?```\s*$/gm, '')
+      .replace(/^```\s*/gm, '')
+      .trim();
+    if (cleaned !== text) {
+      return JSON.parse(cleaned);
+    }
+  } catch {
+    // fall through
+  }
+  return null;
+}
+
+function tryRegexExtract(text: string): unknown | null {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) {
+    try {
+      return JSON.parse(match[0]);
+    } catch {
+      // fall through
+    }
+  }
+  return null;
+}
+
+function tryFixCommonIssues(text: string): unknown | null {
+  try {
+    let jsonStr = text;
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) {
+      jsonStr = match[0];
+    }
+
+    let fixed = jsonStr;
+    fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+    fixed = fixed.replace(/(?<![\\])'/g, '"');
+
+    return JSON.parse(fixed);
+  } catch {
+    return null;
+  }
+}
+
+function extractJSON(text: string): unknown | null {
+  const strategies = [
+    tryDirectParse,
+    tryStripMarkdownFences,
+    tryRegexExtract,
+    tryFixCommonIssues,
+  ];
+
+  for (const strategy of strategies) {
+    const result = strategy(text);
+    if (result !== null) return result;
+  }
+  return null;
+}
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 
 // --- Structure validation ---
 

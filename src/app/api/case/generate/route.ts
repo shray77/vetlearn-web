@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ZAI from 'z-ai-web-dev-sdk';
+<<<<<<< HEAD
 import { extractJSON } from '@/lib/json-utils';
+=======
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 
 const SYSTEM_PROMPT = `Ты — опытный ветеринарный врач и преподаватель клинических дисциплин. Ты создаёшь реалистичные клинические случаи для обучения студентов ветеринарной медицины.
 
@@ -44,6 +47,105 @@ const SYSTEM_PROMPT = `Ты — опытный ветеринарный врач
 
 Все тексты — ТОЛЬКО на русском языке. Верни ТОЛЬКО JSON.`;
 
+<<<<<<< HEAD
+=======
+// --- Multi-strategy JSON extraction ---
+
+/**
+ * Strategy 1: Direct JSON.parse
+ */
+function tryDirectParse(text: string): unknown | null {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Strategy 2: Remove markdown fences aggressively and parse
+ */
+function tryStripMarkdownFences(text: string): unknown | null {
+  try {
+    // Remove various markdown fence patterns
+    let cleaned = text
+      .replace(/^```(?:json|JSON)?\s*\n?/gm, '')
+      .replace(/\n?```\s*$/gm, '')
+      .replace(/^```\s*/gm, '')
+      .trim();
+    if (cleaned !== text) {
+      return JSON.parse(cleaned);
+    }
+  } catch {
+    // fall through
+  }
+  return null;
+}
+
+/**
+ * Strategy 3: Regex extract outermost JSON object
+ */
+function tryRegexExtract(text: string): unknown | null {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) {
+    try {
+      return JSON.parse(match[0]);
+    } catch {
+      // fall through
+    }
+  }
+  return null;
+}
+
+/**
+ * Strategy 4: Fix common JSON issues then parse
+ * - Trailing commas before } or ]
+ * - Single quotes → double quotes
+ * - Unquoted keys
+ */
+function tryFixCommonIssues(text: string): unknown | null {
+  try {
+    // First try to extract JSON portion
+    let jsonStr = text;
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) {
+      jsonStr = match[0];
+    }
+
+    let fixed = jsonStr;
+
+    // Fix trailing commas before } or ]
+    fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+
+    // Fix single quotes → double quotes (naive but handles most cases)
+    // Be careful not to break strings that contain single quotes as apostrophes
+    fixed = fixed.replace(/(?<![\\])'/g, '"');
+
+    return JSON.parse(fixed);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Try all extraction strategies in order, return first successful parse
+ */
+function extractJSON(text: string): unknown | null {
+  const strategies = [
+    tryDirectParse,
+    tryStripMarkdownFences,
+    tryRegexExtract,
+    tryFixCommonIssues,
+  ];
+
+  for (const strategy of strategies) {
+    const result = strategy(text);
+    if (result !== null) return result;
+  }
+  return null;
+}
+
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 // --- Structure validation ---
 
 interface CaseQuestion {
@@ -200,6 +302,7 @@ function getFallbackCase(): ClinicalCase {
 
 export async function POST(req: NextRequest) {
   try {
+<<<<<<< HEAD
     const body = await req.json();
     const { species, difficulty = 'intermediate', topic } = body;
 
@@ -217,6 +320,9 @@ export async function POST(req: NextRequest) {
         { status: 413 }
       );
     }
+=======
+    const { species, difficulty = 'intermediate', topic } = await req.json();
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 
     if (!species) {
       return NextResponse.json(

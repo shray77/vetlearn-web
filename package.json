@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "vetlearn-web",
+=======
+  "name": "nextjs_tailwind_shadcn_ts",
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
   "version": "0.2.0",
   "private": true,
   "scripts": {

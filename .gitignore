@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -49,6 +53,7 @@ test
 prompt
 
 server.log
+<<<<<<< HEAD
 
 # Skills directory
 /skills/
@@ -71,3 +76,7 @@ server.log
 
 # vetlearn-web clone
 /vetlearn-web/
+=======
+# Skills directory
+/skills/
+>>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
