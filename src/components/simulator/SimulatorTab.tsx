@@ -139,6 +139,13 @@ export function SimulatorTab() {
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
+      if (!res.ok) {
+        const errorBody = await res.text().catch(() => '');
+        console.error('[Simulator] generate failed:', res.status, errorBody.substring(0, 200));
+        toast.error(`Ошибка сервера (${res.status})`);
+        setIsSimulatorActive(false);
+        return;
+      }
       const data = await res.json();
       if (data.success && data.scenario) {
         const s = data.scenario as SimulatorScenario;
@@ -309,6 +316,11 @@ export function SimulatorTab() {
         signal: evalController.signal,
       });
       clearTimeout(evalTimeout);
+      if (!res.ok) {
+        console.error('[Simulator] evaluate failed:', res.status);
+        toast.error(`Ошибка сервера (${res.status})`);
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         const ev: SimulatorEvaluation = {
@@ -735,7 +747,7 @@ export function SimulatorTab() {
                 <p className="text-sm font-semibold truncate">{scenario.breed}, {scenario.age}</p>
                 <p className="text-[11px] text-muted-foreground">
                   {scenario.sex} • {scenario.weight} •{' '}
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                     {scenario.topic}
                   </Badge>
                 </p>
@@ -867,7 +879,7 @@ export function SimulatorTab() {
                       }`}
                     >
                       <span className="text-xl">{tool.icon}</span>
-                      <span className="text-[9px] font-medium text-center leading-tight">{tool.name}</span>
+                      <span className="text-[10px] font-medium text-center leading-tight">{tool.name}</span>
                     </button>
                   ))}
                 </div>
@@ -888,7 +900,7 @@ export function SimulatorTab() {
                       📋 Находки ({discoveredFindings.length})
                     </h3>
                     {criticalMissed > 0 && (
-                      <Badge variant="outline" className="text-[9px] text-[#FF3B30] border-[#FF3B30]/30">
+                      <Badge variant="outline" className="text-[10px] text-[#FF3B30] border-[#FF3B30]/30">
                         <AlertTriangle className="w-3 h-3 mr-0.5" /> {criticalMissed} критич. пропущено
                       </Badge>
                     )}
@@ -904,13 +916,13 @@ export function SimulatorTab() {
                         return (
                           <div key={`${f.region}-${f.toolId}-${i}`} className={`finding-slide pl-3 border-l-2 ${borderColor}`}>
                             <div className="flex items-center gap-1.5 mb-0.5">
-                              <span className="text-[9px] text-muted-foreground">
+                              <span className="text-[10px] text-muted-foreground">
                                 {BODY_REGION_LABELS[f.region as BodyRegion]} • {VET_TOOLS.find(t => t.id === f.toolId)?.icon} {VET_TOOLS.find(t => t.id === f.toolId)?.name}
                               </span>
                               {f.isNormal ? (
-                                <Badge className="text-[8px] px-1 py-0 bg-[#28CD41]/10 text-[#28CD41]">норма</Badge>
+                                <Badge className="text-[9px] px-1.5 py-0 bg-[#28CD41]/10 text-[#28CD41]">норма</Badge>
                               ) : (
-                                <Badge className="text-[8px] px-1 py-0 bg-[#FF3B30]/10 text-[#FF3B30]">
+                                <Badge className="text-[9px] px-1.5 py-0 bg-[#FF3B30]/10 text-[#FF3B30]">
                                   {f.relevance === 'critical' ? 'критично' : 'патология'}
                                 </Badge>
                               )}

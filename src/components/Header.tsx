@@ -15,8 +15,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  PawPrint, Flame, Zap, Settings, Moon, Trash2, Bell, BellOff,
+  Flame, Zap, Settings, Moon, Trash2, Bell, BellOff,
 } from 'lucide-react';
+import { PawPrint as PhPawPrint } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 
 export function Header() {
@@ -59,15 +60,15 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-b border-border/50">
-      <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      <div className="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2" onClick={handleLogoTap}>
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#28CD41] to-[#1FA833] flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <PawPrint className="w-4 h-4 text-white" />
+              <PhPawPrint size={16} weight="fill" className="text-white" />
             </div>
             <div>
               <h1 className="text-base font-bold leading-tight">VetLearn AI</h1>
-              <p className="text-[10px] text-muted-foreground leading-tight hidden sm:block">Персонализированное обучение</p>
+              <p className="text-[11px] text-muted-foreground leading-tight hidden sm:block">Персонализированное обучение</p>
             </div>
           </div>
 
@@ -106,14 +107,20 @@ export function Header() {
                     <Moon className="w-4 h-4" />
                     <span className="text-sm">Тёмная тема</span>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8"
+                  <button
+                    role="switch"
+                    aria-checked={theme === 'dark'}
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className={`relative inline-flex h-7 w-[46px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                      theme === 'dark' ? 'bg-[#28CD41]' : 'bg-[#E5E5EA]'
+                    }`}
                   >
-                    {theme === 'dark' ? 'Светлая' : 'Тёмная'}
-                  </Button>
+                    <span
+                      className={`pointer-events-none inline-block h-[22px] w-[22px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        theme === 'dark' ? 'translate-x-[22px]' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
                   <div className="flex items-center gap-3">
@@ -121,19 +128,25 @@ export function Header() {
                     <div>
                       <span className="text-sm">Уведомления</span>
                       {notificationPermission === 'denied' && (
-                        <p className="text-[10px] text-[#FF3B30]">Заблокированы в настройках браузера</p>
+                        <p className="text-[11px] text-[#FF3B30]">Заблокированы в настройках браузера</p>
                       )}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8"
+                  <button
+                    role="switch"
+                    aria-checked={notificationsEnabled}
                     onClick={requestNotifications}
                     disabled={notificationPermission === 'denied'}
+                    className={`relative inline-flex h-7 w-[46px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      notificationsEnabled ? 'bg-[#28CD41]' : 'bg-[#E5E5EA]'
+                    }`}
                   >
-                    {notificationsEnabled ? 'Вкл.' : 'Включить'}
-                  </Button>
+                    <span
+                      className={`pointer-events-none inline-block h-[22px] w-[22px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        notificationsEnabled ? 'translate-x-[22px]' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#FF3B30]/5 border border-[#FF3B30]/20">
                   <div className="flex items-center gap-3">

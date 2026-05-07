@@ -240,3 +240,58 @@
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* iOS-style toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  height: 31px;
+  width: 51px;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 9999px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease-in-out;
+}
+.toggle-switch[aria-checked='true'] {
+  background-color: #28CD41;
+}
+.toggle-switch[aria-checked='true']::after {
+  transform: translateX(20px);
+}
+.toggle-switch[aria-checked='false'] {
+  background-color: #E5E5EA;
+}
+
+/* Touch target minimum (Apple HIG: 44x44pt) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card hover lift (Apple-style) */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:active {
+  transform: scale(0.98);
+ }
+
+/* Smooth page transitions */
+.page-transition {
+  transition: opacity 0.15s ease;
+}

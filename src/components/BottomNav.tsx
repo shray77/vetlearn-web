@@ -6,6 +6,15 @@ import {
   BookOpen, Stethoscope, Mic, Lightbulb, PawPrint,
   Info, BarChart3, Layers, GraduationCap, Grid3X3, Activity,
 } from 'lucide-react';
+// Phosphor Icons — SF Symbols-like duotone for tab bar
+import {
+  PawPrint as PhPawPrint,
+  BookOpen as PhBookOpen,
+  Stethoscope as PhStethoscope,
+  Microphone as PhMicrophone,
+  SquaresFour as PhSquaresFour,
+  type IconWeight,
+} from '@phosphor-icons/react';
 import {
   Dialog,
   DialogContent,
@@ -21,15 +30,23 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 
+// ===== Phosphor icon mapping for main tab bar =====
+const MAIN_TAB_ICONS: Record<string, React.ComponentType<{ size?: number; weight?: IconWeight; color?: string; className?: string }>> = {
+  dashboard: PhPawPrint,
+  learning: PhBookOpen,
+  cases: PhStethoscope,
+  tutor: PhMicrophone,
+};
+
 // ===== MAIN TABS (always visible in bottom bar) =====
 const MAIN_TABS = [
-  { id: 'dashboard', label: 'Главная', icon: PawPrint },
-  { id: 'learning', label: 'Обучение', icon: BookOpen },
-  { id: 'cases', label: 'Кейсы', icon: Stethoscope },
-  { id: 'tutor', label: 'Репетитор', icon: Mic },
+  { id: 'dashboard', label: 'Главная' },
+  { id: 'learning', label: 'Обучение' },
+  { id: 'cases', label: 'Кейсы' },
+  { id: 'tutor', label: 'Репетитор' },
 ];
 
-// ===== EXTRA TABS (in "Ещё" sheet) =====
+// ===== EXTRA TABS (in "Ещё" sheet) — still using Lucide for consistency =====
 const EXTRA_TABS = [
   { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#28CD41', desc: 'Термин ↔ определение + интервальное повторение' },
   { id: 'mindmap', label: 'Карта знаний', icon: BarChart3, color: '#007AFF', desc: 'AI интеллект-карты по темам' },
@@ -166,9 +183,10 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
         <div className="max-w-4xl mx-auto flex items-center justify-around h-16 px-2">
-          {/* 4 main tabs */}
+          {/* 4 main tabs — Phosphor duotone icons (SF Symbols-like) */}
           {MAIN_TABS.map((item) => {
             const isActive = activeTab === item.id;
+            const PhIcon = MAIN_TAB_ICONS[item.id];
             return (
               <button
                 key={item.id}
@@ -180,7 +198,13 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                 }`}
               >
                 <div className="relative">
-                  <item.icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+                  {PhIcon && (
+                    <PhIcon
+                      size={22}
+                      weight={isActive ? 'duotone' : 'regular'}
+                      className={`transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}
+                    />
+                  )}
                   {isActive && (
                     <motion.div
                       layoutId="nav-dot"
@@ -188,7 +212,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                     />
                   )}
                 </div>
-                <span className={`text-[10px] font-medium ${isActive ? 'font-semibold' : ''}`}>
+                <span className={`text-[11px] font-medium ${isActive ? 'font-semibold' : ''}`}>
                   {item.label}
                 </span>
               </button>
@@ -205,7 +229,11 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
             }`}
           >
             <div className="relative">
-              <Grid3X3 className={`w-5 h-5 transition-transform duration-200 ${isExtraTabActive ? 'scale-110' : ''}`} />
+              <PhSquaresFour
+                size={22}
+                weight={isExtraTabActive ? 'duotone' : 'regular'}
+                className={`transition-transform duration-200 ${isExtraTabActive ? 'scale-110' : ''}`}
+              />
               {isExtraTabActive && (
                 <motion.div
                   layoutId="nav-dot"
@@ -213,7 +241,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                 />
               )}
             </div>
-            <span className={`text-[10px] font-medium ${isExtraTabActive ? 'font-semibold text-[#007AFF]' : ''}`}>
+            <span className={`text-[11px] font-medium ${isExtraTabActive ? 'font-semibold text-[#007AFF]' : ''}`}>
               Ещё
             </span>
           </button>
