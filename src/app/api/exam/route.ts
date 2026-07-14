@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 
 // ==================== System prompts ====================
@@ -143,7 +143,7 @@ async function handleStart(body: {
     );
   }
 
-  const zai = await ZAI.create();
+  const zai = await getZAI();
   const difficultyLabel = DIFFICULTY_LABELS[difficulty] || difficulty;
 
   const userPrompt = `Начни экзамен.
@@ -238,7 +238,7 @@ async function handleAnswer(body: {
     );
   }
 
-  const zai = await ZAI.create();
+  const zai = await getZAI();
   const difficultyLabel = DIFFICULTY_LABELS[difficulty] || difficulty;
   const isLast = isLastQuestion || currentQuestionIndex >= questionCount - 1;
 

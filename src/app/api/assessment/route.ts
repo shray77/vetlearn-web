@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
+import { extractJSON } from '@/lib/json-utils';
 
 const SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины с 30-летним опытом преподавания. Ты создаёшь адаптивные тестовые вопросы для студентов ветеринарных вузов.
 
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const topicList = topics
       .map((t: { id: string; name: string }) => `${t.name} (${t.id})`)
@@ -79,20 +80,13 @@ export async function POST(req: NextRequest) {
     // Clean markdown code blocks if present
     responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    let questions;
-    try {
-      questions = JSON.parse(responseText);
-    } catch {
-      // Try to extract JSON from the response
-      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        questions = JSON.parse(jsonMatch[0]);
-      } else {
-        return NextResponse.json(
-          { error: 'Не удалось обработать ответ AI. Попробуйте ещё раз.' },
-          { status: 500 }
-        );
-      }
+    // Use the shared multi-strategy JSON extractor — never throws.
+    const questions = extractJSON(responseText);
+    if (!Array.isArray(questions)) {
+      return NextResponse.json(
+        { error: 'Не удалось обработать ответ AI. Попробуйте ещё раз.' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 
 const SYSTEM_PROMPT = `Ты — AI-репетитор по ветеринарной медицине. Ты помогаешь студентам ветеринарных вузов понять сложные темы.
 
@@ -19,7 +19,7 @@ const SYSTEM_PROMPT = `Ты — AI-репетитор по ветеринарн�
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, topic, context, history = [], audio } = await req.json();
+    const { message, topic, context, history = [] } = await req.json();
 
     if (!message) {
       return NextResponse.json(
@@ -37,14 +37,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (audio && typeof audio === 'string' && audio.length > 20 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'Аудиоданные слишком большие (максимум 20 МБ)' },
-        { status: 413 }
-      );
-    }
-
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const contextInfo = [
       topic ? `Тема: ${topic}` : '',

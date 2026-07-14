@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 import { FALLBACK_SCENARIOS, getFallbackScenario, type SimulatorScenario } from '@/lib/fallback-scenarios';
 
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const difficultyDescriptions: Record<string, string> = {
       beginner: 'простой клинический случай с очевидной диагностикой, подходящий для начинающих студентов',

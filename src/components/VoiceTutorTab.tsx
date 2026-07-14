@@ -28,6 +28,12 @@ export function VoiceTutorTab() {
   const audioUrlRef = useRef<string | null>(null);
   // FIX #4: track stream for cleanup
   const streamRef = useRef<MediaStream | null>(null);
+  // FIX: guard against double-tap during async getUserMedia
+  const isStartingRef = useRef(false);
+  // FIX: auto-stop long recordings to avoid huge base64 payloads
+  const maxRecTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // FIX: client-side timeout for STT fetch (SDK can hang)
+  const sttAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -35,7 +41,8 @@ export function VoiceTutorTab() {
     }
   }, [tutorMessages]);
 
-  // FIX #3/#4: Cleanup on unmount — revoke URL, stop audio, stop stream
+  // FIX #3/#4: Cleanup on unmount — revoke URL, stop audio, stop stream,
+  // clear recording timeout, abort any in-flight STT request.
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -45,6 +52,14 @@ export function VoiceTutorTab() {
       if (audioUrlRef.current) {
         URL.revokeObjectURL(audioUrlRef.current);
         audioUrlRef.current = null;
+      }
+      if (maxRecTimeoutRef.current) {
+        clearTimeout(maxRecTimeoutRef.current);
+        maxRecTimeoutRef.current = null;
+      }
+      if (sttAbortRef.current) {
+        sttAbortRef.current.abort();
+        sttAbortRef.current = null;
       }
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
@@ -165,6 +180,10 @@ export function VoiceTutorTab() {
 
   // FIX #4: Proper MediaRecorder cleanup
   const handleStartRecording = async () => {
+    // Race-condition guard: if a previous start is still pending
+    // (await getUserMedia), or we're already recording, ignore.
+    if (isStartingRef.current || isRecording) return;
+    isStartingRef.current = true;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -179,23 +198,41 @@ export function VoiceTutorTab() {
       mediaRecorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         streamRef.current = null;
+        if (maxRecTimeoutRef.current) {
+          clearTimeout(maxRecTimeoutRef.current);
+          maxRecTimeoutRef.current = null;
+        }
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64Audio = (reader.result as string).split(',')[1];
+          // Client-side timeout: if z-ai ASR hangs, abort after 30s.
+          const controller = new AbortController();
+          sttAbortRef.current = controller;
+          const timeout = setTimeout(() => controller.abort(), 30_000);
           try {
             const res = await fetch('/api/stt', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ audio: base64Audio }),
+              signal: controller.signal,
             });
             const data = await res.json();
             if (data.success && data.text) {
               setInputText(data.text);
               toast.success('Речь распознана');
+            } else {
+              toast.error(data.error || 'Ошибка распознавания');
             }
-          } catch {
-            toast.error('Ошибка распознавания');
+          } catch (err) {
+            if ((err as Error)?.name === 'AbortError') {
+              toast.error('Таймаут распознавания речи');
+            } else {
+              toast.error('Ошибка распознавания');
+            }
+          } finally {
+            clearTimeout(timeout);
+            sttAbortRef.current = null;
           }
         };
         reader.readAsDataURL(blob);
@@ -203,12 +240,28 @@ export function VoiceTutorTab() {
 
       mediaRecorder.start();
       setIsRecording(true);
+      // Auto-stop after 60s to avoid huge base64 payloads (10 MB cap on server).
+      maxRecTimeoutRef.current = setTimeout(() => {
+        if (mediaRecorderRef.current?.state === 'recording') {
+          mediaRecorderRef.current.stop();
+        }
+      }, 60_000);
     } catch {
       toast.error('Нет доступа к микрофону');
+    } finally {
+      isStartingRef.current = false;
     }
   };
 
   const handleStopRecording = () => {
+    // Ignore if a start is in progress (getUserMedia still pending) or
+    // not currently recording. Prevents the double-tap race where the
+    // second click tried to stop a recorder that hadn't started yet.
+    if (isStartingRef.current) return;
+    if (maxRecTimeoutRef.current) {
+      clearTimeout(maxRecTimeoutRef.current);
+      maxRecTimeoutRef.current = null;
+    }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);

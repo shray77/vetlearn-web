@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 
 // =============================================
 // КУРАТОРСКАЯ БАЗА РЕАЛЬНЫХ ВЕТЕРИНАРНЫХ РЕСУРСОВ
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. AI персонализирует описания и подбирает доп. ресурсы
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const gapsText = gaps
       .map((g: { topicId: string; topicName: string; currentLevel: number; priority: string }) =>

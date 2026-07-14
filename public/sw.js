@@ -1,4 +1,8 @@
-const CACHE_NAME = 'vetlearn-v1';
+// CACHE_NAME is auto-replaced at build time by .zscripts/build.sh
+// (looks for the placeholder `vetlearn-v__BUILD_ID__` and substitutes a
+// unique build identifier). This ensures clients get a fresh cache on
+// every deploy without manual version bumps.
+const CACHE_NAME = 'vetlearn-v__BUILD_ID__';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

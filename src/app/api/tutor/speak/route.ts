@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     const truncatedText = text.slice(0, 1024);
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const response = await zai.audio.tts.create({
       input: truncatedText,

@@ -75,22 +75,21 @@ fi
 if [ -d "public" ]; then
     echo "  - 复制 public"
     cp -r public "$BUILD_DIR/next-service-dist/"
+
+    # Stamp the service worker with a unique build ID so browsers fetch
+    # a fresh SW (and bust their cache) on every deploy.
+    SW_FILE="$BUILD_DIR/next-service-dist/public/sw.js"
+    if [ -f "$SW_FILE" ]; then
+        BUILD_STAMP="vetlearn-v$(date +%s)-${BUILD_ID:-$(date +%Y%m%d%H%M%S)}"
+        echo "  - stamping service worker cache name: $BUILD_STAMP"
+        sed "s/vetlearn-v__BUILD_ID__/${BUILD_STAMP}/g" "$SW_FILE" > "$SW_FILE.tmp" && mv "$SW_FILE.tmp" "$SW_FILE"
+    fi
 fi
 
-# 将测试环境数据库复制到构建产物中，生产环境直接使用这份数据库
-if [ -f "./db/custom.db" ]; then
-    echo "🗄️  复制测试环境数据库到构建产物..."
-    mkdir -p "$BUILD_DIR/db"
-    cp -r ./db/. "$BUILD_DIR/db/"
-
-    echo "🗄️  同步构建产物中的数据库结构..."
-    DATABASE_URL="file:$BUILD_DIR/db/custom.db" bun run db:push
-    echo "✅ 构建产物数据库已准备完成"
-    ls -lah "$BUILD_DIR/db"
-else
-    echo "❌ 未找到测试环境数据库文件 ./db/custom.db，无法继续构建生产包"
-    exit 1
-fi
+# (Prisma has been removed from the project — no DB step needed.)
+# If you re-add a database in the future, restore this block with the
+# appropriate sync/migration logic for the chosen DB layer.
+echo "ℹ️  Prisma удалён из проекта — шаг синхронизации БД пропущен" 
 
 # 复制 Caddyfile（如果存在）
 if [ -f "Caddyfile" ]; then

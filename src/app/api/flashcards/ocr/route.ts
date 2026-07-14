@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 
 interface Flashcard {
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const userPrompt = `Проанализируй текст на этом изображении и создай обучающие карточки по ветеринарной медицине. Текст может быть с конспекта лекции, страницы учебника или рукописных заметок. Извлеки ключевые термины и создай карточки. Верни ТОЛЬКО JSON.`;
 

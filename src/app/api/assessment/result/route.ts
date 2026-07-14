@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
+import { extractJSON } from '@/lib/json-utils';
 
 const SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины. Ты анализируешь результаты тестирования студентов и создаёшь персонализированный план обучения.
 
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     // Calculate initial stats
     const correctCount = answers.filter(
@@ -131,32 +132,29 @@ ${q.explanation ? `Объяснение: "${q.explanation}"` : ''}`;
     let responseText = completion.choices[0]?.message?.content || '';
     responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    let analysis;
-    try {
-      analysis = JSON.parse(responseText);
-    } catch {
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
-      } else {
-        // Fallback: generate basic analysis from our stats
-        const skillMap: Record<string, number> = {};
-        const gaps: Array<{ topicId: string; topicName: string; currentLevel: number; targetLevel: number; priority: string }> = [];
-        for (const [topic, stats] of Object.entries(topicStats)) {
-          const mastery = Math.round((stats.correct / stats.total) * 100);
-          skillMap[topic] = mastery;
-          if (mastery < 70) {
-            gaps.push({
-              topicId: topic,
-              topicName: stats.topicName,
-              currentLevel: mastery,
-              targetLevel: 80,
-              priority: mastery < 40 ? 'high' : 'medium',
-            });
-          }
+    // Use the shared multi-strategy JSON extractor — never throws.
+    const extracted = extractJSON(responseText);
+    let analysis: Record<string, unknown>;
+    if (extracted && typeof extracted === 'object' && !Array.isArray(extracted)) {
+      analysis = extracted as Record<string, unknown>;
+    } else {
+      // Fallback: generate basic analysis from our stats
+      const skillMap: Record<string, number> = {};
+      const gaps: Array<{ topicId: string; topicName: string; currentLevel: number; targetLevel: number; priority: string }> = [];
+      for (const [topic, stats] of Object.entries(topicStats)) {
+        const mastery = Math.round((stats.correct / stats.total) * 100);
+        skillMap[topic] = mastery;
+        if (mastery < 70) {
+          gaps.push({
+            topicId: topic,
+            topicName: stats.topicName,
+            currentLevel: mastery,
+            targetLevel: 80,
+            priority: mastery < 40 ? 'high' : 'medium',
+          });
         }
-        analysis = { score, skillMap, gaps, strengths: [], learningPath: [], summary: `Результат: ${score}%` };
       }
+      analysis = { score, skillMap, gaps, strengths: [], learningPath: [], summary: `Результат: ${score}%` };
     }
 
     return NextResponse.json({

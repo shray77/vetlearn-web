@@ -32,14 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
-<<<<<<< HEAD
-=======
-
->>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -53,12 +50,16 @@ test
 prompt
 
 server.log
-<<<<<<< HEAD
 
-# Skills directory
+# Package manager — bun is the canonical package manager (see bun.lock)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Skills directory (z.ai skills, not part of source)
 /skills/
 
-# Database
+# Database (Prisma removed)
 /db/
 
 # Uploads (binaries, docs, images)
@@ -76,7 +77,3 @@ server.log
 
 # vetlearn-web clone
 /vetlearn-web/
-=======
-# Skills directory
-/skills/
->>>>>>> de0ab19abee698d2801e84c865af020ca3e2ac23

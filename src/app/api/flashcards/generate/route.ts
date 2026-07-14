@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 
 const SYSTEM_PROMPT = `Ты — опытный профессор ветеринарной медицины, создающий обучающие карточки для студентов. ALL text in your response MUST be in Russian only.
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
 
     const cardCount = Math.min(Math.max(count, 3), 20);
 
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const userPrompt = `Создай ${cardCount} обучающих карточек по ветеринарной медицине:
 - Тема: ${topic}${subtopic ? `\n- Раздел: ${subtopic}` : ''}

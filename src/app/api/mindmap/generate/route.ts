@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
+import { getZAI } from '@/lib/zai';
 import type { MindMapNode } from '@/lib/types';
 import { extractJSON } from '@/lib/json-utils';
 
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 
     const fullTopic = subtopic ? `${topic} — ${subtopic}` : topic;
 
-    const zai = await ZAI.create();
+    const zai = await getZAI();
 
     const userPrompt = `Создай детальную интеллект-карту (mind map) по теме: ${fullTopic}
 
