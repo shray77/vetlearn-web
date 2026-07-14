@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
+import { getTrackPromptContext } from '@/lib/tracks';
+import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — опытный ветеринарный врач и преподаватель клинических дисциплин. Ты создаёшь реалистичные клинические случаи для обучения студентов ветеринарной медицины.
 
@@ -201,7 +203,8 @@ function getFallbackCase(): ClinicalCase {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { species, difficulty = 'intermediate', topic } = body;
+    const { species, difficulty = 'intermediate', topic, track } = body;
+    const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
 
     // --- Payload size validation ---
     if (topic && topic.length > 50 * 1024) {
@@ -250,7 +253,7 @@ ${topic ? `- Тема: ${topic}` : ''}
     let responseText = '';
     const completion = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: SYSTEM_PROMPT + (trackContext ? '\n\nКОНТЕКСТ СПЕЦИАЛИЗАЦИИ СТУДЕНТА:\n' + trackContext : '') },
         { role: 'user', content: userPrompt },
       ],
       max_tokens: 8192,

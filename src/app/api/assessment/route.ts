@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
+import { getTrackPromptContext } from '@/lib/tracks';
+import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины с 30-летним опытом преподавания. Ты создаёшь адаптивные тестовые вопросы для студентов ветеринарных вузов.
 
@@ -30,7 +32,8 @@ const SYSTEM_PROMPT = `Ты — профессор ветеринарной ме
 
 export async function POST(req: NextRequest) {
   try {
-    const { topics, difficulty = 'intermediate', count = 10 } = await req.json();
+    const { topics, difficulty = 'intermediate', count = 10, track } = await req.json();
+    const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
 
     if (!topics || !Array.isArray(topics) || topics.length === 0) {
       return NextResponse.json(
@@ -71,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     const completion = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: SYSTEM_PROMPT + (trackContext ? '\n\nКОНТЕКСТ СПЕЦИАЛИЗАЦИИ СТУДЕНТА:\n' + trackContext : '') },
         { role: 'user', content: userPrompt },
       ],
     });

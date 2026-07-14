@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getZAI } from '@/lib/zai';
+import { getTrackPromptContext } from '@/lib/tracks';
+import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — AI-репетитор по ветеринарной медицине. Ты помогаешь студентам ветеринарных вузов понять сложные темы.
 
@@ -19,7 +21,8 @@ const SYSTEM_PROMPT = `Ты — AI-репетитор по ветеринарн�
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, topic, context, history = [] } = await req.json();
+    const { message, topic, context, history = [], track } = await req.json();
+    const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
 
     if (!message) {
       return NextResponse.json(
@@ -47,7 +50,7 @@ export async function POST(req: NextRequest) {
       .join('. ');
 
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: SYSTEM_PROMPT + (trackContext ? '\n\nКОНТЕКСТ СПЕЦИАЛИЗАЦИИ СТУДЕНТА:\n' + trackContext : '') },
       ...(contextInfo ? [{ role: 'user' as const, content: `Контекст для следующих сообщений: ${contextInfo}` }, { role: 'assistant' as const, content: 'Понял, я учту этот контекст.' }] : []),
       ...history.slice(-10).map((h: { role: string; content: string }) => ({
         role: h.role as 'user' | 'assistant',

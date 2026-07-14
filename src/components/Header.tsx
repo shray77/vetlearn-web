@@ -15,17 +15,29 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
+import {
   Flame, Zap, Settings, Moon, Trash2, Bell, BellOff,
 } from 'lucide-react';
 import { PawPrint as PhPawPrint } from '@phosphor-icons/react';
 import { toast } from 'sonner';
+import { TRACKS, getTrackDefinition } from '@/lib/tracks';
+import type { SpecializationTrack } from '@/lib/types';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
-  const { profile, clearAllData, notificationsEnabled, setNotificationsEnabled, notificationPermission, setNotificationPermission } = useStore();
+  const { profile, clearAllData, notificationsEnabled, setNotificationsEnabled, notificationPermission, setNotificationPermission, setSpecializationTrack } = useStore();
   const [adminOpen, setAdminOpen] = useState(false);
+  const [trackSheetOpen, setTrackSheetOpen] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const track = getTrackDefinition(profile.specializationTrack);
 
   const requestNotifications = async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
@@ -83,6 +95,20 @@ export function Header() {
             <Zap className="w-3 h-3" />
             <span>{profile.xp}</span>
           </div>
+
+          {/* Track badge — tap to open track switcher */}
+          <button
+            onClick={() => setTrackSheetOpen(true)}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold transition-all hover:scale-105 active:scale-95"
+            style={{
+              backgroundColor: `${track.color}15`,
+              color: track.color,
+            }}
+            title={`Специализация: ${track.label}`}
+          >
+            <span className="text-sm">{track.icon}</span>
+            <span className="hidden sm:inline">{track.label}</span>
+          </button>
 
           <Dialog>
             <DialogTrigger asChild>
@@ -174,6 +200,49 @@ export function Header() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Track switcher sheet */}
+      <Sheet open={trackSheetOpen} onOpenChange={setTrackSheetOpen}>
+        <SheetContent side="bottom" className="rounded-t-[20px] max-h-[80vh] overflow-y-auto">
+          <SheetHeader className="text-left mb-3">
+            <SheetTitle className="text-base">Специализация</SheetTitle>
+            <SheetDescription className="text-xs">
+              Выберите трек — это настроит контент и AI-рекомендации
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-2 px-1 pb-6">
+            {TRACKS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setSpecializationTrack(t.id as SpecializationTrack);
+                  toast.success(`Специализация: ${t.label}`);
+                  setTrackSheetOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${
+                  profile.specializationTrack === t.id
+                    ? 'border-[#28CD41] bg-[#28CD41]/5'
+                    : 'border-transparent bg-muted/50 hover:bg-muted'
+                }`}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                  style={{ backgroundColor: `${t.color}15` }}
+                >
+                  {t.icon}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">{t.label}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{t.description}</p>
+                </div>
+                {profile.specializationTrack === t.id && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#28CD41] shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </header>
   );
 }

@@ -1,5 +1,8 @@
 // ===== Core Data Types for VetLearn AI =====
 
+// Specialization tracks — see src/lib/tracks.ts
+export type SpecializationTrack = 'small_animal' | 'large_animal' | 'equine' | 'exotic' | 'mixed';
+
 export interface StudentProfile {
   id: string;
   name: string;
@@ -28,6 +31,10 @@ export interface StudentProfile {
     weakTopics: string[];
     strongTopics: string[];
   };
+  // Specialization track (D.1) — defaults to 'mixed' for existing profiles via migration
+  specializationTrack?: SpecializationTrack;
+  trackStartDate?: string;
+  trackSwitchHistory?: Array<{ track: SpecializationTrack; date: string }>;
 }
 
 export interface LearningPathItem {
@@ -196,4 +203,57 @@ export interface MindMapNode {
   description?: string;
   color?: string;
   children: MindMapNode[];
+}
+
+// ===== Imported Documents (D.2) =====
+
+export interface ImportedDocument {
+  id: string;
+  filename: string;
+  fileType: 'pdf' | 'txt' | 'md' | 'image';
+  uploadedAt: string;
+  sourceTextPreview: string; // первые 500 символов
+  topicId?: string;
+  trackId?: SpecializationTrack;
+  generatedFlashcards: Flashcard[];
+  generatedQuestions?: AssessmentQuestion[];
+}
+
+// ===== OSCE Stations (D.3) =====
+
+export type OSCEStationType = 'radiology' | 'ultrasound' | 'cytology' | 'histopathology' | 'physical_exam';
+
+export interface OSCEQuestion {
+  id: string;
+  prompt: string;
+  type: 'describe' | 'interpret' | 'diagnose' | 'plan';
+  minLength: number;
+  maxLength: number;
+  keywords: string[];
+}
+
+export interface OSCEStation {
+  id: string;
+  type: OSCEStationType;
+  species: SpeciesType;
+  difficulty: DifficultyType;
+  imageUrl: string;
+  imageCaption: string;
+  presenterText: string;
+  questions: OSCEQuestion[];
+  referenceAnswers: string[];
+  timeLimitSec: number;
+  topicId: string;
+  attribution?: string;
+}
+
+export interface OSCEResult {
+  stationId: string;
+  stationType: OSCEStationType;
+  answers: string[];
+  scores: number[];
+  feedback: string[];
+  totalScore: number;
+  durationSec: number;
+  completedAt: string;
 }

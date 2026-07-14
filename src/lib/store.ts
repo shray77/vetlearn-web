@@ -11,6 +11,10 @@ import {
   FlashcardDeck,
   SRCardData,
   SRRating,
+  SpecializationTrack,
+  ImportedDocument,
+  OSCEResult,
+  OSCEStationType,
 } from './types';
 import { createSRCard, reviewSRCard } from './sm2';
 import type { SimulatorSession } from './simulator-types';
@@ -147,6 +151,20 @@ interface VetLearnStore {
     strongTopics: string[];
     detailedStats: Record<string, { correct: number; total: number; topicName: string }>;
   }) => void;
+
+  // ===== D.1 Specialization Tracks =====
+  setSpecializationTrack: (track: SpecializationTrack) => void;
+
+  // ===== D.2 Imported Documents =====
+  importedDocuments: ImportedDocument[];
+  addImportedDocument: (doc: ImportedDocument) => void;
+  deleteImportedDocument: (id: string) => void;
+  updateImportedDocument: (id: string, updates: Partial<ImportedDocument>) => void;
+
+  // ===== D.3 OSCE =====
+  osceHistory: OSCEResult[];
+  osceSkillMap: Partial<Record<OSCEStationType, number>>;
+  addOSCEResult: (result: OSCEResult) => void;
 
   // Clear all data
   clearAllData: () => void;
@@ -406,11 +424,99 @@ export const useStore = create<VetLearnStore>()(
           notificationPermission: 'default',
           notificationsEnabled: false,
           lastReminderDate: '',
+          importedDocuments: [],
+          osceHistory: [],
+          osceSkillMap: {},
+        }),
+
+      // ===== D.1 Specialization Tracks =====
+      setSpecializationTrack: (track) =>
+        set((state) => {
+          const today = getLocalDateString();
+          const prevTrack = state.profile.specializationTrack;
+          const isFirstSet = !prevTrack;
+          return {
+            profile: {
+              ...state.profile,
+              specializationTrack: track,
+              trackStartDate: isFirstSet ? today : state.profile.trackStartDate,
+              trackSwitchHistory: prevTrack && prevTrack !== track
+                ? [...(state.profile.trackSwitchHistory || []), { track: prevTrack, date: today }].slice(-20)
+                : state.profile.trackSwitchHistory,
+            },
+          };
+        }),
+
+      // ===== D.2 Imported Documents =====
+      importedDocuments: [],
+      addImportedDocument: (doc) =>
+        set((state) => ({
+          importedDocuments: [doc, ...state.importedDocuments].slice(0, 50),
+        })),
+      deleteImportedDocument: (id) =>
+        set((state) => ({
+          importedDocuments: state.importedDocuments.filter((d) => d.id !== id),
+        })),
+      updateImportedDocument: (id, updates) =>
+        set((state) => ({
+          importedDocuments: state.importedDocuments.map((d) =>
+            d.id === id ? { ...d, ...updates } : d
+          ),
+        })),
+
+      // ===== D.3 OSCE =====
+      osceHistory: [],
+      osceSkillMap: {},
+      addOSCEResult: (result) =>
+        set((state) => {
+          // Average new score into osceSkillMap
+          const stationType = result.stationType;
+          const prevScore = state.osceSkillMap[stationType] ?? 0;
+          const newScore = Math.round(prevScore * 0.5 + result.totalScore * 0.5);
+          // Also update topicId skill map via updateSkillMap pattern
+          return {
+            osceHistory: [result, ...state.osceHistory].slice(0, 30),
+            osceSkillMap: { ...state.osceSkillMap, [stationType]: newScore },
+          };
         }),
     }),
     {
       name: 'vetlearn-storage',
-      version: 3,
+      version: 6,
+      migrate: (persistedState: unknown, version: number) => {
+        const s = (persistedState as Record<string, unknown>) || {};
+        const profile = (s.profile as StudentProfile) || DEFAULT_PROFILE;
+
+        // v3 → v4: Specialization tracks
+        if (version < 4) {
+          if (!profile.specializationTrack) {
+            profile.specializationTrack = 'mixed';
+          }
+          if (!profile.trackStartDate) {
+            profile.trackStartDate = new Date().toISOString().split('T')[0];
+          }
+        }
+
+        // v4 → v5: Imported documents
+        if (version < 5) {
+          if (!Array.isArray(s.importedDocuments)) {
+            s.importedDocuments = [];
+          }
+        }
+
+        // v5 → v6: OSCE
+        if (version < 6) {
+          if (!Array.isArray(s.osceHistory)) {
+            s.osceHistory = [];
+          }
+          if (!s.osceSkillMap || typeof s.osceSkillMap !== 'object') {
+            s.osceSkillMap = {};
+          }
+        }
+
+        s.profile = profile;
+        return s as unknown as VetLearnStore;
+      },
     }
   )
 );

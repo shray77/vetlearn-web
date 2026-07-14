@@ -24,6 +24,9 @@ const AI_ROUTE_PREFIXES = [
   '/api/case',
   '/api/simulator',
   '/api/resources/recommend',
+  '/api/import/flashcards',
+  '/api/import/questions',
+  '/api/osce/evaluate',
 ];
 
 const BUCKET_CAPACITY = 10;

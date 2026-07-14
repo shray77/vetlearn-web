@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 import { FALLBACK_SCENARIOS, getFallbackScenario, type SimulatorScenario } from '@/lib/fallback-scenarios';
+import { getTrackPromptContext } from '@/lib/tracks';
+import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — ветеринарный врач, создаёшь сценарии для симулятора. Студент осматривает животное, назначает анализы, ставит диагноз.
 
@@ -130,7 +132,8 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { species, difficulty = 'intermediate', topic } = body;
+    const { species, difficulty = 'intermediate', topic, track } = body;
+    const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
 
     // --- Payload size validation ---
     if (body.history && JSON.stringify(body.history).length > 500 * 1024) {
@@ -178,7 +181,7 @@ export async function POST(req: NextRequest) {
 
     const completion = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: SYSTEM_PROMPT + (trackContext ? '\n\nКОНТЕКСТ СПЕЦИАЛИЗАЦИИ СТУДЕНТА:\n' + trackContext : '') },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.9,

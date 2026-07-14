@@ -14,9 +14,10 @@ import { Progress } from '@/components/ui/progress';
 import {
   Layers, ChevronLeft, ChevronRight, RotateCcw, Sparkles,
   CheckCircle2, XCircle, BookOpen, Brain, Trophy, X, Zap,
-  Camera, RefreshCw, Timer, AlertCircle, Clock,
+  Camera, RefreshCw, Timer, AlertCircle, Clock, Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImportDialog } from '@/components/import/ImportDialog';
 
 type StudyMode = 'learn' | 'quiz' | 'sr'; // sr = spaced repetition review
 
@@ -51,6 +52,7 @@ export function FlashcardsTab() {
 
   // OCR state
   const [isOCRProcessing, setIsOCRProcessing] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [ocrImagePreview, setOcrImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -446,6 +448,29 @@ export function FlashcardsTab() {
             )}
           </CardContent>
         </Card>
+
+        {/* Import from notes/file — D.2 */}
+        <Card className="squircle border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#28CD41]/10 flex items-center justify-center shrink-0">
+                <Upload className="w-5 h-5 text-[#28CD41]" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold">Импорт из конспекта</h3>
+                <p className="text-[11px] text-muted-foreground">TXT/MD/фото → AI создаёт карточки</p>
+              </div>
+              <Button
+                size="sm"
+                className="squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-9 text-xs font-semibold"
+                onClick={() => setImportOpen(true)}
+              >
+                <Upload className="w-3 h-3 mr-1" /> Импорт
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} mode="flashcards" />
 
         {/* Topic selector */}
         <Card className="squircle border-0 shadow-sm">
