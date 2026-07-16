@@ -20,7 +20,7 @@ import { createSRCard, reviewSRCard } from './sm2';
 import type { SimulatorSession } from './simulator-types';
 
 /** Slim entry stored in history to avoid localStorage bloat */
-type SimulatorHistoryEntry = {
+export type SimulatorHistoryEntry = {
   id: string;
   species: string;
   breed: string;

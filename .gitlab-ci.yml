@@ -1,0 +1,53 @@
+# GitLab CI/CD pipeline for vetlearn-web
+#
+# Runs on every push and MR. Cheap and fast: install deps with bun, run
+# tsc + eslint + build. No deploy step — deploy is manual via .zscripts/.
+
+image: oven/bun:latest
+
+stages:
+  - verify
+
+variables:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+cache:
+  key:
+    files:
+      - bun.lock
+  paths:
+    - node_modules/
+    - .next/cache/
+
+before_script:
+  - bun install --frozen-lockfile
+
+lint:
+  stage: verify
+  script:
+    - bun run lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+typecheck:
+  stage: verify
+  script:
+    - bunx tsc --noEmit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+build:
+  stage: verify
+  script:
+    - bun run build
+  artifacts:
+    paths:
+      - .next/standalone/
+      - .next/static/
+      - public/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"

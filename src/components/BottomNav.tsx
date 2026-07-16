@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Stethoscope, Mic, Lightbulb, PawPrint,
-  Info, BarChart3, Layers, GraduationCap, Activity, Map, ScanLine,
+  Info, BarChart3, Layers, GraduationCap, Activity, Map, ScanLine, Microscope,
 } from 'lucide-react';
 import {
   PawPrint as PhPawPrint,
@@ -53,6 +53,7 @@ const EXTRA_TABS = [
   { id: 'resources', label: 'Ресурсы', icon: Lightbulb, color: '#FF9500', desc: 'Учебные материалы' },
   { id: 'simulator', label: 'Симулятор', icon: Activity, color: '#5856D6', desc: 'Практика: осмотр, диагноз, лечение' },
   { id: 'osce', label: 'OSCE-станции', icon: ScanLine, color: '#0EA5E9', desc: 'Визуальная диагностика: рентген, УЗИ, цитология' },
+  { id: 'atlas', label: 'Атлас', icon: Microscope, color: '#7C3AED', desc: 'Библиотека изображений с разборами (обучение)' },
 ];
 
 // ===== ABOUT MODAL =====

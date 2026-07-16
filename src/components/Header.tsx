@@ -318,6 +318,32 @@ export function Header() {
                 )}
               </button>
             ))}
+
+            {/* D.1 V3 — Track switch history */}
+            {profile.trackSwitchHistory && profile.trackSwitchHistory.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-border/30">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  История переключений
+                </p>
+                <div className="space-y-1">
+                  {profile.trackStartDate && (
+                    <div className="flex items-center justify-between text-[11px] p-1.5 rounded bg-muted/30">
+                      <span className="text-muted-foreground">Начало:</span>
+                      <span className="font-medium">{profile.trackStartDate}</span>
+                    </div>
+                  )}
+                  {profile.trackSwitchHistory.slice().reverse().map((h, i) => {
+                    const t = TRACKS.find((tr) => tr.id === h.track);
+                    return (
+                      <div key={i} className="flex items-center justify-between text-[11px] p-1.5 rounded bg-muted/30">
+                        <span>{t?.icon} {t?.label || h.track}</span>
+                        <span className="text-muted-foreground">{h.date}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </SheetContent>
       </Sheet>

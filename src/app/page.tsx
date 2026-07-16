@@ -17,6 +17,7 @@ import { SimulatorTab } from '@/components/simulator/SimulatorTab';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { OnboardingModal } from '@/components/OnboardingModal';
 import { OSCEListTab } from '@/components/osce/OSCEListTab';
+import { AtlasTab } from '@/components/atlas/AtlasTab';
 import { getDueCardIds } from '@/lib/sm2';
 import { toast } from 'sonner';
 
@@ -138,6 +139,7 @@ export default function Home() {
             {activeTab === 'mindmap' && <ErrorBoundary><MindMapTab /></ErrorBoundary>}
             {activeTab === 'simulator' && <ErrorBoundary><SimulatorTab /></ErrorBoundary>}
             {activeTab === 'osce' && <ErrorBoundary><OSCEListTab /></ErrorBoundary>}
+            {activeTab === 'atlas' && <ErrorBoundary><AtlasTab /></ErrorBoundary>}
           </motion.div>
         </AnimatePresence>
       </main>

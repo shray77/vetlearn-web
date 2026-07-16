@@ -18,6 +18,8 @@ import {
 import { toast } from 'sonner';
 import { getTodayChallenge, getPastChallenges } from '@/lib/daily-challenges';
 import type { SpecializationTrack } from '@/lib/types';
+import { AnalyticsCard } from '@/components/AnalyticsCard';
+import { AchievementsPanel } from '@/components/AchievementsPanel';
 
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
   const { profile, assessmentHistory, caseHistory, addXP, updateStreak, srCards, flashcards, completedChallenges, markChallengeCompleted } = useStore();
@@ -321,6 +323,12 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           </Card>
         ))}
       </motion.div>
+
+      {/* D.5 Deep analytics card */}
+      <AnalyticsCard />
+
+      {/* D.7 Achievements + Leagues */}
+      <AchievementsPanel />
 
       {/* AI Insights Panel */}
       <motion.div
