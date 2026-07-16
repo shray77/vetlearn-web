@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <rect width="640" height="360" fill="#F1F5F9"/>
+  <!-- Cat silhouette -->
+  <g fill="#475569" opacity="0.7">
+    <ellipse cx="320" cy="220" rx="150" ry="60"/>
+    <!-- Head -->
+    <circle cx="170" cy="180" r="40"/>
+    <!-- Ears -->
+    <path d="M 140 150 L 130 110 L 165 145 Z"/>
+    <path d="M 195 145 L 210 110 L 175 145 Z"/>
+    <!-- Tail -->
+    <path d="M 460 200 Q 520 180 530 130 Q 510 100 480 130" stroke="#475569" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <!-- Legs -->
+    <rect x="200" y="270" width="14" height="50" rx="4"/>
+    <rect x="260" y="270" width="14" height="50" rx="4"/>
+    <rect x="380" y="270" width="14" height="50" rx="4"/>
+    <rect x="440" y="270" width="14" height="50" rx="4"/>
+  </g>
+  <!-- Stethoscope on cat -->
+  <g>
+    <circle cx="280" cy="220" r="14" fill="#1E293B"/>
+    <circle cx="280" cy="220" r="8" fill="#475569"/>
+    <path d="M 280 234 Q 290 270 320 270 Q 350 270 350 240" stroke="#1E293B" stroke-width="3" fill="none"/>
+    <circle cx="350" cy="234" r="5" fill="#1E293B"/>
+  </g>
+  <!-- Vital signs annotation -->
+  <g>
+    <text x="20" y="50" font-family="sans-serif" font-size="14" fill="#0EA5E9" font-weight="bold">Клинический осмотр кошки</text>
+    <text x="20" y="70" font-family="sans-serif" font-size="11" fill="#64748B">T: 38.5°C · HR: 130 · RR: 24 · CRT &lt;2s</text>
+    <text x="20" y="85" font-family="sans-serif" font-size="11" fill="#64748B">Слизистые: розовые, увлажнённые</text>
+  </g>
+  <text x="20" y="345" font-family="sans-serif" font-size="11" fill="#64748B">VetLearn OSCE · physical exam · feline · public domain placeholder</text>
+</svg>

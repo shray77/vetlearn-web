@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <radialGradient id="usbg2">
+      <stop offset="0" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#020617"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#usbg2)"/>
+  <!-- Ultrasound fan -->
+  <path d="M 320 20 L 180 340 L 460 340 Z" fill="#1E40AF" opacity="0.3"/>
+  <!-- Heart silhouette (right parasternal long axis) -->
+  <g>
+    <ellipse cx="320" cy="200" rx="100" ry="70" fill="#7F1D1D" opacity="0.7"/>
+    <!-- Left atrium (dilated) -->
+    <ellipse cx="270" cy="170" rx="50" ry="35" fill="#991B1B"/>
+    <!-- Left ventricle -->
+    <ellipse cx="360" cy="220" rx="60" ry="40" fill="#450A0A"/>
+    <!-- Mitral valve -->
+    <path d="M 290 200 L 320 220 L 320 240 L 290 240 Z" fill="#FBBF24" opacity="0.8"/>
+    <!-- Thickened, prolapsed leaflet -->
+    <ellipse cx="305" cy="215" rx="6" ry="12" fill="#F59E0B"/>
+  </g>
+  <!-- Annotations -->
+  <line x1="240" y1="170" x2="120" y2="100" stroke="#FBBF24" stroke-width="2"/>
+  <text x="20" y="95" font-family="sans-serif" font-size="12" fill="#FBBF24" font-weight="bold">Левое предсердие</text>
+  <text x="20" y="110" font-family="sans-serif" font-size="11" fill="#FBBF24">(дилатация)</text>
+
+  <line x1="310" y1="215" x2="500" y2="160" stroke="#F59E0B" stroke-width="2"/>
+  <text x="500" y="155" font-family="sans-serif" font-size="12" fill="#F59E0B" font-weight="bold">Митральный клапан</text>
+  <text x="500" y="170" font-family="sans-serif" font-size="11" fill="#F59E0B">(утолщение, пролапс)</text>
+  <text x="20" y="345" font-family="sans-serif" font-size="11" fill="#64748B">VetLearn OSCE · echocardiography · MMVD · public domain placeholder</text>
+</svg>

@@ -4,31 +4,34 @@ import { getZAI } from '@/lib/zai';
 /**
  * POST /api/import/extract
  *
- * Extracts text from an uploaded document (txt/md/image-as-base64).
+ * Extracts text from an uploaded document (txt/md/pdf/image-as-base64).
  * Returns { text, fileType } for downstream flashcard/question generation.
  *
- * NOTE: PDF parsing is intentionally NOT supported server-side to avoid
- * heavy native deps in the standalone build. For PDFs the client should
- * use pdf.js (client-side) or the user can paste raw text directly.
+ * PDF parsing uses pdf-parse (server-side). For scanned PDFs without a text
+ * layer, the client should fall back to per-page image OCR via VLM (not
+ * implemented here — would require rendering pages via pdf.js client-side).
  *
  * Request body:
- *   { content: string, fileType: 'txt' | 'md' | 'image', filename?: string }
- *   - for txt/md: content is the raw text
- *   - for image: content is base64 string (with or without data: prefix)
+ *   { content: string, fileType: 'txt' | 'md' | 'pdf' | 'image', filename?: string }
+ *   - txt/md: content is raw text
+ *   - pdf:    content is base64-encoded PDF (with or without data: prefix)
+ *   - image:  content is base64 string (with or without data: prefix)
  *
  * Response:
  *   { success: true, text: string, fileType: string, preview: string }
  */
 
-const MAX_TEXT_SIZE = 500 * 1024; // 500 KB raw text
-const MAX_IMAGE_BASE64 = 10 * 1024 * 1024 * 1.37; // 10 MB decoded
+const MAX_TEXT_SIZE = 500 * 1024;
+const MAX_IMAGE_BASE64 = 10 * 1024 * 1024 * 1.37;
+const MAX_PDF_BASE64 = 10 * 1024 * 1024 * 1.37;
+const MAX_PDF_EXTRACTED_TEXT = 500 * 1024;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { content, fileType, filename } = body as {
       content?: string;
-      fileType?: 'txt' | 'md' | 'image';
+      fileType?: 'txt' | 'md' | 'pdf' | 'image';
       filename?: string;
     };
 
@@ -39,9 +42,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!fileType || !['txt', 'md', 'image'].includes(fileType)) {
+    if (!fileType || !['txt', 'md', 'pdf', 'image'].includes(fileType)) {
       return NextResponse.json(
-        { error: 'Укажите корректный fileType (txt | md | image)' },
+        { error: 'Укажите корректный fileType (txt | md | pdf | image)' },
         { status: 400 }
       );
     }
@@ -61,6 +64,57 @@ export async function POST(req: NextRequest) {
         preview: content.slice(0, 500),
         filename: filename || 'document.txt',
       });
+    }
+
+    // --- PDF path ---
+    if (fileType === 'pdf') {
+      if (content.length > MAX_PDF_BASE64) {
+        return NextResponse.json(
+          { error: 'PDF слишком большой (максимум 10 МБ)' },
+          { status: 413 }
+        );
+      }
+
+      const base64Data = content.includes(',') ? content.split(',')[1] : content;
+      if (!/^[A-Za-z0-9+/=]+$/.test(base64Data.slice(0, 1000))) {
+        return NextResponse.json(
+          { error: 'Неверный формат base64' },
+          { status: 400 }
+        );
+      }
+
+      try {
+        // Dynamic import — pdf-parse is a CJS module with a known quirk:
+        // requiring it at module load triggers fs access on import. Lazy
+        // require via eval keeps it out of the hot path.
+        const pdfParseModule = await import('pdf-parse');
+        const pdfParse = (pdfParseModule as any).default || (pdfParseModule as any);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const data = await pdfParse(buffer);
+        let text = (data?.text || '').trim();
+        if (text.length > MAX_PDF_EXTRACTED_TEXT) {
+          text = text.slice(0, MAX_PDF_EXTRACTED_TEXT);
+        }
+        if (text.length < 50) {
+          return NextResponse.json(
+            { error: 'PDF не содержит текстового слоя (возможно, скан). Используйте OCR по изображениям.' },
+            { status: 422 }
+          );
+        }
+        return NextResponse.json({
+          success: true,
+          text,
+          fileType: 'pdf',
+          preview: text.slice(0, 500),
+          filename: filename || 'document.pdf',
+        });
+      } catch (err) {
+        console.error('[import/extract] pdf error:', (err as Error)?.message);
+        return NextResponse.json(
+          { error: 'Не удалось разобрать PDF. Возможно, файл повреждён или защищён.' },
+          { status: 422 }
+        );
+      }
     }
 
     // --- Image OCR path (VLM) ---

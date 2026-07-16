@@ -13,12 +13,38 @@ import { Badge } from '@/components/ui/badge';
 import {
   Flame, Star, Target, Award, TrendingUp, TrendingDown, Minus, Stethoscope, Mic,
   ArrowRight, Clock, Sparkles, BarChart3, Copy, FileText, Brain, Lightbulb,
-  Timer, ChevronRight,
+  Timer, ChevronRight, Calendar, CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getTodayChallenge, getPastChallenges } from '@/lib/daily-challenges';
+import type { SpecializationTrack } from '@/lib/types';
 
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
-  const { profile, assessmentHistory, caseHistory, addXP, updateStreak, srCards, flashcards } = useStore();
+  const { profile, assessmentHistory, caseHistory, addXP, updateStreak, srCards, flashcards, completedChallenges, markChallengeCompleted } = useStore();
+
+  // Daily challenge
+  const todayChallenge = useMemo(
+    () => getTodayChallenge(new Date(), profile.specializationTrack as SpecializationTrack | undefined),
+    [profile.specializationTrack]
+  );
+  const isTodayDone = !!(completedChallenges && completedChallenges[todayChallenge.date]);
+
+  const handleStartChallenge = () => {
+    onNavigate(todayChallenge.tabToOpen);
+  };
+
+  const handleMarkDone = () => {
+    if (isTodayDone) return;
+    markChallengeCompleted(todayChallenge.date, todayChallenge.type);
+    addXP(todayChallenge.xpReward);
+    toast.success(`Челлендж выполнен! +${todayChallenge.xpReward} XP`);
+  };
+
+  const pastChallenges = useMemo(
+    () => getPastChallenges(7, profile.specializationTrack as SpecializationTrack | undefined),
+    [profile.specializationTrack]
+  );
+
   // SR due cards count
   const srDueCount = useMemo(() => {
     const allIds = flashcards.map(c => c.id);
@@ -198,6 +224,80 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           VetLearn AI v0.2.0-beta
         </span>
       </div>
+
+      {/* Daily Challenge — D.6 */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className={`border-0 shadow-md ${isTodayDone ? 'bg-gradient-to-br from-[#28CD41]/15 to-[#28CD41]/5' : 'bg-gradient-to-br from-[#FF9500]/15 to-[#AF52DE]/5'}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-4 h-4 text-[#FF9500]" />
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Челлендж дня
+              </span>
+              {isTodayDone && (
+                <Badge className="ml-auto bg-[#28CD41] text-white border-0 text-[10px]">
+                  <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" /> Выполнено
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="text-3xl shrink-0">{todayChallenge.icon}</div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold leading-tight">{todayChallenge.title}</h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{todayChallenge.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="text-[10px]">
+                    +{todayChallenge.xpReward} XP
+                  </Badge>
+                  {!isTodayDone ? (
+                    <Button
+                      size="sm"
+                      className="h-7 text-[11px] bg-[#28CD41] hover:bg-[#1FA833] text-white"
+                      onClick={handleStartChallenge}
+                    >
+                      Начать <ArrowRight className="w-3 h-3 ml-1" />
+                    </Button>
+                  ) : null}
+                  {!isTodayDone && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-[11px] text-muted-foreground"
+                      onClick={handleMarkDone}
+                    >
+                      Отметить вручную
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Past 7 days strip */}
+            <div className="flex gap-1 mt-3 pt-3 border-t border-border/30">
+              {pastChallenges.map((c) => {
+                const done = !!(completedChallenges && completedChallenges[c.date]);
+                const isToday = c.date === todayChallenge.date;
+                return (
+                  <div
+                    key={c.date}
+                    className={`flex-1 text-center p-1.5 rounded-lg ${
+                      done
+                        ? 'bg-[#28CD41]/10 text-[#28CD41]'
+                        : 'bg-muted/50 text-muted-foreground'
+                    } ${isToday ? 'ring-2 ring-[#FF9500]' : ''}`}
+                    title={`${c.date}: ${c.title}`}
+                  >
+                    <div className="text-base">{done ? '✓' : c.icon}</div>
+                    <div className="text-[9px] mt-0.5">
+                      {new Date(c.date).toLocaleDateString('ru-RU', { weekday: 'short' })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Quick Stats */}
       <motion.div

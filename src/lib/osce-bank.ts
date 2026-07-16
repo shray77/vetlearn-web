@@ -22,7 +22,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'radiology',
     species: 'собаки',
     difficulty: 'intermediate',
-    imageUrl: '/osce/rad-01.jpg',
+    imageUrl: '/osce/rad-01.svg',
     imageCaption: 'Боковая проекция грудной клетки собаки',
     presenterText: 'Собака, 8 лет, мужской пол, поступила с одышкой и непродуктивным кашлем. Температура 39.2°C. При аускультации — ослабление дыхательных шумов справа.',
     questions: [
@@ -65,7 +65,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'ultrasound',
     species: 'кошки',
     difficulty: 'advanced',
-    imageUrl: '/osce/us-01.jpg',
+    imageUrl: '/osce/us-01.svg',
     imageCaption: 'УЗИ брюшной полости кошки',
     presenterText: 'Кошка, 12 лет, женский пол, поступила с анорексией и рвотой в течение 3 дней. При пальпации — объёмное образование в краниальной части брюшной полости. УЗИ при поступлении.',
     questions: [
@@ -108,7 +108,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'cytology',
     species: 'собаки',
     difficulty: 'intermediate',
-    imageUrl: '/osce/cyt-01.jpg',
+    imageUrl: '/osce/cyt-01.svg',
     imageCaption: 'Цитологический препарат лимфатического узла собаки',
     presenterText: 'Собака, 6 лет, поступила с увеличением подчелюстных лимфоузлов. При тонкоигольной аспирации получен препарат, окрашенный по Романовскому.',
     questions: [
@@ -151,7 +151,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'histopathology',
     species: 'кошки',
     difficulty: 'advanced',
-    imageUrl: '/osce/hist-01.jpg',
+    imageUrl: '/osce/hist-01.svg',
     imageCaption: 'Гистологический препарат кожи кошки, окраска H&E',
     presenterText: 'Кошка, 10 лет, поступила с язвенным поражением кожи на ушной раковине. Биопсия взята для гистологического исследования.',
     questions: [
@@ -194,7 +194,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'physical_exam',
     species: 'лошади',
     difficulty: 'beginner',
-    imageUrl: '/osce/phys-01.jpg',
+    imageUrl: '/osce/phys-01.svg',
     imageCaption: 'Клинический осмотр лошади',
     presenterText: 'Лошадь, 5 лет, спортивная. Поступила с хромотой левой передней конечности. Проведите осмотр и интерпретируйте находки.',
     questions: [
@@ -237,7 +237,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'radiology',
     species: 'КРС',
     difficulty: 'intermediate',
-    imageUrl: '/osce/rad-02.jpg',
+    imageUrl: '/osce/rad-02.svg',
     imageCaption: 'Рентген брюшной полости телёнка',
     presenterText: 'Телёнок, 2 месяца, поступил с анорексией и вздутием рубца. На рентгене — горизонтальный уровень жидкости в брюшной полости.',
     questions: [
@@ -280,7 +280,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'cytology',
     species: 'собаки',
     difficulty: 'beginner',
-    imageUrl: '/osce/cyt-02.jpg',
+    imageUrl: '/osce/cyt-02.svg',
     imageCaption: 'Мазок периферической крови собаки, окраска по Романовскому',
     presenterText: 'Собака, 5 лет, поступила с вялостью. ОАК: эритроциты 4.2, гемоглобин 90, лейкоциты 18. На снимке — мазок крови.',
     questions: [
@@ -323,7 +323,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'ultrasound',
     species: 'собаки',
     difficulty: 'intermediate',
-    imageUrl: '/osce/us-02.jpg',
+    imageUrl: '/osce/us-02.svg',
     imageCaption: 'УЗИ сердца собаки, правая парастернальная позиция',
     presenterText: 'Собака, 9 лет, мужской пол, кашляет по ночам, непереносимость нагрузок. При аускультации — систолический шум 3/6 над митральным клапаном.',
     questions: [
@@ -366,7 +366,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'histopathology',
     species: 'собаки',
     difficulty: 'intermediate',
-    imageUrl: '/osce/hist-02.jpg',
+    imageUrl: '/osce/hist-02.svg',
     imageCaption: 'Гистологический препарат опухоли молочной железы собаки, H&E',
     presenterText: 'Собака, 9 лет, женский пол, не стерилизована. Удалено объёмное образование молочной железы. Гистология.',
     questions: [
@@ -409,7 +409,7 @@ export const OSCE_BANK: OSCEStation[] = [
     type: 'physical_exam',
     species: 'кошки',
     difficulty: 'beginner',
-    imageUrl: '/osce/phys-02.jpg',
+    imageUrl: '/osce/phys-02.svg',
     imageCaption: 'Кошка во время клинического осмотра',
     presenterText: 'Кошка, 4 года, поступила на плановый осмотр. Владельцы жалуются на периодическую рвоту шерстью.',
     questions: [

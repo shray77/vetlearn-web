@@ -146,18 +146,26 @@ export function OSCEStationRunner({ station, onExit }: Props) {
         </CardContent>
       </Card>
 
-      {/* Image placeholder */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-0 overflow-hidden">
-          <div
-            className="aspect-video flex items-center justify-center text-6xl"
-            style={{ backgroundColor: `${info.color}10` }}
-          >
-            {info.icon}
-          </div>
+      {/* Image */}
+      <Card className="border-0 shadow-sm overflow-hidden">
+        <CardContent className="p-0">
+          <img
+            src={station.imageUrl}
+            alt={station.imageCaption}
+            className="w-full aspect-video object-cover bg-muted"
+            onError={(e) => {
+              // Fallback: show icon placeholder if image missing
+              (e.target as HTMLImageElement).style.display = 'none';
+              const parent = (e.target as HTMLImageElement).parentElement;
+              if (parent) {
+                parent.classList.add('flex', 'items-center', 'justify-center');
+                parent.style.backgroundColor = `${info.color}10`;
+                parent.innerHTML = `<div class="text-6xl">${info.icon}</div>`;
+              }
+            }}
+          />
           <p className="text-[10px] text-muted-foreground text-center py-1.5 border-t">
-            🖼 Изображение: {station.imageUrl} (добавьте в /public/osce/ при деплое)
-            {station.attribution && <><br />© {station.attribution}</>}
+            {station.attribution && <>© {station.attribution}</>}
           </p>
         </CardContent>
       </Card>

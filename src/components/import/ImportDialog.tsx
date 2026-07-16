@@ -24,7 +24,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
   const [stage, setStage] = useState<Stage>('input');
   const [rawText, setRawText] = useState('');
   const [filename, setFilename] = useState('');
-  const [fileType, setFileType] = useState<'txt' | 'md' | 'image'>('txt');
+  const [fileType, setFileType] = useState<'txt' | 'md' | 'pdf' | 'image'>('txt');
   const [selectedTopic, setSelectedTopic] = useState<string>('');
   const [extractedText, setExtractedText] = useState('');
   const [generated, setGenerated] = useState<Array<Flashcard | AssessmentQuestion>>([]);
@@ -54,6 +54,13 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
     setFilename(file.name);
     if (file.type.startsWith('image/')) {
       setFileType('image');
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setRawText(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      setFileType('pdf');
       const reader = new FileReader();
       reader.onloadend = () => {
         setRawText(reader.result as string);
@@ -270,12 +277,12 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                     <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                     <p className="text-sm font-medium">Перетащите файл или нажмите</p>
                     <p className="text-[11px] text-muted-foreground mt-1">
-                      .txt, .md, .jpg, .png (до 10 МБ)
+                      .txt, .md, .pdf, .jpg, .png (до 10 МБ)
                     </p>
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".txt,.md,text/*,image/*"
+                      accept=".txt,.md,.pdf,text/*,image/*"
                       className="hidden"
                       onChange={(e) => {
                         const f = e.target.files?.[0];
@@ -290,7 +297,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                       Или вставьте текст вручную
                     </label>
                     <textarea
-                      value={fileType === 'image' ? '' : rawText}
+                      value={(fileType === 'image' || fileType === 'pdf') ? '' : rawText}
                       onChange={(e) => {
                         setRawText(e.target.value);
                         setFileType('txt');
@@ -298,13 +305,13 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                       }}
                       placeholder="Вставьте сюда текст лекции, конспекта..."
                       className="w-full min-h-[120px] p-3 rounded-xl border bg-background text-sm resize-y"
-                      disabled={fileType === 'image'}
+                      disabled={fileType === 'image' || fileType === 'pdf'}
                     />
                   </div>
 
                   {filename && (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 text-xs">
-                      {fileType === 'image' ? <ImageIcon className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                      {fileType === 'image' ? <ImageIcon className="w-4 h-4" /> : fileType === 'pdf' ? <FileText className="w-4 h-4 text-[#FF3B30]" /> : <FileText className="w-4 h-4" />}
                       <span className="font-medium truncate flex-1">{filename}</span>
                       <button
                         onClick={() => {

@@ -182,12 +182,22 @@ export function OSCEListTab() {
               <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-3">
                   <div className="flex gap-3">
-                    {/* Thumbnail placeholder */}
-                    <div
-                      className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0 text-3xl"
-                      style={{ backgroundColor: `${info.color}15` }}
-                    >
-                      {info.icon}
+                    {/* Thumbnail */}
+                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-muted relative">
+                      <img
+                        src={station.imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          const parent = (e.target as HTMLImageElement).parentElement;
+                          if (parent) {
+                            parent.classList.add('flex', 'items-center', 'justify-center');
+                            parent.style.backgroundColor = `${info.color}15`;
+                            parent.innerHTML = `<span class="text-2xl">${info.icon}</span>`;
+                          }
+                        }}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">

@@ -61,7 +61,7 @@ function getLocalYesterdayDateString(): string {
   return getLocalDateString(d);
 }
 
-interface VetLearnStore {
+export interface VetLearnStore {
   // Profile
   profile: StudentProfile;
   updateProfile: (updates: Partial<StudentProfile>) => void;
@@ -165,6 +165,10 @@ interface VetLearnStore {
   osceHistory: OSCEResult[];
   osceSkillMap: Partial<Record<OSCEStationType, number>>;
   addOSCEResult: (result: OSCEResult) => void;
+
+  // ===== D.6 Daily Challenges =====
+  completedChallenges: Record<string, string>; // date -> challenge type completed
+  markChallengeCompleted: (date: string, type: string) => void;
 
   // Clear all data
   clearAllData: () => void;
@@ -427,6 +431,7 @@ export const useStore = create<VetLearnStore>()(
           importedDocuments: [],
           osceHistory: [],
           osceSkillMap: {},
+          completedChallenges: {},
         }),
 
       // ===== D.1 Specialization Tracks =====
@@ -479,6 +484,13 @@ export const useStore = create<VetLearnStore>()(
             osceSkillMap: { ...state.osceSkillMap, [stationType]: newScore },
           };
         }),
+
+      // ===== D.6 Daily Challenges =====
+      completedChallenges: {},
+      markChallengeCompleted: (date, type) =>
+        set((state) => ({
+          completedChallenges: { ...state.completedChallenges, [date]: type },
+        })),
     }),
     {
       name: 'vetlearn-storage',

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <rect width="640" height="360" fill="#DCFCE7"/>
+  <!-- Horse silhouette -->
+  <g fill="#166534" opacity="0.7">
+    <ellipse cx="320" cy="200" rx="180" ry="80"/>
+    <!-- Neck/head -->
+    <path d="M 180 180 Q 140 130 130 80 Q 140 60 170 70 L 190 130 L 220 170 Z"/>
+    <!-- Legs -->
+    <rect x="220" y="250" width="14" height="80"/>
+    <rect x="280" y="250" width="14" height="80"/>
+    <rect x="360" y="250" width="14" height="80"/>
+    <rect x="420" y="250" width="14" height="80"/>
+    <!-- Tail -->
+    <path d="M 480 180 Q 520 200 510 250 L 495 245 L 490 200 Z"/>
+  </g>
+  <!-- Highlight left forelimb -->
+  <g>
+    <circle cx="227" cy="290" r="35" stroke="#DC2626" stroke-width="3" fill="none" stroke-dasharray="4 4"/>
+    <line x1="200" y1="290" x2="80" y2="290" stroke="#DC2626" stroke-width="2"/>
+    <text x="20" y="285" font-family="sans-serif" font-size="12" fill="#DC2626" font-weight="bold">Левая передняя</text>
+    <text x="20" y="300" font-family="sans-serif" font-size="11" fill="#DC2626">конечность — хромота</text>
+  </g>
+  <!-- Hooves -->
+  <ellipse cx="227" cy="335" rx="12" ry="6" fill="#1E293B"/>
+  <ellipse cx="287" cy="335" rx="12" ry="6" fill="#1E293B"/>
+  <ellipse cx="367" cy="335" rx="12" ry="6" fill="#1E293B"/>
+  <ellipse cx="427" cy="335" rx="12" ry="6" fill="#1E293B"/>
+  <text x="20" y="345" font-family="sans-serif" font-size="11" fill="#64748B">VetLearn OSCE · physical exam · equine · public domain placeholder</text>
+</svg>

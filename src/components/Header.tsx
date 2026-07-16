@@ -23,21 +23,55 @@ import {
 } from '@/components/ui/sheet';
 import {
   Flame, Zap, Settings, Moon, Trash2, Bell, BellOff,
+  Download, Upload,
 } from 'lucide-react';
 import { PawPrint as PhPawPrint } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { TRACKS, getTrackDefinition } from '@/lib/tracks';
 import type { SpecializationTrack } from '@/lib/types';
+import { buildExport, parseImport, downloadExport, readFileAsText } from '@/lib/export-import';
+import type { VetLearnStore } from '@/lib/store';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const { profile, clearAllData, notificationsEnabled, setNotificationsEnabled, notificationPermission, setNotificationPermission, setSpecializationTrack } = useStore();
   const [adminOpen, setAdminOpen] = useState(false);
   const [trackSheetOpen, setTrackSheetOpen] = useState(false);
+  const importFileRef = useRef<HTMLInputElement>(null);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const track = getTrackDefinition(profile.specializationTrack);
+
+  const handleExport = () => {
+    try {
+      const payload = buildExport(useStore.getState() as VetLearnStore);
+      downloadExport(payload);
+      toast.success('Прогресс экспортирован');
+    } catch (err) {
+      console.error('[export] error:', err);
+      toast.error('Не удалось экспортировать');
+    }
+  };
+
+  const handleImportClick = () => {
+    importFileRef.current?.click();
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const text = await readFileAsText(file);
+      const payload = parseImport(text);
+      // Apply each field of the imported state to the store via setState.
+      // We use the persist API by setting through useStore.setState.
+      const stateSlice = payload.state as Partial<VetLearnStore>;
+      useStore.setState(stateSlice as Partial<VetLearnStore>, false);
+      toast.success('Прогресс импортирован. Перезагрузите страницу для применения.');
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      toast.error((err as Error).message || 'Не удалось импортировать');
+    }
+  };
 
   const requestNotifications = async () => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
@@ -167,6 +201,50 @@ export function Header() {
                     className={`toggle-switch ${notificationPermission === 'denied' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                   </button>
+                </div>
+
+                {/* Export/Import — D.4 cross-device backup */}
+                <div className="p-3.5 rounded-2xl bg-[#007AFF]/5 border border-[#007AFF]/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#007AFF]/10 flex items-center justify-center">
+                      <Download className="w-4 h-4 text-[#007AFF]" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">Резервная копия</span>
+                      <p className="text-[11px] text-muted-foreground">Экспорт/импорт прогресса между устройствами</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-9 rounded-xl text-xs font-semibold"
+                      onClick={handleExport}
+                    >
+                      <Download className="w-3.5 h-3.5 mr-1.5" />
+                      Экспорт
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-9 rounded-xl text-xs font-semibold"
+                      onClick={handleImportClick}
+                    >
+                      <Upload className="w-3.5 h-3.5 mr-1.5" />
+                      Импорт
+                    </Button>
+                  </div>
+                  <input
+                    ref={importFileRef}
+                    type="file"
+                    accept=".json,application/json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleImportFile(f);
+                      e.target.value = '';
+                    }}
+                  />
                 </div>
 
                 {/* Clear data */}
