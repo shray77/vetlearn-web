@@ -205,9 +205,13 @@ ${q.explanation ? `Объяснение из кейса: "${q.explanation}"` : '
       evaluation = validateEvaluation(parsed, clinicalCase, answers);
     }
 
+    // Флаг прозрачности: клиент показывает тост, если оценка не от ИИ
+    const usedFallback = parsed === null;
+
     return NextResponse.json({
       success: true,
       ...evaluation,
+      ...(usedFallback ? { isFallback: true } : {}),
     });
   } catch (error) {
     console.error('[case/evaluate] Unexpected error:', error);

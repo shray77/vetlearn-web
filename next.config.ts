@@ -23,6 +23,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Явный root для Turbopack: в окружениях с несколькими lock-файлами
+  // (монорепо/вложенные проекты) Next может неверно угадать корень воркспейса.
+  turbopack: {
+    root: __dirname,
+  },
   typescript: {
     ignoreBuildErrors: false,
   },

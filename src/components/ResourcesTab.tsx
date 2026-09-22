@@ -42,6 +42,9 @@ export function ResourcesTab() {
       });
       if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
+      if (data.isFallback) {
+        toast.warning('ИИ недоступен — показана кураторская подборка');
+      }
       if (data.success) {
         setResources(data.resources);
         addXP(10);

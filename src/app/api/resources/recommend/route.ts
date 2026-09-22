@@ -257,6 +257,7 @@ ${curatedList}
     return NextResponse.json({
       success: true,
       resources: fallback,
+      isFallback: true,
     });
   }
 }

@@ -63,6 +63,9 @@ export function ClinicalCasesTab() {
       });
       if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
+      if (data.isFallback) {
+        toast.warning('ИИ недоступен — показан резервный кейс');
+      }
       if (data.success) {
         // Validate the case structure before setting it
         if (!data.case || !Array.isArray(data.case.questions) || data.case.questions.length === 0) {
@@ -119,6 +122,9 @@ export function ClinicalCasesTab() {
       });
       if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
+      if (data.isFallback) {
+        toast.warning('ИИ-оценка недоступна — выставлены базовые баллы');
+      }
       if (data.success) {
         addXP(data.xpEarned || 25);
         const result = { ...data, completedAt: new Date().toLocaleDateString('ru-RU') };

@@ -54,6 +54,9 @@ export function OSCEStationRunner({ station, onExit }: Props) {
         body: JSON.stringify({ stationId: station.id, answers }),
       });
       const data = await res.json();
+      if (data.fallback) {
+        toast.warning('ИИ-оценка недоступна — выставлены базовые баллы');
+      }
       if (!data.success) {
         toast.error(data.error || 'Ошибка оценки');
         setStage('answering');

@@ -20,6 +20,7 @@ import { getTodayChallenge, getPastChallenges } from '@/lib/daily-challenges';
 import type { SpecializationTrack } from '@/lib/types';
 import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { AchievementsPanel } from '@/components/AchievementsPanel';
+import { AiDiagnosticsCard } from '@/components/AiDiagnosticsCard';
 
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
   // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
@@ -535,6 +536,15 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
             </CardContent>
           </Card>
         )}
+      </motion.div>
+
+      {/* AI Diagnostics — живая проверка соединения с языковой моделью */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.22 }}
+      >
+        <AiDiagnosticsCard />
       </motion.div>
 
       {/* SR Due Cards Alert */}
