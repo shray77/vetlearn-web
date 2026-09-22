@@ -76,6 +76,16 @@ function validateOCRResult(data: any): { extractedText: string; flashcards: Flas
 
 export async function POST(req: NextRequest) {
   try {
+    // Early size-check ДО парсинга: Content-Length приходит бесплатно,
+    // а req.json() уже загрузил бы всё тело в память
+    const contentLength = Number(req.headers.get('content-length') || 0);
+    if (contentLength > 28 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'Изображение слишком большое (максимум 20 МБ)' },
+        { status: 413 }
+      );
+    }
+
     const { image } = await req.json();
 
     if (!image || typeof image !== 'string') {

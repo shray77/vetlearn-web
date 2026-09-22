@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   Activity, ArrowRight, ArrowLeft, ChevronRight, Loader2,
-  CheckCircle2, XCircle, AlertTriangle, Coins,
+  CheckCircle2, XCircle, Coins,
   Stethoscope, FlaskConical, ClipboardList, Pill, Star,
   RotateCcw, X, Lightbulb, MessageCircle, Eye, Beaker,
 } from 'lucide-react';
@@ -43,6 +43,36 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 // ===== Constants =====
 const MAX_ANAMNESIS_QUESTIONS = 6;
+
+// ===== Session persistence across tab switches (sessionStorage) =====
+const SIM_STORAGE_KEY = 'vetlearn_simulator_session_v1';
+
+interface PersistedSimState {
+  phase: 'playing';
+  simPhase: SimulatorSession['currentPhase'];
+  session: SimulatorSession;
+  scenario: SimulatorScenario;
+  discoveredFindings: ExaminationFinding[];
+  budgetSpent: number;
+  anamnesisAsked: number;
+  anamnesisRevealed: number[];
+  selectedDiagnosis: string | null;
+  selectedTreatment: string | null;
+  evaluation: SimulatorEvaluation | null;
+}
+
+function loadPersistedSim(): PersistedSimState | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SIM_STORAGE_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as PersistedSimState;
+    if (p?.phase !== 'playing' || !p.scenario || !p.session) return null;
+    return p;
+  } catch {
+    return null;
+  }
+}
 const PHASE_LABELS: Record<string, string> = {
   setup: 'Настройка',
   anamnesis: 'Анамнез',
@@ -97,6 +127,63 @@ export function SimulatorTab() {
   // Results
   const [evaluation, setEvaluation] = useState<SimulatorEvaluation | null>(null);
 
+  // Abort controllers: гасим in-flight AI-запросы при выходе/размонтировании
+  const generateAbortRef = useRef<AbortController | null>(null);
+  const evalAbortRef = useRef<AbortController | null>(null);
+
+  // ===== Restore session once after mount (переход между табами больше не теряет прогресс) =====
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+    const p = loadPersistedSim();
+    if (!p) return;
+    setPhase('playing');
+    setSimPhase(p.simPhase);
+    setSession(p.session);
+    setScenario(p.scenario);
+    setDiscoveredFindings(p.discoveredFindings);
+    setBudgetSpent(p.budgetSpent);
+    setAnamnesisAsked(p.anamnesisAsked);
+    setAnamnesisRevealed(new Set(p.anamnesisRevealed));
+    setSelectedDiagnosis(p.selectedDiagnosis);
+    setSelectedTreatment(p.selectedTreatment);
+    setEvaluation(p.evaluation);
+    setIsSimulatorActive(true);
+  }, [setIsSimulatorActive]);
+
+  // ===== Persist session on every meaningful change =====
+  useEffect(() => {
+    if (phase !== 'playing' || !session || !scenario) return;
+    try {
+      const payload: PersistedSimState = {
+        phase: 'playing',
+        simPhase,
+        session,
+        scenario,
+        discoveredFindings,
+        budgetSpent,
+        anamnesisAsked,
+        anamnesisRevealed: [...anamnesisRevealed],
+        selectedDiagnosis,
+        selectedTreatment,
+        evaluation,
+      };
+      sessionStorage.setItem(SIM_STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      // quota/приватный режим — не критично
+    }
+  }, [phase, simPhase, session, scenario, discoveredFindings, budgetSpent, anamnesisAsked, anamnesisRevealed, selectedDiagnosis, selectedTreatment, evaluation]);
+
+  // Abort in-flight requests + clear timers on unmount
+  useEffect(() => {
+    return () => {
+      generateAbortRef.current?.abort();
+      evalAbortRef.current?.abort();
+      if (findingTimeoutRef.current) clearTimeout(findingTimeoutRef.current);
+    };
+  }, []);
+
   // Derived sets for SVG
   const examinedRegions = useMemo(() => {
     const set = new Set<string>();
@@ -126,6 +213,7 @@ export function SimulatorTab() {
     setIsGenerating(true);
     setIsSimulatorActive(true);
     const controller = new AbortController();
+    generateAbortRef.current = controller;
     const timeoutId = setTimeout(() => controller.abort(), 120000);
     try {
       const res = await fetch('/api/simulator/generate', {
@@ -139,6 +227,8 @@ export function SimulatorTab() {
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
+      // Пользователь вышел из симуляции/таба пока летел запрос — тихо выходим, ничего не применяем
+      if (controller.signal.aborted) return;
       if (!res.ok) {
         const errorBody = await res.text().catch(() => '');
         console.error('[Simulator] generate failed:', res.status, errorBody.substring(0, 200));
@@ -174,7 +264,6 @@ export function SimulatorTab() {
         setAnamnesisRevealed(new Set());
         setLastFinding(null);
         setEvaluation(null);
-        addXP(5);
         toast.success('Симуляция начата! Осмотрите пациента.');
         if (data.isFallback) {
           toast.info('Загружен учебный сценарий.');
@@ -185,6 +274,8 @@ export function SimulatorTab() {
       }
     } catch (err) {
       clearTimeout(timeoutId);
+      // Тихий выход: запрос отменён (unmount/reset) — не показываем ложные ошибки
+      if (controller.signal.aborted) return;
       if (err instanceof DOMException && err.name === 'AbortError') {
         toast.error('Сервер не отвечает. Попробуйте ещё раз.');
       } else {
@@ -295,6 +386,8 @@ export function SimulatorTab() {
       return;
     }
     setIsEvaluating(true);
+    const evalController = new AbortController();
+    evalAbortRef.current = evalController;
     try {
       const evalSession: SimulatorSession = {
         ...session,
@@ -306,7 +399,6 @@ export function SimulatorTab() {
         treatmentSubmitted: selectedTreatment,
       };
 
-      const evalController = new AbortController();
       const evalTimeout = setTimeout(() => evalController.abort(), 90000);
 
       const res = await fetch('/api/simulator/evaluate', {
@@ -316,6 +408,8 @@ export function SimulatorTab() {
         signal: evalController.signal,
       });
       clearTimeout(evalTimeout);
+      // Запрос отменён (выход/размонтирование) — не начисляем XP и не трогаем UI
+      if (evalController.signal.aborted) return;
       if (!res.ok) {
         console.error('[Simulator] evaluate failed:', res.status);
         toast.error(`Ошибка сервера (${res.status})`);
@@ -346,6 +440,8 @@ export function SimulatorTab() {
         toast.error(data.error || 'Ошибка оценки');
       }
     } catch {
+      // Тихий выход при отмене (unmount/reset), иначе — ошибка соединения
+      if (evalController.signal.aborted) return;
       toast.error('Ошибка соединения');
     } finally {
       setIsEvaluating(false);
@@ -354,6 +450,9 @@ export function SimulatorTab() {
 
   // ===== Reset =====
   const handleReset = useCallback(() => {
+    // Гасим in-flight AI-запросы — их ответы не должны примениться к закрытой сессии
+    generateAbortRef.current?.abort();
+    evalAbortRef.current?.abort();
     setPhase('setup');
     setSimPhase('anamnesis');
     setSession(null);
@@ -368,6 +467,7 @@ export function SimulatorTab() {
     setAnamnesisRevealed(new Set());
     setEvaluation(null);
     setLastFinding(null);
+    try { sessionStorage.removeItem(SIM_STORAGE_KEY); } catch {}
     setIsSimulatorActive(false);
   }, [setIsSimulatorActive]);
 
@@ -403,13 +503,6 @@ export function SimulatorTab() {
   };
 
   const remainingBudget = (scenario?.budget || 6000) - budgetSpent;
-  const criticalMissed = useMemo(() => {
-    if (!scenario) return 0;
-    return scenario.findings
-      .filter(f => f.relevance === 'critical' && !f.isNormal)
-      .filter(cf => !discoveredFindings.some(df => df.region === cf.region && df.toolId === cf.toolId))
-      .length;
-  }, [scenario, discoveredFindings]);
 
   // ==================== SETUP PHASE ====================
   if (phase === 'setup') {
@@ -719,7 +812,7 @@ export function SimulatorTab() {
     <div className="space-y-4 pb-4">
       {/* Header bar */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={handleReset}>
+        <Button variant="ghost" size="sm" onClick={handleReset} disabled={isEvaluating}>
           <X className="w-4 h-4 mr-1" /> Выход
         </Button>
         <div className="flex items-center gap-2">
@@ -899,11 +992,6 @@ export function SimulatorTab() {
                     <h3 className="text-xs font-semibold flex items-center gap-1.5">
                       📋 Находки ({discoveredFindings.length})
                     </h3>
-                    {criticalMissed > 0 && (
-                      <Badge variant="outline" className="text-[10px] text-[#FF3B30] border-[#FF3B30]/30">
-                        <AlertTriangle className="w-3 h-3 mr-0.5" /> {criticalMissed} критич. пропущено
-                      </Badge>
-                    )}
                   </div>
                   <ScrollArea className="max-h-40">
                     <div className="space-y-1.5">
@@ -1108,7 +1196,7 @@ export function SimulatorTab() {
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
                           selectedDiagnosis === option ? 'bg-[#007AFF] text-white' : 'bg-muted text-muted-foreground'
                         }`}>
-                          {['А', 'Б', 'В', 'Г'][i]}
+                          {['А', 'Б', 'В', 'Г'][i] || '•'}
                         </div>
                         <span className="text-sm">{option}</span>
                       </div>
@@ -1166,7 +1254,7 @@ export function SimulatorTab() {
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
                           selectedTreatment === option ? 'bg-[#28CD41] text-white' : 'bg-muted text-muted-foreground'
                         }`}>
-                          {['А', 'Б', 'В', 'Г'][i]}
+                          {['А', 'Б', 'В', 'Г'][i] || '•'}
                         </div>
                         <span className="text-sm">{option}</span>
                       </div>

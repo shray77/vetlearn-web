@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
+import { parseBody, clampedInt, numberRecord } from '@/lib/api-validation';
 
 const SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины. Ты анализируешь результаты тестирования студентов и создаёшь персонализированный план обучения.
 
@@ -54,11 +56,28 @@ const SYSTEM_PROMPT = `Ты — профессор ветеринарной ме
 
 export async function POST(req: NextRequest) {
   try {
-    const { questions, answers, previousSkillMap = {} } = await req.json();
+    // Zod-валидация (P2): структуры вопросов/ответов с лимитами и безопасными
+    // дефолтами — мусорные элементы больше не дают TypeError/NaN в промпте.
+    const Question = z.object({
+      question: z.string().max(2000).catch('Вопрос'),
+      options: z.array(z.string().max(500)).max(10).catch([]),
+      correctIndex: clampedInt(0, 9, 0),
+      topicId: z.string().max(100).nullish().catch(undefined),
+      topicName: z.string().max(200).nullish().catch(undefined),
+      explanation: z.string().max(4000).nullish().catch(undefined),
+    });
+    const Body = z.object({
+      questions: z.array(Question).min(1).max(100),
+      answers: z.array(z.number().int().min(-1).max(9).nullable()).max(100),
+      previousSkillMap: numberRecord(50),
+    });
+    const parsed = await parseBody(req, Body);
+    if (!parsed.ok) return parsed.response;
+    const { questions, answers, previousSkillMap } = parsed.data;
 
-    if (!questions || !answers) {
+    if (answers.length > questions.length) {
       return NextResponse.json(
-        { error: 'Укажите вопросы и ответы' },
+        { error: 'Ответов больше, чем вопросов' },
         { status: 400 }
       );
     }
@@ -67,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate initial stats
     const correctCount = answers.filter(
-      (a: number, i: number) => a === questions[i]?.correctIndex
+      (a, i) => a != null && a === questions[i]?.correctIndex
     ).length;
     const totalCount = questions.length;
     const score = Math.round((correctCount / totalCount) * 100);
@@ -81,7 +100,7 @@ export async function POST(req: NextRequest) {
         topicStats[topic] = { correct: 0, total: 0, topicName: q.topicName || topic };
       }
       topicStats[topic].total++;
-      if (answers[i] === q.correctIndex) {
+      if (answers[i] != null && answers[i] === q.correctIndex) {
         topicStats[topic].correct++;
       }
     }
@@ -100,11 +119,11 @@ ${Object.entries(topicStats)
 
 Детали неправильных ответов:
 ${questions
-  .map((q: { question: string; options: string[]; correctIndex: number; explanation?: string }, i: number) => {
+  .map((q, i: number) => {
     if (answers[i] !== q.correctIndex) {
       return `Вопрос: "${q.question}"
-Студент ответил: "${q.options[answers[i]] || 'Не ответил'}"
-Правильный ответ: "${q.options[q.correctIndex]}"
+Студент ответил: "${q.options[answers[i] as number] || 'Не ответил'}"
+Правильный ответ: "${q.options[q.correctIndex] || '—'}"
 ${q.explanation ? `Объяснение: "${q.explanation}"` : ''}`;
     }
     return null;

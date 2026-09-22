@@ -33,7 +33,12 @@ function openDB(): Promise<IDBDatabase | null> {
       }
     };
     req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
+    req.onerror = () => {
+      // Раньше null кэшировался навсегда: одна transient-ошибка отключала IndexedDB до перезагрузки.
+      // Сбрасываем промис — следующая попытка откроет БД заново.
+      dbPromise = null;
+      resolve(null);
+    };
   });
 
   return dbPromise;

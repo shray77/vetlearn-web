@@ -241,7 +241,8 @@ export interface OSCEStation {
   imageCaption: string;
   presenterText: string;
   questions: OSCEQuestion[];
-  referenceAnswers: string[];
+  /** Эталоны вынесены на сервер (osce-references.ts) — в клиентский бандл не попадают. */
+  referenceAnswers?: string[];
   timeLimitSec: number;
   topicId: string;
   attribution?: string;
@@ -253,6 +254,8 @@ export interface OSCEResult {
   answers: string[];
   scores: number[];
   feedback: string[];
+  /** Приходит с сервера только ПОСЛЕ проверки ответов (P2-фикс утечки). */
+  referenceAnswers?: string[];
   totalScore: number;
   durationSec: number;
   completedAt: string;

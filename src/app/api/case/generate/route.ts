@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 import { getTrackPromptContext } from '@/lib/tracks';
+import { parseBody, safeEnum, optionalLimitedString } from '@/lib/api-validation';
 import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — опытный ветеринарный врач и преподаватель клинических дисциплин. Ты создаёшь реалистичные клинические случаи для обучения студентов ветеринарной медицины.
@@ -96,29 +98,35 @@ function validateAndFixCase(data: any): ClinicalCase | null {
       const q = c.questions[i];
       if (!q || typeof q.question !== 'string') continue;
 
+      // P2: финальный массив опций считается заранее — с капом длины строк
+      // и количества вариантов (объект-опции приводятся к строке).
+      const finalOptions: string[] = (Array.isArray(q.options) && q.options.length >= 2
+        ? q.options.map((opt: unknown) => {
+            if (typeof opt === 'string') return opt;
+            if (opt && typeof opt === 'object') {
+              const obj = opt as Record<string, unknown>;
+              if (typeof obj.text === 'string') return obj.text;
+              if (typeof obj.value === 'string') return obj.value;
+              if (typeof obj.label === 'string') return obj.label;
+              if (typeof obj.answer === 'string') return obj.answer;
+              const jsonStr = JSON.stringify(opt);
+              return jsonStr.length > 100 ? `Вариант ${String.fromCharCode(1040 + validQuestions.length)}` : jsonStr;
+            }
+            return String(opt);
+          })
+        : ['Вариант А', 'Вариант Б', 'Вариант В', 'Вариант Г']
+      ).slice(0, 6).map((s: string) => s.slice(0, 300));
+
       const validQ: CaseQuestion = {
         id: q.id || `cq${i + 1}`,
         question: q.question,
         type: q.type || 'diagnosis',
-        options: Array.isArray(q.options) && q.options.length >= 2
-          ? q.options.map((opt: unknown) => {
-              // If option is an object, stringify it properly or use default
-              if (typeof opt === 'string') return opt;
-              if (opt && typeof opt === 'object') {
-                // Try to extract a text field from the object
-                const obj = opt as Record<string, unknown>;
-                if (typeof obj.text === 'string') return obj.text;
-                if (typeof obj.value === 'string') return obj.value;
-                if (typeof obj.label === 'string') return obj.label;
-                if (typeof obj.answer === 'string') return obj.answer;
-                // Last resort: JSON stringify, but truncate if too long
-                const jsonStr = JSON.stringify(opt);
-                return jsonStr.length > 100 ? `Вариант ${String.fromCharCode(1040 + validQuestions.length)}` : jsonStr;
-              }
-              return String(opt);
-            })
-          : ['Вариант А', 'Вариант Б', 'Вариант В', 'Вариант Г'],
-        correctIndex: typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < (q.options?.length || 4)
+        options: finalOptions,
+        // P2-фикс: раньше correctIndex валидировался против ИСХОДНОГО q.options,
+        // а финальный массив мог быть дефолтным (4 шт.) — индекс оставался
+        // за пределами и вопрос терял верный ответ. Теперь считаем
+        // финальный массив ПЕРЕД проверкой индекса.
+        correctIndex: typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < finalOptions.length
           ? q.correctIndex
           : 0,
         explanation: typeof q.explanation === 'string' ? q.explanation : 'Объяснение недоступно.',
@@ -202,31 +210,19 @@ function getFallbackCase(): ClinicalCase {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { species, difficulty = 'intermediate', topic, track } = body;
+    // Zod-валидация (P2): species раньше не проверялся ни на тип, ни на размер —
+    // мегабайтная строка свободно уезжала в промпт.
+    const Body = z.object({
+      species: z.string().trim().min(1).max(100),
+      difficulty: safeEnum(['beginner', 'intermediate', 'advanced'] as const, 'intermediate'),
+      topic: optionalLimitedString(2000),
+      track: optionalLimitedString(50),
+      history: z.array(z.record(z.string(), z.unknown())).max(40).catch([]),
+    });
+    const parsedInput = await parseBody(req, Body);
+    if (!parsedInput.ok) return parsedInput.response;
+    const { species, difficulty, topic, track } = parsedInput.data;
     const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
-
-    // --- Payload size validation ---
-    if (topic && topic.length > 50 * 1024) {
-      return NextResponse.json(
-        { error: 'Тема слишком длинная (максимум 50 КБ)' },
-        { status: 413 }
-      );
-    }
-
-    if (body.history && JSON.stringify(body.history).length > 500 * 1024) {
-      return NextResponse.json(
-        { error: 'История слишком большая (максимум 500 КБ)' },
-        { status: 413 }
-      );
-    }
-
-    if (!species) {
-      return NextResponse.json(
-        { error: 'Укажите вид животного' },
-        { status: 400 }
-      );
-    }
 
     const zai = await getZAI();
 

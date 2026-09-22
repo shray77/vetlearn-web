@@ -68,8 +68,10 @@ export function reviewSRCard(card: SRCardData, rating: SRRating): SRCardData {
       break;
     }
     case 1: {
-      // HARD: No rep increment, slightly longer interval
-      newReps = card.repetitions;
+      // HARD: успешное повторение (Anki-style) — reps растут, интервал умеренно увеличивается.
+      // Раньше reps не инкрементировались: серия Hard "застревала" на reps=0,
+      // и первый Good после неё сбрасывал интервал к 1.
+      newReps = card.repetitions + 1;
       if (card.repetitions === 0) {
         newInterval = 1;
       } else {

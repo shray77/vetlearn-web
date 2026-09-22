@@ -68,6 +68,14 @@ function getWeekStart(date: Date = new Date()): Date {
   return d;
 }
 
+// Локальная дата YYYY-MM-DD (не UTC: toISOString у local Monday 00:00 давал воскресенье для UTC+)
+function localDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 /**
  * Compute XP earned this week from assessment + case + simulator history.
  * The XP values here are estimates — the actual XP award happens in store
@@ -80,23 +88,22 @@ export function computeWeekXp(
   simulatorHistory: SimulatorHistoryEntry[],
   completedChallenges: Record<string, string>
 ): number {
-  const weekStart = getWeekStart();
-  const weekStartStr = weekStart.toISOString().split('T')[0]!;
+  const weekStartStr = localDateKey(getWeekStart());
 
   let xp = 0;
 
   for (const a of assessmentHistory) {
-    if (a.completedAt >= weekStartStr) {
+    if (localDateKey(new Date(a.completedAt)) >= weekStartStr) {
       xp += 10 + Math.round((a.score ?? 0) / 10);
     }
   }
   for (const c of caseHistory) {
-    if (c.createdAt >= weekStartStr) {
+    if (localDateKey(new Date(c.createdAt)) >= weekStartStr) {
       xp += 15;
     }
   }
   for (const s of simulatorHistory) {
-    if ((s.completedAt ?? '') >= weekStartStr) {
+    if (s.completedAt && localDateKey(new Date(s.completedAt)) >= weekStartStr) {
       xp += 20 + Math.round((s.score ?? 0) / 10);
     }
   }

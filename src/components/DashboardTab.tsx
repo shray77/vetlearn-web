@@ -49,8 +49,9 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
 
   // SR due cards count
   const srDueCount = useMemo(() => {
+    const d = new Date();
     const allIds = flashcards.map(c => c.id);
-    const today = new Date().toISOString().split('T')[0];
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     return allIds.filter(id => {
       const card = srCards[id];
       return card && card.nextReview <= today;
@@ -223,7 +224,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
       <div className="flex justify-center">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-muted/80 text-muted-foreground border border-border/50">
           <span className="w-1.5 h-1.5 rounded-full bg-[#28CD41] animate-pulse" />
-          VetLearn AI v0.2.0-beta
+          VetLearn AI v0.3.0
         </span>
       </div>
 

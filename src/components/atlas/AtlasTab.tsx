@@ -14,11 +14,25 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const VIEWED_KEY = 'vetlearn_atlas_viewed_v1';
+
+function loadViewed(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(VIEWED_KEY);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
 export function AtlasTab() {
   const { addXP } = useStore();
   const [filterModality, setFilterModality] = useState<string>('all');
   const [activeEntry, setActiveEntry] = useState<AtlasEntry | null>(null);
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
+  // XP за статью — один раз навсегда: раньше set жил в useState и умирал при выходе
+  // с таба → перезаход + просмотр той же статьи = повторный +5 XP (фарм)
+  const [viewed, setViewed] = useState<Set<string>>(() => loadViewed());
 
   const filtered = useMemo(
     () => getAtlasEntries(filterModality === 'all' ? undefined : { modality: filterModality }),
@@ -31,6 +45,11 @@ export function AtlasTab() {
       const newSet = new Set(viewed);
       newSet.add(entry.id);
       setViewed(newSet);
+      try {
+        localStorage.setItem(VIEWED_KEY, JSON.stringify([...newSet]));
+      } catch {
+        // quota — XP за просмотр всё равно начислен один раз за сессию
+      }
       addXP(5);
       toast.success(`+5 XP за изучение: ${entry.title}`);
     }

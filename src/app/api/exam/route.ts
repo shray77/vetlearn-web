@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
+import { parseData, badRequest, safeEnum, clampedInt, optionalLimitedString } from '@/lib/api-validation';
 
 // ==================== System prompts ====================
 
@@ -129,19 +131,17 @@ export async function POST(req: NextRequest) {
 
 // ==================== Start exam ====================
 
-async function handleStart(body: {
-  topics?: string[];
-  difficulty?: string;
-  questionCount?: number;
-}) {
-  const { topics = [], difficulty = 'intermediate', questionCount = 10 } = body;
-
-  if (topics.length === 0) {
-    return NextResponse.json(
-      { error: 'Выберите хотя бы одну тему' },
-      { status: 400 }
-    );
-  }
+async function handleStart(body: unknown) {
+  // Zod-валидация (P2): topics — только короткие строки (раньше объекты уезжали
+  // в промпт как [object Object]/JSON), questionCount клампится 3..30.
+  const StartBody = z.object({
+    topics: z.array(z.string().max(100)).min(1).max(30),
+    difficulty: safeEnum(['beginner', 'intermediate', 'advanced'] as const, 'intermediate'),
+    questionCount: clampedInt(3, 30, 10),
+  });
+  const validated = parseData(body, StartBody);
+  if (!validated.ok) return validated.response;
+  const { topics, difficulty, questionCount } = validated.data;
 
   const zai = await getZAI();
   const difficultyLabel = DIFFICULTY_LABELS[difficulty] || difficulty;
@@ -193,49 +193,39 @@ async function handleStart(body: {
 
 // ==================== Answer question ====================
 
-async function handleAnswer(body: {
-  examId?: string;
-  questionId?: string;
-  answer?: string;
-  questionHistory?: Array<{ question: string; answer: string }>;
-  questionCount?: number;
-  currentQuestionIndex?: number;
-  topics?: string[];
-  difficulty?: string;
-  isLastQuestion?: boolean;
-}) {
+async function handleAnswer(body: unknown) {
+  // Zod-валидация (P2): раньше тут был слепой дестракчер + проверки размеров
+  // после факта. Теперь — схема с лимитами и безопасными дефолтами.
+  const AnswerBody = z.object({
+    examId: optionalLimitedString(100),
+    questionId: optionalLimitedString(100),
+    answer: z.string().max(50 * 1024),
+    questionHistory: z.array(z.object({
+      question: z.string().max(2000).catch(''),
+      answer: z.string().max(50 * 1024).catch(''),
+    })).max(60).catch([]),
+    questionCount: clampedInt(1, 30, 10),
+    currentQuestionIndex: clampedInt(0, 100, 0),
+    topics: z.array(z.string().max(100)).max(30).catch([]),
+    difficulty: safeEnum(['beginner', 'intermediate', 'advanced'] as const, 'intermediate'),
+    isLastQuestion: z.boolean().catch(false),
+  });
+  const validated = parseData(body, AnswerBody);
+  if (!validated.ok) return validated.response;
   const {
     examId,
-    questionId = '',
-    answer = '',
-    questionHistory = [],
-    questionCount = 10,
-    currentQuestionIndex = 0,
-    topics = [],
-    difficulty = 'intermediate',
-    isLastQuestion = false,
-  } = body;
+    questionId,
+    answer,
+    questionHistory,
+    questionCount,
+    currentQuestionIndex,
+    topics,
+    difficulty,
+    isLastQuestion,
+  } = validated.data;
 
-  // --- Payload size validation ---
-  const MAX_ANSWER_SIZE = 50 * 1024; // 50 KB
-  if (answer.length > MAX_ANSWER_SIZE) {
-    return NextResponse.json(
-      { error: 'Ответ слишком длинный (максимум 50 КБ)' },
-      { status: 413 }
-    );
-  }
-
-  if (JSON.stringify(questionHistory).length > 500 * 1024) {
-    return NextResponse.json(
-      { error: 'История вопросов слишком большая (максимум 500 КБ)' },
-      { status: 413 }
-    );
-  }
   if (!answer.trim()) {
-    return NextResponse.json(
-      { error: 'Ответ не может быть пустым' },
-      { status: 400 }
-    );
+    return badRequest('Ответ не может быть пустым');
   }
 
   const zai = await getZAI();

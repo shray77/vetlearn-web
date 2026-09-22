@@ -49,7 +49,7 @@ export function buildExport(state: VetLearnStore): ExportPayload {
   return {
     formatVersion: EXPORT_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
-    appVersion: '0.2.0',
+    appVersion: '0.3.0',
     state: exported,
   };
 }
@@ -76,7 +76,35 @@ export function parseImport(json: string): ExportPayload {
     throw new Error('В файле нет поля state');
   }
 
-  return parsed as ExportPayload;
+  // Whitelist: пропускаем только известные доменные ключи с корректными типами.
+  // Раньше setState принимал произвольный JSON — можно было подменить функции/транзиент-стейт
+  // и сломать приложение после перезагрузки.
+  const rawState = parsed.state as Record<string, unknown>;
+  const sanitized: Record<string, unknown> = {};
+  const ARRAY_KEYS = new Set([
+    'flashcards', 'flashcardHistory', 'assessmentHistory', 'caseHistory',
+    'simulatorHistory', 'importedDocuments', 'osceHistory', 'bookmarkedResources',
+  ]);
+  for (const key of EXPORTED_KEYS) {
+    const value = rawState[key as string];
+    if (value === undefined || value === null) continue;
+    if (ARRAY_KEYS.has(key as string)) {
+      if (!Array.isArray(value)) throw new Error(`Поле «${key}» должно быть массивом`);
+      sanitized[key as string] = value.slice(0, 20000);
+    } else if (key === 'completedSimulations') {
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+        throw new Error('Поле «completedSimulations» должно быть неотрицательным числом');
+      }
+      sanitized[key as string] = Math.min(1_000_000_000, Math.floor(value));
+    } else {
+      if (typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error(`Поле «${key}» имеет неверный тип`);
+      }
+      sanitized[key as string] = value;
+    }
+  }
+
+  return { ...(parsed as ExportPayload), state: sanitized as Partial<VetLearnStore> };
 }
 
 /**

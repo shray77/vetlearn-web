@@ -7,6 +7,15 @@ const STT_TIMEOUT_MS = 30_000;
 
 export async function POST(req: NextRequest) {
   try {
+    // Early size-check ДО парсинга тела
+    const contentLength = Number(req.headers.get('content-length') || 0);
+    if (contentLength > 18 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'Аудио слишком длинное (максимум 10 МБ)' },
+        { status: 413 }
+      );
+    }
+
     const { audio } = await req.json();
 
     if (!audio || typeof audio !== 'string') {

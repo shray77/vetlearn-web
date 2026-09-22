@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
+import { parseBody } from '@/lib/api-validation';
 
 // =============================================
 // КУРАТОРСКАЯ БАЗА РЕАЛЬНЫХ ВЕТЕРИНАРНЫХ РЕСУРСОВ
@@ -95,11 +97,25 @@ function generateId(index: number): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { gaps = [], interests = [] } = await req.json();
+    // Zod-валидация (P2): gaps/interests раньше не проверялись ни на тип, ни на размер —
+    // мегабайтные массивы свободно уезжали в промпт.
+    const Gap = z.object({
+      topicId: z.string().max(100).catch(''),
+      topicName: z.string().max(200).catch(''),
+      currentLevel: z.coerce.number().catch(0),
+      priority: z.string().max(20).catch('medium'),
+    });
+    const Body = z.object({
+      gaps: z.array(Gap).max(30).catch([]),
+      interests: z.array(z.string().max(200)).max(30).catch([]),
+    });
+    const parsed = await parseBody(req, Body);
+    if (!parsed.ok) return parsed.response;
+    const { gaps, interests } = parsed.data;
 
     // 1. Получаем слабые темы студента
     const weakTopics = gaps
-      .map((g: { topicId: string; topicName: string; currentLevel: number; priority: string }) => g.topicId)
+      .map((g) => g.topicId)
       .filter(Boolean);
 
     // 2. Выбираем из кураторской БД ресурсы по слабым темам
@@ -131,7 +147,7 @@ export async function POST(req: NextRequest) {
     const zai = await getZAI();
 
     const gapsText = gaps
-      .map((g: { topicId: string; topicName: string; currentLevel: number; priority: string }) =>
+      .map((g) =>
         `${g.topicName} (уровень: ${g.currentLevel}%, приоритет: ${g.priority})`
       )
       .join(', ');

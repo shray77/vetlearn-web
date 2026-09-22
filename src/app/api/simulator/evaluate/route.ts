@@ -68,8 +68,12 @@ function buildFallbackEvaluation(session: any): SimulatorEvaluation {
   if (diagnosisCorrect) diagnosisScore = 40;
 
   let treatmentScore = 0;
+  // correctTreatment фиксируется на сервере до шаффла; опциональный fallback на старые сценарии
+  const correctTreatment = typeof scenario?.correctTreatment === 'string' && scenario.correctTreatment
+    ? scenario.correctTreatment
+    : Array.isArray(scenario?.treatmentOptions) ? scenario.treatmentOptions[0] : scenario?.treatmentPlan;
   const treatmentCorrect = Array.isArray(scenario?.treatmentOptions)
-    ? scenario.treatmentOptions.some((opt: string) => session?.treatmentSubmitted === opt) && session?.treatmentSubmitted === scenario.treatmentOptions[0]
+    ? session?.treatmentSubmitted === correctTreatment
     : session?.treatmentSubmitted === scenario?.treatmentPlan;
   if (treatmentCorrect) treatmentScore = 25;
 
@@ -104,7 +108,7 @@ function buildFallbackEvaluation(session: any): SimulatorEvaluation {
   else if (totalScore >= 70) grade = 'good';
   else if (totalScore >= 50) grade = 'satisfactory';
 
-  const xpEarned = Math.max(5, Math.round(totalScore * 0.8));
+  const xpEarned = Math.max(5, Math.min(120, Math.round(totalScore * 0.8)));
 
   return {
     score: totalScore,
@@ -118,7 +122,9 @@ function buildFallbackEvaluation(session: any): SimulatorEvaluation {
       : `Неверно. Правильный диагноз: ${scenario?.correctDiagnosis || 'не указан'}. Ваш диагноз: ${session?.diagnosisSubmitted || 'не указан'}.`,
     treatmentFeedback: treatmentCorrect
       ? 'Лечение подобрано корректно и соответствует стандартам ветеринарии.'
-      : `Рекомендуемое лечение: ${Array.isArray(scenario?.treatmentOptions) ? scenario?.treatmentOptions[0] : scenario?.treatmentPlan || 'не указано'}.`,
+      : `Рекомендуемое лечение: ${typeof scenario?.correctTreatment === 'string' && scenario.correctTreatment
+        ? scenario.correctTreatment
+        : Array.isArray(scenario?.treatmentOptions) ? scenario?.treatmentOptions[0] : scenario?.treatmentPlan || 'не указано'}.`,
     examinationFeedback: `Обнаружено ${findings.length} находок из ${allFindings.length}. ${criticalFindings.length} критических находок.`,
     keyTakeaways: [
       `Правильный диагноз: ${scenario?.correctDiagnosis || '—'}`,

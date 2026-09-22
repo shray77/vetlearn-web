@@ -121,7 +121,7 @@ export function AdaptiveLearningTab() {
   }, [quizStartTime]);
 
   // Ref to hold latest handleAdaptiveSubmit so the timer effect can call it safely
-  const handleAdaptiveSubmitRef = useRef<() => Promise<void>>(null!);
+  const handleAdaptiveSubmitRef = useRef<(force?: boolean) => Promise<void>>(null!);
 
   // Sprint countdown timer
   useEffect(() => {
@@ -135,7 +135,10 @@ export function AdaptiveLearningTab() {
   // Auto-submit when sprint timer hits 0
   useEffect(() => {
     if (sprintMode && sprintTimeLeft === 0) {
-      handleAdaptiveSubmitRef.current();
+      // P2-фикс: автосабмит по таймеру — force=true. Раньше на нулевом таймере
+      // срабатывал тот же гард «Ответьте на все вопросы», спринт зависал и
+      // время сгорало без результата. Неотвеченные засчитываются как неверные.
+      handleAdaptiveSubmitRef.current(true);
     }
   }, [sprintMode, sprintTimeLeft]);
 
@@ -256,10 +259,10 @@ export function AdaptiveLearningTab() {
     }
   };
 
-  const handleAdaptiveSubmit = async () => {
+  const handleAdaptiveSubmit = async (force = false) => {
     setSprintMode(false);
     setSprintTimeLeft(120);
-    if (answers.some(a => a === null)) {
+    if (!force && answers.some(a => a === null)) {
       toast.error('Ответьте на все вопросы');
       return;
     }
@@ -289,7 +292,7 @@ export function AdaptiveLearningTab() {
           id: `assess_${Date.now()}`,
           questions: assessmentQuestions,
           answers,
-          completedAt: new Date().toLocaleDateString('ru-RU'),
+          completedAt: new Date().toISOString(),
         };
         setAssessmentResult(result);
         setPhase('adaptive_results');

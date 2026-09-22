@@ -2,24 +2,41 @@
 
 import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { useStore } from '@/lib/store';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
-import { DashboardTab } from '@/components/DashboardTab';
-import { AdaptiveLearningTab } from '@/components/AdaptiveLearningTab';
-import { ClinicalCasesTab } from '@/components/ClinicalCasesTab';
-import { VoiceTutorTab } from '@/components/VoiceTutorTab';
-import { MockExamTab } from '@/components/MockExamTab';
-import { FlashcardsTab } from '@/components/FlashcardsTab';
-import { ResourcesTab } from '@/components/ResourcesTab';
-import { MindMapTab } from '@/components/MindMapTab';
-import { SimulatorTab } from '@/components/simulator/SimulatorTab';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { OnboardingModal } from '@/components/OnboardingModal';
-import { OSCEListTab } from '@/components/osce/OSCEListTab';
-import { AtlasTab } from '@/components/atlas/AtlasTab';
 import { getDueCardIds } from '@/lib/sm2';
 import { toast } from 'sonner';
+
+// Тяжёлые табы грузим по требованию: раньше все 11 модулей жили в одном бандле
+const TabLoading = () => (
+  <div className="flex items-center justify-center min-h-[40vh] text-sm text-muted-foreground">
+    Загрузка модуля...
+  </div>
+);
+
+const DashboardTab = dynamic(() => import('@/components/DashboardTab').then(m => ({ default: m.DashboardTab })), { ssr: false, loading: TabLoading });
+const AdaptiveLearningTab = dynamic(() => import('@/components/AdaptiveLearningTab').then(m => ({ default: m.AdaptiveLearningTab })), { ssr: false, loading: TabLoading });
+const ClinicalCasesTab = dynamic(() => import('@/components/ClinicalCasesTab').then(m => ({ default: m.ClinicalCasesTab })), { ssr: false, loading: TabLoading });
+const VoiceTutorTab = dynamic(() => import('@/components/VoiceTutorTab').then(m => ({ default: m.VoiceTutorTab })), { ssr: false, loading: TabLoading });
+const MockExamTab = dynamic(() => import('@/components/MockExamTab').then(m => ({ default: m.MockExamTab })), { ssr: false, loading: TabLoading });
+const FlashcardsTab = dynamic(() => import('@/components/FlashcardsTab').then(m => ({ default: m.FlashcardsTab })), { ssr: false, loading: TabLoading });
+const ResourcesTab = dynamic(() => import('@/components/ResourcesTab').then(m => ({ default: m.ResourcesTab })), { ssr: false, loading: TabLoading });
+const MindMapTab = dynamic(() => import('@/components/MindMapTab').then(m => ({ default: m.MindMapTab })), { ssr: false, loading: TabLoading });
+const SimulatorTab = dynamic(() => import('@/components/simulator/SimulatorTab').then(m => ({ default: m.SimulatorTab })), { ssr: false, loading: TabLoading });
+const OSCEListTab = dynamic(() => import('@/components/osce/OSCEListTab').then(m => ({ default: m.OSCEListTab })), { ssr: false, loading: TabLoading });
+const AtlasTab = dynamic(() => import('@/components/atlas/AtlasTab').then(m => ({ default: m.AtlasTab })), { ssr: false, loading: TabLoading });
+
+// Локальная дата YYYY-MM-DD (streak-даты пишутся локальными — сравнивать надо локальными же)
+function localDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 // ==================== MAIN APP ====================
 
@@ -45,7 +62,7 @@ export default function Home() {
     if (!hydrated) return;
     if (!notificationsEnabled || notificationPermission !== 'granted') return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey(new Date());
     if (lastReminderDate === today) return; // Already shown today
 
     // Check for due SR cards
@@ -55,7 +72,7 @@ export default function Home() {
     // Check streak
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = localDateKey(yesterday);
     const streakAtRisk = profile.streakLastDate !== yesterdayStr && profile.streakLastDate !== today;
 
     if (dueIds.length > 0) {

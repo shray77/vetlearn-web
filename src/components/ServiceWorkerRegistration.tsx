@@ -4,9 +4,14 @@ import { useEffect, useState } from 'react';
 import { WifiOff } from 'lucide-react';
 
 export function ServiceWorkerRegistration() {
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  // SSR-safe: в Node navigator.onLine === undefined → !undefined = true →
+  // баннер «Нет подключения» рендерился всем и ломал гидратацию.
+  // Начинаем с оптимистичного online и уточняем в эффекте.
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
+    setIsOffline(!navigator.onLine);
+
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 

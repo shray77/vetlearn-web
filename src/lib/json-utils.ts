@@ -56,7 +56,7 @@ function tryRegexExtract(text: string): unknown | null {
 /**
  * Strategy 4: Fix common JSON issues then parse
  * - Trailing commas before } or ]
- * - Single quotes -> double quotes
+ * - Single quotes -> double quotes (апострофы внутри слов не трогаем — "dog's" должно остаться словом)
  */
 function tryFixCommonIssues(text: string): unknown | null {
   try {
@@ -67,15 +67,30 @@ function tryFixCommonIssues(text: string): unknown | null {
       jsonStr = match[0];
     }
 
-    let fixed = jsonStr;
-
     // Fix trailing commas before } or ]
-    fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+    const noTrailing = jsonStr.replace(/,\s*([}\]])/g, '$1');
+    try {
+      return JSON.parse(noTrailing);
+    } catch {
+      // fall through
+    }
 
-    // Fix single quotes -> double quotes (naive but handles most cases)
-    fixed = fixed.replace(/(?<![\\])'/g, '"');
+    // Внутрисловных апострофов нет — смело меняем все одинарные кавычки
+    if (!/\w'\w/.test(noTrailing)) {
+      const singleQuoted = noTrailing.replace(/(?<![\\])'/g, '"');
+      try {
+        return JSON.parse(singleQuoted);
+      } catch {
+        // fall through
+      }
+    }
 
-    return JSON.parse(fixed);
+    // Апострофы внутри слов есть: меняем только «структурные» одинарные кавычки —
+    // открывающие (после { [ , : или перевода строки) и закрывающие (перед , } ] :)
+    const structural = noTrailing
+      .replace(/([{[,:\n]\s*)'/g, '$1"')
+      .replace(/'(?=\s*[,}\]:])/g, '"');
+    return JSON.parse(structural);
   } catch {
     return null;
   }

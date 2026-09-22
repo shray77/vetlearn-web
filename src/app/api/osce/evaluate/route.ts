@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 import { getOSCEStationById } from '@/lib/osce-bank';
+import { getOSCEReferences } from '@/lib/osce-references';
+import { parseBody } from '@/lib/api-validation';
 
 /**
  * POST /api/osce/evaluate
@@ -18,17 +21,14 @@ import { getOSCEStationById } from '@/lib/osce-bank';
 
 export async function POST(req: NextRequest) {
   try {
-    const { stationId, answers } = await req.json() as {
-      stationId?: string;
-      answers?: string[];
-    };
-
-    if (!stationId || !Array.isArray(answers)) {
-      return NextResponse.json(
-        { error: 'Укажите stationId и answers' },
-        { status: 400 }
-      );
-    }
+    // Zod-валидация входа (P2): stationId — короткая строка, ответы — строки с жёстким лимитом
+    const Body = z.object({
+      stationId: z.string().min(1).max(100),
+      answers: z.array(z.string().max(20 * 1024)).min(1).max(10),
+    });
+    const validated = await parseBody(req, Body);
+    if (!validated.ok) return validated.response;
+    const { stationId, answers } = validated.data;
 
     const station = getOSCEStationById(stationId);
     if (!station) {
@@ -63,6 +63,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Эталоны читаются с сервера (в клиентский бандл они больше не попадают)
+    const referenceAnswers = getOSCEReferences(stationId) || [];
+
     // Build evaluation prompt
     const evalPrompt = `Ты — экзаменатор ветеринарной медицины. Оцени ответы студента на станции OSCE строго по критериям.
 
@@ -73,7 +76,7 @@ ${station.questions.map((q, i) => `
 ВОПРОС ${i + 1} (${q.type}):
 ${q.prompt}
 Ключевые слова/концепты: ${q.keywords.join(', ')}
-ЭТАЛОННЫЙ ОТВЕТ: ${station.referenceAnswers[i]}
+ЭТАЛОННЫЙ ОТВЕТ: ${referenceAnswers[i] || 'Эталон недоступен — оцени по ключевым словам.'}
 
 ОТВЕТ СТУДЕНТА:
 ${answers[i]}
@@ -112,14 +115,16 @@ Verdict должен быть конкретным, что студент упу
       // Fallback — simple keyword-based scoring
       const scores = station.questions.map((q, i) => {
         const a = (answers[i] || '').toLowerCase();
+        // Guard от деления на ноль: пустой keywords иначе даёт NaN в totalScore
+        const denom = q.keywords.length > 0 ? q.keywords.length : 1;
         const hits = q.keywords.filter((k) => a.includes(k.toLowerCase())).length;
-        return Math.min(10, Math.round((hits / q.keywords.length) * 10));
+        return Math.min(10, Math.round((hits / denom) * 10));
       });
       const feedback = station.questions.map((_, i) =>
         `Автоматическая оценка: ${scores[i]}/10 (на основе совпадения ключевых слов).`
       );
       const totalScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-      return NextResponse.json({ success: true, scores, feedback, totalScore, fallback: true });
+      return NextResponse.json({ success: true, scores, feedback, totalScore, referenceAnswers, fallback: true });
     }
 
     const scores = parsed.scores.map((s) => Math.max(0, Math.min(10, Math.round(Number(s) || 0))));
@@ -131,6 +136,8 @@ Verdict должен быть конкретным, что студент упу
       scores,
       feedback,
       totalScore,
+      // Эталоны отдаём только после проверки — на них ранер смотрит в экране результатов
+      referenceAnswers,
     });
   } catch (error: unknown) {
     console.error('[osce/evaluate] error:', (error as Error)?.message ?? error);

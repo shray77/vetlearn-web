@@ -28,6 +28,15 @@ const MAX_PDF_EXTRACTED_TEXT = 500 * 1024;
 
 export async function POST(req: NextRequest) {
   try {
+    // Early size-check ДО парсинга тела
+    const contentLength = Number(req.headers.get('content-length') || 0);
+    if (contentLength > 18 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'Файл слишком большой' },
+        { status: 413 }
+      );
+    }
+
     const body = await req.json();
     const { content, fileType, filename } = body as {
       content?: string;

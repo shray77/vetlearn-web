@@ -34,6 +34,18 @@ const SYSTEM_PROMPT = `Ты — ветеринарный врач, создаё�
 
 // Types imported from @/lib/fallback-scenarios (ExaminationFinding, LabTest, SimulatorScenario)
 
+// Fisher-Yates shuffle (in-place copy)
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const VALID_DIFFICULTIES = ['beginner', 'intermediate', 'advanced'];
+
 function validateAndFixScenario(data: any): SimulatorScenario | null {
   try {
     const s = data as any;
@@ -55,15 +67,25 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
     if (!Array.isArray(s.diagnosisOptions) || s.diagnosisOptions.length < 2) {
       s.diagnosisOptions = [s.correctDiagnosis, 'Неопределённый диагноз 1', 'Неопределённый диагноз 2', 'Неопределённый диагноз 3'];
     }
-    // Ensure correct diagnosis is first
-    if (s.diagnosisOptions[0] !== s.correctDiagnosis) {
-      s.diagnosisOptions = [s.correctDiagnosis, ...s.diagnosisOptions.filter((d: string) => d !== s.correctDiagnosis)].slice(0, 4);
+    // Correct answer must exist among options (position does NOT matter — evaluation is string-based)
+    if (!s.diagnosisOptions.includes(s.correctDiagnosis)) {
+      s.diagnosisOptions = [s.correctDiagnosis, ...s.diagnosisOptions].slice(0, 4);
     }
+    // Exactly 4 options max (letters А–Г)
+    s.diagnosisOptions = s.diagnosisOptions.slice(0, 4);
+    if (!s.diagnosisOptions.includes(s.correctDiagnosis)) s.diagnosisOptions[0] = s.correctDiagnosis;
 
     // Validate treatment options
     if (!Array.isArray(s.treatmentOptions) || s.treatmentOptions.length < 2) {
       s.treatmentOptions = [s.treatmentPlan, 'Симптоматическая терапия', 'Хирургическое вмешательство', 'Наблюдение'];
     }
+    s.treatmentOptions = s.treatmentOptions.slice(0, 4);
+    // Fix the correct treatment BEFORE shuffling (evaluation is position-independent)
+    s.correctTreatment = s.treatmentOptions[0];
+
+    // Anti-spoiler: shuffle both option arrays so the correct answer is never always first
+    s.diagnosisOptions = shuffle(s.diagnosisOptions);
+    s.treatmentOptions = shuffle(s.treatmentOptions);
 
     // Validate findings
     if (!Array.isArray(s.findings) || s.findings.length < 3) {
@@ -132,31 +154,14 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { species, difficulty = 'intermediate', topic, track } = body;
+    const { species, track } = body;
+    // Whitelist difficulty: no arbitrary strings into the prompt
+    const difficulty = VALID_DIFFICULTIES.includes(body?.difficulty) ? body.difficulty : 'intermediate';
+    // Clamp free-text topic to keep the prompt sane
+    const topic = typeof body?.topic === 'string' ? body.topic.slice(0, 100) : undefined;
     const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
 
-    // --- Payload size validation ---
-    if (body.history && JSON.stringify(body.history).length > 500 * 1024) {
-      return NextResponse.json(
-        { error: 'История слишком большая (максимум 500 КБ)' },
-        { status: 413 }
-      );
-    }
-
-    if (Array.isArray(body.messages)) {
-      const MAX_MESSAGE_SIZE = 10 * 1024; // 10 KB per message
-      for (const msg of body.messages) {
-        const msgSize = typeof msg === 'string' ? msg.length : JSON.stringify(msg).length;
-        if (msgSize > MAX_MESSAGE_SIZE) {
-          return NextResponse.json(
-            { error: 'Сообщение слишком длинное (максимум 10 КБ)' },
-            { status: 413 }
-          );
-        }
-      }
-    }
-
-    if (!species) {
+    if (!species || typeof species !== 'string' || species.length > 50) {
       return NextResponse.json(
         { error: 'Укажите вид животного' },
         { status: 400 }
@@ -219,9 +224,16 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('[simulator/generate] Unexpected error:', error);
-    return NextResponse.json(
-      { error: 'Ошибка при генерации сценария' },
-      { status: 500 }
-    );
+    // Consistency: any server error falls back to a playable offline scenario
+    // instead of a dead 500 — the client already handles isFallback.
+    try {
+      const fallback = getFallbackScenario();
+      return NextResponse.json({ success: true, scenario: fallback, isFallback: true });
+    } catch {
+      return NextResponse.json(
+        { error: 'Ошибка при генерации сценария' },
+        { status: 500 }
+      );
+    }
   }
 }

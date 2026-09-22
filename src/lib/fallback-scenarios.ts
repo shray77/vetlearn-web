@@ -32,6 +32,8 @@ export interface SimulatorScenario {
   diagnosisOptions: string[];
   treatmentPlan: string;
   treatmentOptions: string[];
+  // Строка правильного лечения (заполняется при шаффле вариантов, чтобы оценка не зависела от позиции)
+  correctTreatment?: string;
   findings: ExaminationFinding[];
   availableTests: LabTest[];
   budget: number;
@@ -94,7 +96,7 @@ export const FALLBACK_SCENARIOS: SimulatorScenario[] = [
     difficulty: 'beginner',
     topic: 'Токсикология',
     ownerComplaint: 'Бобик вырвался и сожрал что-то на прогулке. Сначала была сильная рвота, сейчас вялый, не встаёт.',
-    correctDiagnosis: 'Отравление этиленгликолем (антифриз)',
+    correctDiagnosis: 'Отравление этиленгликолем',
     diagnosisOptions: ['Отравление этиленгликолем', 'Панкреатит острый', 'Вирусный энтерит', 'Инородное тело ЖКТ'],
     treatmentPlan: 'Промывание желудка (если менее 2 часов), антидот — 4-метилпиразол (фомепизол) 20 мг/кг в/в, затем 15 мг/кг через 12 и 24 часа. Инфузионная терапия физраствор + глюкоза. Диурез форсированный. Гепатопротекторы.',
     treatmentOptions: ['Фомепизол + инфузия + промывание', 'Промывание + активированный уголь', 'Антибиотики + инфузия', 'Только инфузионная терапия'],
@@ -218,7 +220,7 @@ export const FALLBACK_SCENARIOS: SimulatorScenario[] = [
     difficulty: 'intermediate',
     topic: 'Инфекционные болезни',
     ownerComplaint: 'У поросят кашель, хрюканье стало грубым, двое лежат и не встают. Температура у всех повышена.',
-    correctDiagnosis: 'Энзоотическая пневмония свиней (микоплазменная)',
+    correctDiagnosis: 'Энзоотическая пневмония (микоплазменная)',
     diagnosisOptions: ['Энзоотическая пневмония (микоплазменная)', 'Пастереллёз', 'Сальмонеллёз', 'Цирковирусная инфекция'],
     treatmentPlan: 'Тилозин (тизол 10 мг/кг в/м, 2 раза в день, 5 дней) или флорфеникол. Симптоматическая: бронхолитики, витамины А и Е. Улучшение вентиляции помещения. Вакцинация поголовья.',
     treatmentOptions: ['Тилозин + бронхолитики + улучшение условий', 'Антибиотики широкого спектра (амоксициллин)', 'Только витамины', 'Забой больных животных'],
@@ -226,8 +228,7 @@ export const FALLBACK_SCENARIOS: SimulatorScenario[] = [
       { region: 'thorax', toolId: 'stethoscope', finding: 'Жёсткое дыхание с хрипами (крепитация) в кранио-вентральных долях лёгких. Дыхание ослаблено.', isNormal: false, relevance: 'critical' },
       { region: 'thorax', toolId: 'percussion', finding: 'Укорочение перкуторного звука в передних долях лёгких (уплотнение).', isNormal: false, relevance: 'critical' },
       { region: 'abdomen', toolId: 'thermometer', finding: 'Температура 40,5°C (лихорадка).', isNormal: false, relevance: 'important' },
-      { region: 'head', toolId: 'inspection', finding: 'Выделения из носа — серозно-катаральные, обильные. Конъюнктивит.', isNormal: false, relevance: 'important' },
-      { region: 'head', toolId: 'inspection', finding: 'Шум в носовой полости при дыхании — стридор.', isNormal: false, relevance: 'important' },
+      { region: 'head', toolId: 'inspection', finding: 'Выделения из носа — серозно-катаральные, обильные. Конъюнктивит. Шум в носовой полости при дыхании (стридор).', isNormal: false, relevance: 'important' },
       { region: 'skin', toolId: 'inspection', finding: 'Кожа цианотичная в области ушей и пятачка.', isNormal: false, relevance: 'important' },
       { region: 'skin', toolId: 'palpation', finding: 'Подкожные лимфоузлы увеличены, безболезненны.', isNormal: false, relevance: 'minor' },
       { region: 'abdomen', toolId: 'palpation', finding: 'Живот мягкий, безболезненный. Перистальтика сохранена.', isNormal: true, relevance: 'minor' },
@@ -259,7 +260,7 @@ export const FALLBACK_SCENARIOS: SimulatorScenario[] = [
     difficulty: 'beginner',
     topic: 'Хирургия',
     ownerComplaint: 'У половины стада овцы хромают, из копыт ужасный запах. Несколько особей лежат и не могут встать.',
-    correctDiagnosis: 'Некробактериоз копытец (копытная гниль)',
+    correctDiagnosis: 'Некробактериоз копытец',
     diagnosisOptions: ['Некробактериоз копытец', 'Язвенная болезнь копытец', 'Травма копыта', 'Острый межпальцевый абсцесс'],
     treatmentPlan: 'Обработка копыт: очистка от некротических тканей, антисептическая ванна (10% раствор цинксульфата или 5% формалин). Местно: спрей на основе сульфаниламидов. Системно: тилозин 10 мг/кг в/м 3 дня. Улучшение подстилки и дренирование территории.',
     treatmentOptions: ['Ванна для копыт + тилозин + очистка', 'Только антибиотики в/м', 'Забой поражённых', 'Ванна для копыт без антибиотиков'],
@@ -297,7 +298,7 @@ export const FALLBACK_SCENARIOS: SimulatorScenario[] = [
     difficulty: 'intermediate',
     topic: 'Инфекционные болезни',
     ownerComplaint: 'У несушек понос белого цвета, несколько птиц погибло. Яйценоскость резко упала. Птицы вялые, перья взъерошены.',
-    correctDiagnosis: 'Пуллороз (сальмонеллёз птиц)',
+    correctDiagnosis: 'Пуллороз (сальмонеллёз)',
     diagnosisOptions: ['Пуллороз (сальмонеллёз)', 'Кокцидиоз', 'Пастереллёз', 'Инфекционный бронхит'],
     treatmentPlan: 'Энрофлоксацин 10 мг/кг в/м или в воде 3-5 дней. Сульфадиметоксин в комбинации с триметопримом. Витамины группы B. Дезинфекция птичника. Убой клинически больных птиц. Карантин стада.',
     treatmentOptions: ['Энрофлоксацин + сульфаниламиды + дезинфекция', 'Только антибиотик в воде', 'Никакого лечения — убой', 'Витамины и иммуностимуляторы'],
@@ -331,6 +332,10 @@ export function getFallbackScenario(): SimulatorScenario {
   // Выбираем случайный сценарий из 7 для разнообразия
   const idx = Math.floor(Math.random() * FALLBACK_SCENARIOS.length);
   const base = JSON.parse(JSON.stringify(FALLBACK_SCENARIOS[idx]));
+  // Правильное лечение фиксируем строкой до возможного шаффла вариантов
+  base.correctTreatment = Array.isArray(base.treatmentOptions) && base.treatmentOptions.length > 0
+    ? base.treatmentOptions[0]
+    : base.treatmentPlan;
   // Обновляем id чтобы был уникальный
   return { ...base, id: `sim_${Date.now()}` };
 }

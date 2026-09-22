@@ -55,6 +55,11 @@ export function FlashcardsTab() {
   const [importOpen, setImportOpen] = useState(false);
   const [ocrImagePreview, setOcrImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // P2: отложенный переход следующей карточки — с очисткой при unmount
+  const nextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+  }, []);
 
   // SR review state
   const [srReviewCards, setSrReviewCards] = useState<Flashcard[]>([]);
@@ -282,7 +287,9 @@ export function FlashcardsTab() {
       reviewCard(card.id, 0); // Again
     }
 
-    setTimeout(() => handleNext(), 300);
+    // P2: таймер с cleanup — без него setState после unmount (React warning)
+    if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+    nextTimerRef.current = setTimeout(() => handleNext(), 300);
   };
 
   const finishQuiz = () => {

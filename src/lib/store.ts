@@ -185,7 +185,11 @@ export const useStore = create<VetLearnStore>()(
         })),
       addXP: (amount) =>
         set((state) => {
-          const newXP = state.profile.xp + amount;
+          // Центральный кламп: отрицательный/дробный/гигантский XP не проходит
+          // (даже если какой-то UI-поток окажется скомпрометирован)
+          const safeAmount = Math.max(0, Math.min(1000, Math.round(Number(amount) || 0)));
+          if (safeAmount === 0) return state;
+          const newXP = state.profile.xp + safeAmount;
           const level = Math.floor(newXP / 100) + 1;
           const xpToNext = (level) * 100 - newXP;
           return {
@@ -495,6 +499,27 @@ export const useStore = create<VetLearnStore>()(
     {
       name: 'vetlearn-storage',
       version: 6,
+      // Persist только доменные данные: транзиент UI (activeTab, currentCase,
+      // tutorMessages, is*-флаги) не должен писаться в localStorage и восстанавливаться
+      // после перезагрузки в «залипшем» состоянии.
+      partialize: (state) => ({
+        profile: state.profile,
+        assessmentHistory: state.assessmentHistory,
+        caseHistory: state.caseHistory,
+        bookmarkedResources: state.bookmarkedResources,
+        flashcards: state.flashcards,
+        flashcardHistory: state.flashcardHistory,
+        srCards: state.srCards,
+        notificationPermission: state.notificationPermission,
+        notificationsEnabled: state.notificationsEnabled,
+        lastReminderDate: state.lastReminderDate,
+        simulatorHistory: state.simulatorHistory,
+        completedSimulations: state.completedSimulations,
+        importedDocuments: state.importedDocuments,
+        osceHistory: state.osceHistory,
+        osceSkillMap: state.osceSkillMap,
+        completedChallenges: state.completedChallenges,
+      }),
       migrate: (persistedState: unknown, version: number) => {
         const s = (persistedState as Record<string, unknown>) || {};
         const profile = (s.profile as StudentProfile) || DEFAULT_PROFILE;

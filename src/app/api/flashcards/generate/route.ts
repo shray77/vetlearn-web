@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
+import { parseBody, clampedInt, optionalLimitedString } from '@/lib/api-validation';
 
 const SYSTEM_PROMPT = `Ты — опытный профессор ветеринарной медицины, создающий обучающие карточки для студентов. ALL text in your response MUST be in Russian only.
 
@@ -96,16 +98,16 @@ function getFallbackFlashcards(topic: string): Flashcard[] {
 
 export async function POST(req: NextRequest) {
   try {
-    const { topic, subtopic, count = 10 } = await req.json();
-
-    if (!topic || typeof topic !== 'string') {
-      return NextResponse.json(
-        { error: 'Укажите тему для генерации карточек' },
-        { status: 400 }
-      );
-    }
-
-    const cardCount = Math.min(Math.max(count, 3), 20);
+    // Zod-валидация (P2): topic/subtopic раньше были безлимитными строками в промпте,
+    // а count "abc" давал NaN-промпт («Создай NaN карточек») вместо 400.
+    const Body = z.object({
+      topic: z.string().trim().min(1).max(300),
+      subtopic: optionalLimitedString(300),
+      count: clampedInt(3, 20, 10),
+    });
+    const parsedInput = await parseBody(req, Body);
+    if (!parsedInput.ok) return parsedInput.response;
+    const { topic, subtopic, count: cardCount } = parsedInput.data;
 
     const zai = await getZAI();
 

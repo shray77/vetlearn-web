@@ -95,11 +95,19 @@ function pickFrom<T>(arr: T[], seed: number): T {
   return arr[seed % arr.length]!;
 }
 
+// Локальная дата YYYY-MM-DD (не UTC — иначе после 21:00 UTC+3 «сегодня» разъезжается с seed)
+function localDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 /**
  * Generate today's challenge. Optionally biased by the user's track (emphasized topics).
  */
 export function getTodayChallenge(now: Date = new Date(), track?: SpecializationTrack): DailyChallenge {
-  const dateStr = now.toISOString().split('T')[0]!;
+  const dateStr = localDateKey(now);
   const seed = seedFromDate(now);
 
   const trackDef = getTrackDefinition(track);

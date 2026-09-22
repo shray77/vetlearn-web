@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { getTrackPromptContext } from '@/lib/tracks';
+import { parseBody, optionalLimitedString } from '@/lib/api-validation';
 import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — AI-репетитор по ветеринарной медицине. Ты помогаешь студентам ветеринарных вузов понять сложные темы.
@@ -21,24 +23,22 @@ const SYSTEM_PROMPT = `Ты — AI-репетитор по ветеринарн�
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, topic, context, history = [], track } = await req.json();
+    // Zod-валидация (P2): раньше context и history не имели лимитов —
+    // мегабайты свободно уезжали в промпт. Теперь всё лимитировано.
+    const Body = z.object({
+      message: z.string().trim().min(1).max(50 * 1024),
+      topic: optionalLimitedString(200),
+      context: optionalLimitedString(20 * 1024),
+      track: optionalLimitedString(50),
+      history: z.array(z.object({
+        role: z.string().max(20).catch('user'),
+        content: z.string().max(10 * 1024).catch(''),
+      })).max(30).catch([]),
+    });
+    const parsed = await parseBody(req, Body);
+    if (!parsed.ok) return parsed.response;
+    const { message, topic, context, history, track } = parsed.data;
     const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
-
-    if (!message) {
-      return NextResponse.json(
-        { error: 'Укажите сообщение' },
-        { status: 400 }
-      );
-    }
-
-    // --- Payload size validation ---
-    const MAX_MESSAGE_SIZE = 50 * 1024; // 50 KB
-    if (message.length > MAX_MESSAGE_SIZE) {
-      return NextResponse.json(
-        { error: 'Сообщение слишком длинное (максимум 50 КБ)' },
-        { status: 413 }
-      );
-    }
 
     const zai = await getZAI();
 
@@ -50,10 +50,11 @@ export async function POST(req: NextRequest) {
       .join('. ');
 
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT + (trackContext ? '\n\nКОНТЕКСТ СПЕЦИАЛИЗАЦИИ СТУДЕНТА:\n' + trackContext : '') },
+      { role: 'system' as const, content: SYSTEM_PROMPT + (trackContext ? '\n\nКОНТЕКСТ СПЕЦИАЛИЗАЦИИ СТУДЕНТА:\n' + trackContext : '') },
       ...(contextInfo ? [{ role: 'user' as const, content: `Контекст для следующих сообщений: ${contextInfo}` }, { role: 'assistant' as const, content: 'Понял, я учту этот контекст.' }] : []),
-      ...history.slice(-10).map((h: { role: string; content: string }) => ({
-        role: h.role as 'user' | 'assistant',
+      ...history.slice(-10).map((h) => ({
+        // Anti-injection: клиент не может прокинуть role:'system' поверх системного промпта
+        role: h.role === 'assistant' ? ('assistant' as const) : ('user' as const),
         content: h.content,
       })),
       { role: 'user' as const, content: message },

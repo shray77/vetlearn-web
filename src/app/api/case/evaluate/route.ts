@@ -125,9 +125,21 @@ export async function POST(req: NextRequest) {
   try {
     const { case: clinicalCase, answers } = await req.json();
 
-    if (!clinicalCase || !answers) {
+    if (!clinicalCase || typeof clinicalCase !== 'object' || !answers) {
       return NextResponse.json(
         { error: 'Укажите кейс и ответы' },
+        { status: 400 }
+      );
+    }
+    if (!Array.isArray(clinicalCase.questions) || clinicalCase.questions.length === 0) {
+      return NextResponse.json(
+        { error: 'Кейс не содержит вопросов' },
+        { status: 400 }
+      );
+    }
+    if (!Array.isArray(answers)) {
+      return NextResponse.json(
+        { error: 'Ответы должны быть массивом' },
         { status: 400 }
       );
     }
@@ -154,12 +166,16 @@ export async function POST(req: NextRequest) {
 Ответы студента:
 ${clinicalCase.questions
   .map(
-    (q: { question: string; options: string[]; correctIndex: number; explanation?: string }, i: number) =>
-      `Вопрос ${i + 1}: "${q.question}"
-Варианты: ${q.options.map((o: string, j: number) => `${['А', 'Б', 'В', 'Г'][j]}) ${o}`).join('; ')}
-Ответ студента: ${['А', 'Б', 'В', 'Г'][answers[i]]} - "${q.options[answers[i]] || 'Не ответил'}"
-Правильный ответ: ${['А', 'Б', 'В', 'Г'][q.correctIndex]} - "${q.options[q.correctIndex]}"
-${q.explanation ? `Объяснение из кейса: "${q.explanation}"` : ''}`
+    (q: { question: string; options: string[]; correctIndex: number; explanation?: string }, i: number) => {
+      const LETTERS = ['А', 'Б', 'В', 'Г'];
+      const ai = typeof answers[i] === 'number' && answers[i] >= 0 && answers[i] < LETTERS.length ? answers[i] : -1;
+      const ci = typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < LETTERS.length ? q.correctIndex : -1;
+      return `Вопрос ${i + 1}: "${q.question}"
+Варианты: ${(Array.isArray(q.options) ? q.options : []).map((o: string, j: number) => `${LETTERS[j] || '?'}${j}) ${o}`).join('; ')}
+Ответ студента: ${LETTERS[ai] || '—'} - "${ai >= 0 ? q.options?.[ai] || 'Не ответил' : 'Не ответил'}"
+Правильный ответ: ${LETTERS[ci] || '—'} - "${ci >= 0 ? q.options?.[ci] || '—' : '—'}"
+${q.explanation ? `Объяснение из кейса: "${q.explanation}"` : ''}`;
+    }
   )
   .join('\n\n---\n\n')}
 

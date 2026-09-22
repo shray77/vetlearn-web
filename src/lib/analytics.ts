@@ -78,7 +78,15 @@ export interface AnalyticsInsight {
 function dateNDaysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0]!;
+  return localDateKey(d);
+}
+
+// Локальная дата YYYY-MM-DD (UTC через toISOString сдвигал день для UTC+)
+function localDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function bucketHour(hour: number): TimeOfDayStat['hourBucket'] {
@@ -100,7 +108,6 @@ const HOUR_LABELS: Record<TimeOfDayStat['hourBucket'], string> = {
  */
 function buildTopicTrends(
   assessmentHistory: AssessmentResult[],
-  caseHistory: ClinicalCase[],
   skillMap: Record<string, number>,
   days: number = 14
 ): TopicTrend[] {
@@ -111,8 +118,9 @@ function buildTopicTrends(
   const dailyStats: Record<string, Record<string, { correct: number; total: number }>> = {};
 
   for (const a of assessmentHistory) {
-    if (a.completedAt < cutoff) continue;
-    const date = a.completedAt.split('T')[0]!;
+    const entryDate = localDateKey(new Date(a.completedAt));
+    if (entryDate < cutoff) continue;
+    const date = entryDate;
     if (!dailyStats[date]) dailyStats[date] = {};
     for (let i = 0; i < a.questions.length; i++) {
       const q = a.questions[i]!;
@@ -127,24 +135,8 @@ function buildTopicTrends(
     }
   }
 
-  for (const c of caseHistory) {
-    if (c.createdAt < cutoff) continue;
-    const date = c.createdAt.split('T')[0]!;
-    if (!dailyStats[date]) dailyStats[date] = {};
-    for (let i = 0; i < c.questions.length; i++) {
-      const q = c.questions[i]!;
-      const topicId = c.topic || 'general';
-      topicNames[topicId] = c.topic || topicId;
-      if (!dailyStats[date]![topicId]) {
-        dailyStats[date]![topicId] = { correct: 0, total: 0 };
-      }
-      dailyStats[date]![topicId]!.total++;
-      if (q.correctIndex === q.correctIndex) {
-        // For cases we don't track per-question answers in the slim history,
-        // so we skip — only assessment contributes to per-day accuracy
-      }
-    }
-  }
+  // Кейсы НЕ включаем: в slim-истории нет ответов студента — только количество
+  // вопросов. Учёт их в total без correct занижал точность до фиктивных 0%.
 
   // Build trend per topic
   const topicsWithDates = new Set<string>();
@@ -204,11 +196,12 @@ function buildTopicTrends(
 }
 
 /**
- * Aggregate stats by question type from assessment + case history.
+ * Aggregate stats by question type from assessment history.
+ * Кейсы не включаем: в slim-истории нет ответов — иначе все типы показывали
+ * фиктивные 0% и генерировали ложные «слабые места».
  */
 function buildQuestionTypeStats(
-  assessmentHistory: AssessmentResult[],
-  caseHistory: ClinicalCase[]
+  assessmentHistory: AssessmentResult[]
 ): QuestionTypeStat[] {
   const map: Record<string, { total: number; correct: number }> = {};
 
@@ -219,16 +212,6 @@ function buildQuestionTypeStats(
       if (!map[type]) map[type] = { total: 0, correct: 0 };
       map[type]!.total++;
       if (a.answers[i] === q.correctIndex) map[type]!.correct++;
-    }
-  }
-
-  for (const c of caseHistory) {
-    for (let i = 0; i < c.questions.length; i++) {
-      const q = c.questions[i]!;
-      const type = q.type; // 'diagnosis' | 'treatment' | etc.
-      if (!map[type]) map[type] = { total: 0, correct: 0 };
-      map[type]!.total++;
-      // Cases don't track per-question answers in slim history — skip
     }
   }
 
@@ -243,12 +226,33 @@ function buildQuestionTypeStats(
   }).sort((a, b) => a.accuracy - b.accuracy);
 }
 
-function buildSpeciesStats(caseHistory: ClinicalCase[]): SpeciesStat[] {
+/**
+ * Species stats из истории симулятора (там есть и вид, и итоговый балл).
+ * Старый вариант считал по кейсам, где correct всегда 0 → фиктивные 0%.
+ */
+function buildSpeciesStats(
+  caseHistory: ClinicalCase[],
+  simulatorHistory: SimulatorHistoryEntry[]
+): SpeciesStat[] {
   const map: Record<string, { total: number; correct: number }> = {};
-  for (const c of caseHistory) {
-    if (!map[c.species]) map[c.species] = { total: 0, correct: 0 };
-    map[c.species]!.total++;
-    // Cases don't track per-case correct in slim history — set to 0 for now
+  for (const s of simulatorHistory) {
+    if (!s.species) continue;
+    if (!map[s.species]) map[s.species] = { total: 0, correct: 0 };
+    map[s.species]!.total++;
+    if ((s.score ?? 0) >= 60) map[s.species]!.correct++;
+  }
+  // Кейсы добавляем только в total (без correct), если по ним вообще нет данных из симулятора
+  if (Object.keys(map).length === 0) {
+    for (const c of caseHistory) {
+      if (!map[c.species]) map[c.species] = { total: 0, correct: 0 };
+      map[c.species]!.total++;
+    }
+    return Object.entries(map).map(([species, s]) => ({
+      species,
+      total: s.total,
+      correct: -1, // -1 = нет данных о правильности — UI покажет только количество
+      accuracy: -1,
+    })).sort((a, b) => b.total - a.total);
   }
   return Object.entries(map).map(([species, s]) => ({
     species,
@@ -260,7 +264,6 @@ function buildSpeciesStats(caseHistory: ClinicalCase[]): SpeciesStat[] {
 
 function buildTimeOfDayStats(
   assessmentHistory: AssessmentResult[],
-  caseHistory: ClinicalCase[],
   osceHistory: OSCEResult[]
 ): TimeOfDayStat[] {
   const map: Record<TimeOfDayStat['hourBucket'], { total: number; correct: number }> = {
@@ -281,10 +284,7 @@ function buildTimeOfDayStats(
     map[bucket]!.correct += correct;
   }
 
-  for (const c of caseHistory) {
-    const hour = new Date(c.createdAt).getHours();
-    map[bucketHour(hour)]!.total += c.questions.length;
-  }
+  // Кейсы не учитываем: в slim-истории нет ответов — они бы разбавляли accuracy нулями
 
   for (const o of osceHistory) {
     const hour = new Date(o.completedAt).getHours();
@@ -327,10 +327,10 @@ export function computeAnalytics(
   osceHistory: OSCEResult[],
   simulatorHistory: SimulatorHistoryEntry[]
 ): AnalyticsInsight {
-  const topicTrends = buildTopicTrends(assessmentHistory, caseHistory, profile.skillMap);
-  const questionTypeStats = buildQuestionTypeStats(assessmentHistory, caseHistory);
-  const speciesStats = buildSpeciesStats(caseHistory);
-  const timeOfDayStats = buildTimeOfDayStats(assessmentHistory, caseHistory, osceHistory);
+  const topicTrends = buildTopicTrends(assessmentHistory, profile.skillMap);
+  const questionTypeStats = buildQuestionTypeStats(assessmentHistory);
+  const speciesStats = buildSpeciesStats(caseHistory, simulatorHistory);
+  const timeOfDayStats = buildTimeOfDayStats(assessmentHistory, osceHistory);
   const { longest: longestCorrectStreak, current: currentCorrectStreak } = computeStreaks(assessmentHistory);
 
   // Urgent topic: lowest mastery + at least 3 attempts

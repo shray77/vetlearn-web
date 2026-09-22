@@ -64,6 +64,8 @@ export function OSCEStationRunner({ station, onExit }: Props) {
         answers,
         scores: data.scores,
         feedback: data.feedback,
+        // Эталоны приходят с сервера только после проверки (P2-фикс утечки)
+        referenceAnswers: Array.isArray(data.referenceAnswers) ? data.referenceAnswers : undefined,
         totalScore: data.totalScore,
         durationSec,
         completedAt: new Date().toISOString(),
@@ -160,7 +162,12 @@ export function OSCEStationRunner({ station, onExit }: Props) {
               if (parent) {
                 parent.classList.add('flex', 'items-center', 'justify-center');
                 parent.style.backgroundColor = `${info.color}10`;
-                parent.innerHTML = `<div class="text-6xl">${info.icon}</div>`;
+                // Без innerHTML: строим узел через DOM API (React владеет этим контейнером,
+                // а textContent не исполняет разметку)
+                const fallback = document.createElement('div');
+                fallback.className = 'text-6xl';
+                fallback.textContent = info.icon;
+                parent.replaceChildren(fallback);
               }
             }}
           />
@@ -264,8 +271,10 @@ export function OSCEStationRunner({ station, onExit }: Props) {
 
           {/* Per-question feedback */}
           {station.questions.map((q, i) => {
-            const score = result.scores[i];
-            const fb = result.feedback[i];
+            // Сервер может прислать меньше scores/feedback/answers, чем вопросов — не роняем рендер NaN/undefined
+            const score = result.scores[i] ?? 0;
+            const fb = result.feedback[i] ?? 'Обратная связь недоступна.';
+            const answer = result.answers?.[i] ?? '—';
             return (
               <Card key={q.id} className="border-0 shadow-sm">
                 <CardContent className="p-3 space-y-2">
@@ -283,14 +292,14 @@ export function OSCEStationRunner({ station, onExit }: Props) {
                         <Badge variant="secondary" className="text-[10px] shrink-0">{score}/10</Badge>
                       </div>
                       <p className="text-[11px] text-muted-foreground mb-1">
-                        <span className="font-medium">Ваш ответ:</span> {result.answers[i].slice(0, 150)}
-                        {result.answers[i].length > 150 && '...'}
+                        <span className="font-medium">Ваш ответ:</span> {String(answer).slice(0, 150)}
+                        {String(answer).length > 150 && '...'}
                       </p>
                       <p className="text-[11px] italic">
                         <span className="font-medium not-italic">AI:</span> {fb}
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1 p-1.5 rounded bg-muted/50">
-                        <span className="font-medium">Эталон:</span> {station.referenceAnswers[i]}
+                        <span className="font-medium">Эталон:</span> {result.referenceAnswers?.[i] || station.referenceAnswers?.[i] || 'Эталон недоступен'}
                       </p>
                     </div>
                   </div>

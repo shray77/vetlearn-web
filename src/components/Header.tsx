@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { useStore } from '@/lib/store';
@@ -40,6 +40,11 @@ export function Header() {
   const importFileRef = useRef<HTMLInputElement>(null);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // P2: таймер reload после импорта — с очисткой при unmount
+  const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+  }, []);
 
   const track = getTrackDefinition(profile.specializationTrack);
 
@@ -67,7 +72,10 @@ export function Header() {
       const stateSlice = payload.state as Partial<VetLearnStore>;
       useStore.setState(stateSlice as Partial<VetLearnStore>, false);
       toast.success('Прогресс импортирован. Перезагрузите страницу для применения.');
-      setTimeout(() => window.location.reload(), 1500);
+      // P2: таймер перезагрузки с очисткой при unmount — без него reload
+      // срабатывал даже если компонент уже размонтирован (переключение таба).
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+      reloadTimerRef.current = setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       toast.error((err as Error).message || 'Не удалось импортировать');
     }

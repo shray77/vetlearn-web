@@ -16,14 +16,32 @@ interface AnimalSVGProps {
 
 // Map species to image filenames
 const SPECIES_IMAGES: Record<string, string> = {
-  'собаки': '/simulator-animals/dog.png',
-  'кошки': '/simulator-animals/cat.png',
-  'КРС': '/simulator-animals/cow.png',
-  'свиньи': '/simulator-animals/pig.png',
-  'МРС': '/simulator-animals/sheep.png',
-  'лошади': '/simulator-animals/horse.png',
-  'птица': '/simulator-animals/bird.png',
+  'собаки': '/simulator-animals/dog.jpg',
+  'кошки': '/simulator-animals/cat.jpg',
+  'КРС': '/simulator-animals/cow.jpg',
+  'свиньи': '/simulator-animals/pig.jpg',
+  'МРС': '/simulator-animals/sheep.jpg',
+  'лошади': '/simulator-animals/horse.jpg',
+  'птица': '/simulator-animals/bird.jpg',
 };
+
+// Синонимы видов (AI/клиент могут прислать варианты) → канонические ключи SPECIES_IMAGES
+const SPECIES_ALIASES: Record<string, string> = {
+  'собака': 'собаки', 'собак': 'собаки', 'пес': 'собаки', 'пёс': 'собаки', 'псовые': 'собаки', 'dog': 'собаки',
+  'кошка': 'кошки', 'кошек': 'кошки', 'кот': 'кошки', 'котики': 'кошки', 'кошачьи': 'кошки', 'cat': 'кошки',
+  'крс': 'КРС', 'корова': 'КРС', 'коровы': 'КРС', 'бык': 'КРС', 'крупный рогатый скот': 'КРС', 'крупные': 'КРС', 'cow': 'КРС', 'cattle': 'КРС',
+  'мрс': 'МРС', 'овца': 'МРС', 'овцы': 'МРС', 'овцы и козы': 'МРС', 'баран': 'МРС', 'коза': 'МРС', 'мелкий рогатый скот': 'МРС', 'sheep': 'МРС',
+  'свинья': 'свиньи', 'свиней': 'свиньи', 'свиноматка': 'свиньи', 'хряк': 'свиньи', 'поросята': 'свиньи', 'pig': 'свиньи',
+  'лошадь': 'лошади', 'конь': 'лошади', 'коньи': 'лошади', 'кобыла': 'лошади', 'жеребец': 'лошади', 'horse': 'лошади',
+  'птицы': 'птица', 'курица': 'птица', 'куры': 'птица', 'несушки': 'птица', 'куриные': 'птица', 'пернатые': 'птица', 'bird': 'птица', 'poultry': 'птица',
+};
+
+// Нормализация строки вида к каноническому ключу (или null если не распознано)
+function normalizeSpecies(raw: string): string | null {
+  const key = raw.trim().toLowerCase();
+  if (SPECIES_IMAGES[raw.trim()]) return raw.trim();
+  return SPECIES_ALIASES[key] ?? null;
+}
 
 // Zone definitions: percentage-based for responsive overlay
 // Each zone defined as % of the animal image container
@@ -64,7 +82,7 @@ const BIRD_ZONES: ZoneDef[] = [
 ];
 
 function getZones(species: string): ZoneDef[] {
-  return species === 'птица' ? BIRD_ZONES : QUADRUPOD_ZONES;
+  return normalizeSpecies(species) === 'птица' ? BIRD_ZONES : QUADRUPOD_ZONES;
 }
 
 function getRegionStyle(
@@ -163,7 +181,8 @@ function HoverLabel({
   );
 }
 
-export function AnimalSVG({
+// React.memo: избегаем лишних ре-рендеров картинки и 8 зон при ре-рендере родителя
+export const AnimalSVG = React.memo(function AnimalSVG({
   species,
   onRegionClick,
   selectedRegion,
@@ -177,7 +196,9 @@ export function AnimalSVG({
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const zones = useMemo(() => getZones(species), [species]);
-  const imagePath = SPECIES_IMAGES[species] || SPECIES_IMAGES['собаки'];
+  // Нормализуем вид: без этого «Корова»/«коровы» молча показывали dog.png
+  const normalizedSpecies = normalizeSpecies(species) || 'собаки';
+  const imagePath = SPECIES_IMAGES[normalizedSpecies] || SPECIES_IMAGES['собаки'];
 
   const handleClick = useCallback((region: BodyRegion) => {
     if (!disabled) onRegionClick(region);
@@ -185,17 +206,17 @@ export function AnimalSVG({
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* Animal image container */}
+      {/* Animal image container — квадрат (изображения 1024×1024): иначе object-contain
+          создаёт поля, а процентные hit-зоны смещаются относительно тела животного */}
       <div
-        className={`relative w-full rounded-2xl overflow-hidden bg-muted/30 select-none ${disabled ? 'opacity-60 pointer-events-none' : ''}`}
-        style={{ aspectRatio: '4 / 3' }}
+        className={`relative w-full aspect-square rounded-2xl overflow-hidden bg-muted/30 select-none ${disabled ? 'opacity-60 pointer-events-none' : ''}`}
       >
         {/* AI-generated image */}
         {!imgError ? (
           <img
             src={imagePath}
-            alt={`${species} - ветеринарный пациент`}
-            className="w-full h-full object-contain transition-opacity duration-500"
+            alt={`${normalizedSpecies} — ветеринарный пациент`}
+            className="w-full h-full object-cover transition-opacity duration-500"
             style={{ opacity: imgLoaded ? 1 : 0 }}
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgError(true)}
@@ -208,7 +229,7 @@ export function AnimalSVG({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-2 opacity-40">
-                {species === 'собаки' ? '🐕' : species === 'кошки' ? '🐈' : species === 'КРС' ? '🐄' : species === 'свиньи' ? '🐷' : species === 'МРС' ? '🐑' : species === 'лошади' ? '🐴' : '🐔'}
+                {normalizedSpecies === 'собаки' ? '🐕' : normalizedSpecies === 'кошки' ? '🐈' : normalizedSpecies === 'КРС' ? '🐄' : normalizedSpecies === 'свиньи' ? '🐷' : normalizedSpecies === 'МРС' ? '🐑' : normalizedSpecies === 'лошади' ? '🐴' : '🐔'}
               </div>
               <p className="text-xs text-muted-foreground">{species}</p>
             </div>
@@ -231,11 +252,20 @@ export function AnimalSVG({
               return (
                 <div
                   key={zone.region}
-                  style={getRegionStyle(zone, isHov, false, isExam, isAbn)}
+                  style={getRegionStyle(zone, isHov, selectedRegion === zone.region, isExam, isAbn)}
                   onMouseEnter={() => !disabled && setHovered(zone.region)}
                   onMouseLeave={() => setHovered(null)}
                   onClick={() => handleClick(zone.region)}
-                  className="group"
+                  role="button"
+                  tabIndex={disabled ? -1 : 0}
+                  aria-label={`${BODY_REGION_LABELS[zone.region]} — исследовать`}
+                  onKeyDown={(e) => {
+                    if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      handleClick(zone.region);
+                    }
+                  }}
+                  className="group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#007AFF]"
                 >
                   {/* Hover label */}
                   {isHov && <HoverLabel zone={zone} />}
@@ -275,4 +305,4 @@ export function AnimalSVG({
       )}
     </div>
   );
-}
+});

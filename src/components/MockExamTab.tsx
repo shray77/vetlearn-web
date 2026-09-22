@@ -258,6 +258,11 @@ export function MockExamTab() {
           }
           setQuestionRecords(updatedRecords);
 
+          // Follow-up завершает текущий вопрос — счётчик должен расти и на этом пути
+          // (раньше прогресс висел, а экзамен мог идти дольше questionCount)
+          const newAnswered = answeredCount + 1;
+          setAnsweredCount(newAnswered);
+
           if (data.nextQuestion) {
             setQuestionHistory(history);
             setCurrentQuestion(data.nextQuestion);
@@ -267,6 +272,30 @@ export function MockExamTab() {
             setShowHints(false);
           } else if (data.examComplete && data.results) {
             finishExam(data.results, updatedRecords);
+          } else if (newAnswered >= questionCount) {
+            // Страховка: сервер не прислал ни вопрос, ни результаты — завершаем принудительно
+            const forcedResults: ExamResults = {
+              overallScore: Math.min(100, Math.round(
+                updatedRecords.reduce((sum, r) => sum + r.feedback.score, 0) / Math.max(1, updatedRecords.length) * 10
+              )),
+              grade: '',
+              summary: 'Экзамен завершён.',
+              strengths: [],
+              weaknesses: [],
+              recommendations: [],
+            };
+            if (forcedResults.overallScore >= 90) forcedResults.grade = 'Отлично';
+            else if (forcedResults.overallScore >= 75) forcedResults.grade = 'Хорошо';
+            else if (forcedResults.overallScore >= 60) forcedResults.grade = 'Удовлетворительно';
+            else forcedResults.grade = 'Неудовлетворительно';
+            finishExam(forcedResults, updatedRecords);
+          } else {
+            // Сервер не прислал следующий вопрос, но лимит не достигнут — просто ждём
+            setQuestionHistory(history);
+            setCurrentAnswer('');
+            setCurrentFollowUp(null);
+            setCurrentFollowUpAnswer('');
+            setShowHints(false);
           }
         } else {
           // Main answer — check for follow-up

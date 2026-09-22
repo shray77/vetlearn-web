@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 import { getTrackPromptContext } from '@/lib/tracks';
+import { parseBody, safeEnum, clampedInt, optionalLimitedString } from '@/lib/api-validation';
 import type { SpecializationTrack } from '@/lib/types';
 
 const SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины с 30-летним опытом преподавания. Ты создаёшь адаптивные тестовые вопросы для студентов ветеринарных вузов.
@@ -32,20 +34,26 @@ const SYSTEM_PROMPT = `Ты — профессор ветеринарной ме
 
 export async function POST(req: NextRequest) {
   try {
-    const { topics, difficulty = 'intermediate', count = 10, track } = await req.json();
+    // Zod-валидация (P2): count клампится 1..50 (раньше любой number/string уходил в промпт),
+    // темы — строго {id, name} с лимитами, difficulty — whitelist.
+    const Body = z.object({
+      topics: z.array(z.object({
+        id: z.string().max(100),
+        name: z.string().max(200),
+      })).min(1).max(20),
+      difficulty: safeEnum(['beginner', 'intermediate', 'advanced', 'expert'] as const, 'intermediate'),
+      count: clampedInt(1, 50, 10),
+      track: optionalLimitedString(50),
+    });
+    const parsed = await parseBody(req, Body);
+    if (!parsed.ok) return parsed.response;
+    const { topics: validTopics, difficulty, count, track } = parsed.data;
     const trackContext = getTrackPromptContext(track as SpecializationTrack | undefined);
-
-    if (!topics || !Array.isArray(topics) || topics.length === 0) {
-      return NextResponse.json(
-        { error: 'Укажите хотя бы одну тему для тестирования' },
-        { status: 400 }
-      );
-    }
 
     const zai = await getZAI();
 
-    const topicList = topics
-      .map((t: { id: string; name: string }) => `${t.name} (${t.id})`)
+    const topicList = validTopics
+      .map((t) => `${t.name} (${t.id})`)
       .join(', ');
 
     const difficultyMap: Record<string, string> = {

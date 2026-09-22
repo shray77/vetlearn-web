@@ -42,6 +42,8 @@ export interface SimulatorScenario {
   diagnosisOptions: string[];
   treatmentPlan: string;
   treatmentOptions: string[];
+  // Строка правильного лечения (фиксируется до шаффла вариантов, чтобы оценка не зависела от позиции)
+  correctTreatment?: string;
   findings: ExaminationFinding[];
   availableTests: LabTest[];
   budget: number;
