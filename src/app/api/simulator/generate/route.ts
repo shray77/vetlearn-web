@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
 import { FALLBACK_SCENARIOS, getFallbackScenario, type SimulatorScenario } from '@/lib/fallback-scenarios';
+import { rememberScenario, sanitizeScenario } from '@/lib/simulator-session-store';
 import { getTrackPromptContext } from '@/lib/tracks';
 import type { SpecializationTrack } from '@/lib/types';
 
@@ -151,6 +152,16 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
 
 // Fallback scenarios extracted to @/lib/fallback-scenarios.ts for faster cold start
 
+// Единая точка возврата: канон запоминается на сервере, клиент получает копию без ответов
+function respondWithScenario(scenario: SimulatorScenario, isFallback: boolean): NextResponse {
+  rememberScenario(scenario);
+  return NextResponse.json({
+    success: true,
+    scenario: sanitizeScenario(scenario),
+    isFallback,
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -196,8 +207,7 @@ export async function POST(req: NextRequest) {
 
     if (!responseText) {
       console.error('[simulator/generate] Empty response from AI');
-      const fallback = getFallbackScenario();
-      return NextResponse.json({ success: true, scenario: fallback, isFallback: true });
+      return respondWithScenario(getFallbackScenario(), true);
     }
 
     // --- Multi-strategy JSON extraction ---
@@ -206,29 +216,23 @@ export async function POST(req: NextRequest) {
     if (parsed === null) {
       console.error('[simulator/generate] All JSON parsing strategies failed. Raw response:');
       console.error('[simulator/generate] RAW RESPONSE TEXT:', responseText.substring(0, 1000));
-      const fallback = getFallbackScenario();
-      return NextResponse.json({ success: true, scenario: fallback, isFallback: true });
+      return respondWithScenario(getFallbackScenario(), true);
     }
 
     // --- Validate structure ---
     const validated = validateAndFixScenario(parsed);
     if (validated === null) {
       console.error('[simulator/generate] Structure validation failed for parsed JSON. Using fallback.');
-      const fallback = getFallbackScenario();
-      return NextResponse.json({ success: true, scenario: fallback, isFallback: true });
+      return respondWithScenario(getFallbackScenario(), true);
     }
 
-    return NextResponse.json({
-      success: true,
-      scenario: validated,
-    });
+    return respondWithScenario(validated, false);
   } catch (error) {
     console.error('[simulator/generate] Unexpected error:', error);
     // Consistency: any server error falls back to a playable offline scenario
     // instead of a dead 500 — the client already handles isFallback.
     try {
-      const fallback = getFallbackScenario();
-      return NextResponse.json({ success: true, scenario: fallback, isFallback: true });
+      return respondWithScenario(getFallbackScenario(), true);
     } catch {
       return NextResponse.json(
         { error: 'Ошибка при генерации сценария' },

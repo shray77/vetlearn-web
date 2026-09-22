@@ -23,10 +23,14 @@ import { toast } from 'sonner';
 type Phase = 'placement_intro' | 'placement_quiz' | 'placement_results' | 'adaptive_select' | 'adaptive_quiz' | 'adaptive_results';
 
 export function AdaptiveLearningTab() {
-  const {
-    profile, updateSkillMap, updateLearningPath, addXP,
-    addAssessmentToHistory, updateProfile, savePlacementResult,
-  } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const updateSkillMap = useStore((s) => s.updateSkillMap);
+  const updateLearningPath = useStore((s) => s.updateLearningPath);
+  const addXP = useStore((s) => s.addXP);
+  const addAssessmentToHistory = useStore((s) => s.addAssessmentToHistory);
+  const updateProfile = useStore((s) => s.updateProfile);
+  const savePlacementResult = useStore((s) => s.savePlacementResult);
 
   const [phase, setPhase] = useState<Phase>(
     profile.placementCompleted ? 'adaptive_select' : 'placement_intro'

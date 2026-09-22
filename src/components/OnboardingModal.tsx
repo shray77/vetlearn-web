@@ -10,7 +10,9 @@ import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function OnboardingModal() {
-  const { profile, setSpecializationTrack } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const setSpecializationTrack = useStore((s) => s.setSpecializationTrack);
   const [selected, setSelected] = useState<SpecializationTrack | null>(null);
   const [open, setOpen] = useState(!profile.specializationTrack);
 

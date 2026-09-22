@@ -19,7 +19,13 @@ function useHydrated() {
 }
 
 export function AdminPanel({ onClose }: { onClose: () => void }) {
-  const { profile, updateProfile, addXP, updateSkillMap, setSkillMap, clearAllData } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const updateProfile = useStore((s) => s.updateProfile);
+  const addXP = useStore((s) => s.addXP);
+  const updateSkillMap = useStore((s) => s.updateSkillMap);
+  const setSkillMap = useStore((s) => s.setSkillMap);
+  const clearAllData = useStore((s) => s.clearAllData);
   const [level, setLevel] = useState(profile.level);
   const [xpInput, setXpInput] = useState(String(profile.xp));
   const [streakInput, setStreakInput] = useState(String(profile.streak));

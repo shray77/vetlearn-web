@@ -83,7 +83,9 @@ function formatTime(seconds: number): string {
 // ==================== Component ====================
 
 export function MockExamTab() {
-  const { addXP, updateSkillMap } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const addXP = useStore((s) => s.addXP);
+  const updateSkillMap = useStore((s) => s.updateSkillMap);
 
   // View state
   const [view, setView] = useState<'setup' | 'exam' | 'results'>('setup');

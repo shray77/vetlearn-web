@@ -14,7 +14,12 @@ import {
 import { toast } from 'sonner';
 
 export function VoiceTutorTab() {
-  const { tutorMessages, addTutorMessage, clearTutorMessages, addXP, profile } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const tutorMessages = useStore((s) => s.tutorMessages);
+  const addTutorMessage = useStore((s) => s.addTutorMessage);
+  const clearTutorMessages = useStore((s) => s.clearTutorMessages);
+  const addXP = useStore((s) => s.addXP);
+  const profile = useStore((s) => s.profile);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);

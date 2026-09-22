@@ -5,15 +5,8 @@ import { motion } from 'framer-motion';
 import {
   BookOpen, Stethoscope, Mic, Lightbulb, PawPrint,
   Info, BarChart3, Layers, GraduationCap, Activity, Map, ScanLine, Microscope,
+  LayoutGrid,
 } from 'lucide-react';
-import {
-  PawPrint as PhPawPrint,
-  BookOpen as PhBookOpen,
-  Stethoscope as PhStethoscope,
-  Microphone as PhMicrophone,
-  SquaresFour as PhSquaresFour,
-  type IconWeight,
-} from '@phosphor-icons/react';
 import {
   Dialog,
   DialogContent,
@@ -29,12 +22,12 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 
-// ===== Phosphor icon mapping for main tab bar =====
-const MAIN_TAB_ICONS: Record<string, React.ComponentType<{ size?: number; weight?: IconWeight; color?: string; className?: string }>> = {
-  dashboard: PhPawPrint,
-  learning: PhBookOpen,
-  cases: PhStethoscope,
-  tutor: PhMicrophone,
+// ===== Lucide icon mapping for main tab bar (унификация иконок: только lucide) =====
+const MAIN_TAB_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  dashboard: PawPrint,
+  learning: BookOpen,
+  cases: Stethoscope,
+  tutor: Mic,
 };
 
 // ===== MAIN TABS (always visible in bottom bar) =====
@@ -184,10 +177,10 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
         <div className="max-w-4xl mx-auto flex items-center justify-around h-[52px] px-1">
-          {/* 4 main tabs — Phosphor duotone icons (SF Symbols-like) */}
+          {/* 4 main tabs — lucide icons */}
           {MAIN_TABS.map((item) => {
             const isActive = activeTab === item.id;
-            const PhIcon = MAIN_TAB_ICONS[item.id];
+            const Icon = MAIN_TAB_ICONS[item.id];
             return (
               <button
                 key={item.id}
@@ -199,10 +192,9 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                 }`}
               >
                 <div className="relative">
-                  {PhIcon && (
-                    <PhIcon
+                  {Icon && (
+                    <Icon
                       size={22}
-                      weight={isActive ? 'duotone' : 'regular'}
                       className={`transition-all duration-200 ${isActive ? 'scale-110' : ''}`}
                     />
                   )}
@@ -230,9 +222,8 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
             }`}
           >
             <div className="relative">
-              <PhSquaresFour
+              <LayoutGrid
                 size={22}
-                weight={isExtraTabActive ? 'duotone' : 'regular'}
                 className={`transition-all duration-200 ${isExtraTabActive ? 'scale-110' : ''}`}
               />
               {isExtraTabActive && (

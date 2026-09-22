@@ -23,9 +23,8 @@ import {
 } from '@/components/ui/sheet';
 import {
   Flame, Zap, Settings, Moon, Trash2, Bell, BellOff,
-  Download, Upload,
+  Download, Upload, PawPrint,
 } from 'lucide-react';
-import { PawPrint as PhPawPrint } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { TRACKS, getTrackDefinition } from '@/lib/tracks';
 import type { SpecializationTrack } from '@/lib/types';
@@ -34,7 +33,14 @@ import type { VetLearnStore } from '@/lib/store';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
-  const { profile, clearAllData, notificationsEnabled, setNotificationsEnabled, notificationPermission, setNotificationPermission, setSpecializationTrack } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const clearAllData = useStore((s) => s.clearAllData);
+  const notificationsEnabled = useStore((s) => s.notificationsEnabled);
+  const setNotificationsEnabled = useStore((s) => s.setNotificationsEnabled);
+  const notificationPermission = useStore((s) => s.notificationPermission);
+  const setNotificationPermission = useStore((s) => s.setNotificationPermission);
+  const setSpecializationTrack = useStore((s) => s.setSpecializationTrack);
   const [adminOpen, setAdminOpen] = useState(false);
   const [trackSheetOpen, setTrackSheetOpen] = useState(false);
   const importFileRef = useRef<HTMLInputElement>(null);
@@ -120,7 +126,7 @@ export function Header() {
       <div className="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2.5 touch-target" onClick={handleLogoTap}>
             <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#28CD41] to-[#1FA833] dark:from-[#30D158] dark:to-[#28CD41] flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
-              <PhPawPrint size={16} weight="fill" className="text-white" />
+              <PawPrint size={16} className="text-white" fill="currentColor" />
             </div>
             <div>
               <h1 className="text-[15px] font-bold leading-tight tracking-tight">VetLearn AI</h1>

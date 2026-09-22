@@ -16,7 +16,12 @@ import {
  * Pure client-side computation via computeAnalytics().
  */
 export function AnalyticsCard() {
-  const { profile, assessmentHistory, caseHistory, osceHistory, simulatorHistory } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const assessmentHistory = useStore((s) => s.assessmentHistory);
+  const caseHistory = useStore((s) => s.caseHistory);
+  const osceHistory = useStore((s) => s.osceHistory);
+  const simulatorHistory = useStore((s) => s.simulatorHistory);
 
   const insights = useMemo(
     () => computeAnalytics(profile, assessmentHistory, caseHistory, osceHistory, simulatorHistory),

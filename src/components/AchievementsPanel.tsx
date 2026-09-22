@@ -21,7 +21,12 @@ import {
  * D.7 — Achievements + Weekly League panel shown on Dashboard.
  */
 export function AchievementsPanel() {
-  const { profile, assessmentHistory, caseHistory, simulatorHistory, completedChallenges } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const assessmentHistory = useStore((s) => s.assessmentHistory);
+  const caseHistory = useStore((s) => s.caseHistory);
+  const simulatorHistory = useStore((s) => s.simulatorHistory);
+  const completedChallenges = useStore((s) => s.completedChallenges);
   const [showAll, setShowAll] = useState(false);
 
   const achievements = useMemo(

@@ -30,10 +30,16 @@ const SR_RATINGS: Array<{ rating: SRRating; label: string; color: string; bg: st
 ];
 
 export function FlashcardsTab() {
-  const {
-    flashcards, setFlashcards, flashcardHistory, addFlashcardDeckToHistory, addXP,
-    srCards, registerSRCards, reviewCard, reviewCards,
-  } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const flashcards = useStore((s) => s.flashcards);
+  const setFlashcards = useStore((s) => s.setFlashcards);
+  const flashcardHistory = useStore((s) => s.flashcardHistory);
+  const addFlashcardDeckToHistory = useStore((s) => s.addFlashcardDeckToHistory);
+  const addXP = useStore((s) => s.addXP);
+  const srCards = useStore((s) => s.srCards);
+  const registerSRCards = useStore((s) => s.registerSRCards);
+  const reviewCard = useStore((s) => s.reviewCard);
+  const reviewCards = useStore((s) => s.reviewCards);
 
   // Generation state
   const [selectedTopic, setSelectedTopic] = useState<string>('');

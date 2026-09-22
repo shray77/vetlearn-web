@@ -120,7 +120,8 @@ function countNodes(node: MindMapNode): number {
 
 // ===== Main MindMapTab =====
 export function MindMapTab() {
-  const { addXP } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const addXP = useStore((s) => s.addXP);
 
   const [selectedTopic, setSelectedTopic] = useState('');
   const [selectedSubtopic, setSelectedSubtopic] = useState('');

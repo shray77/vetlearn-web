@@ -23,7 +23,9 @@ interface Props {
 type Stage = 'answering' | 'submitting' | 'result';
 
 export function OSCEStationRunner({ station, onExit }: Props) {
-  const { addOSCEResult, addXP } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const addOSCEResult = useStore((s) => s.addOSCEResult);
+  const addXP = useStore((s) => s.addXP);
   const [stage, setStage] = useState<Stage>('answering');
   const [answers, setAnswers] = useState<string[]>(station.questions.map(() => ''));
   const [timeLeft, setTimeLeft] = useState(station.timeLimitSec);

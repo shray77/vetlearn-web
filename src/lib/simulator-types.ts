@@ -38,11 +38,13 @@ export interface SimulatorScenario {
   difficulty: string;
   topic: string;
   ownerComplaint: string;
-  correctDiagnosis: string;
+  // Правильные ответы НЕ приходят с сервера (анти-спойлер и анти-чит: /evaluate
+  // сверяет их с каноном в памяти сервера). Опциональны, чтобы случайный доступ
+  // из клиентского кода ловился компилятором.
+  correctDiagnosis?: string;
   diagnosisOptions: string[];
-  treatmentPlan: string;
+  treatmentPlan?: string;
   treatmentOptions: string[];
-  // Строка правильного лечения (фиксируется до шаффла вариантов, чтобы оценка не зависела от позиции)
   correctTreatment?: string;
   findings: ExaminationFinding[];
   availableTests: LabTest[];

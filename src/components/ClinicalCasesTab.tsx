@@ -17,7 +17,12 @@ import {
 import { toast } from 'sonner';
 
 export function ClinicalCasesTab() {
-  const { currentCase, setCurrentCase, addCaseToHistory, addXP, updateProfile } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const currentCase = useStore((s) => s.currentCase);
+  const setCurrentCase = useStore((s) => s.setCurrentCase);
+  const addCaseToHistory = useStore((s) => s.addCaseToHistory);
+  const addXP = useStore((s) => s.addXP);
+  const updateProfile = useStore((s) => s.updateProfile);
   const [selectedSpecies, setSelectedSpecies] = useState<SpeciesType>('собаки');
   const [selectedDifficulty, setDifficulty] = useState<DifficultyType>('intermediate');
   const [selectedTopic, setSelectedTopic] = useState<string>('');

@@ -41,7 +41,17 @@ function localDateKey(date: Date): string {
 // ==================== MAIN APP ====================
 
 export default function Home() {
-  const { activeTab, setActiveTab, updateStreak, srCards, flashcards, notificationsEnabled, notificationPermission, lastReminderDate, setLastReminderDate, profile } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const activeTab = useStore((s) => s.activeTab);
+  const setActiveTab = useStore((s) => s.setActiveTab);
+  const updateStreak = useStore((s) => s.updateStreak);
+  const srCards = useStore((s) => s.srCards);
+  const flashcards = useStore((s) => s.flashcards);
+  const notificationsEnabled = useStore((s) => s.notificationsEnabled);
+  const notificationPermission = useStore((s) => s.notificationPermission);
+  const lastReminderDate = useStore((s) => s.lastReminderDate);
+  const setLastReminderDate = useStore((s) => s.setLastReminderDate);
+  const profile = useStore((s) => s.profile);
   const mainRef = useRef<HTMLElement>(null);
 
   // FIX: Hydration guard — wait until zustand persist rehydrates from localStorage

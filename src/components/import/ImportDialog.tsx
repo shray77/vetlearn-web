@@ -20,7 +20,13 @@ interface ImportDialogProps {
 }
 
 export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
-  const { addImportedDocument, addFlashcardDeckToHistory, setFlashcards, registerSRCards, addXP, profile } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const addImportedDocument = useStore((s) => s.addImportedDocument);
+  const addFlashcardDeckToHistory = useStore((s) => s.addFlashcardDeckToHistory);
+  const setFlashcards = useStore((s) => s.setFlashcards);
+  const registerSRCards = useStore((s) => s.registerSRCards);
+  const addXP = useStore((s) => s.addXP);
+  const profile = useStore((s) => s.profile);
   const [stage, setStage] = useState<Stage>('input');
   const [rawText, setRawText] = useState('');
   const [filename, setFilename] = useState('');

@@ -18,7 +18,10 @@ import {
 import { toast } from 'sonner';
 
 export function OSCEListTab() {
-  const { profile, osceHistory, osceSkillMap } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const osceHistory = useStore((s) => s.osceHistory);
+  const osceSkillMap = useStore((s) => s.osceSkillMap);
   const [filterType, setFilterType] = useState<OSCEStationType | 'all'>('all');
   const [trackFilter, setTrackFilter] = useState(true);
   const [activeStation, setActiveStation] = useState<OSCEStation | null>(null);

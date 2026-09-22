@@ -27,7 +27,8 @@ function loadViewed(): Set<string> {
 }
 
 export function AtlasTab() {
-  const { addXP } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const addXP = useStore((s) => s.addXP);
   const [filterModality, setFilterModality] = useState<string>('all');
   const [activeEntry, setActiveEntry] = useState<AtlasEntry | null>(null);
   // XP за статью — один раз навсегда: раньше set жил в useState и умирал при выходе

@@ -15,7 +15,13 @@ import {
 import { toast } from 'sonner';
 
 export function ResourcesTab() {
-  const { profile, resources, setResources, bookmarkedResources, toggleBookmark, addXP } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const resources = useStore((s) => s.resources);
+  const setResources = useStore((s) => s.setResources);
+  const bookmarkedResources = useStore((s) => s.bookmarkedResources);
+  const toggleBookmark = useStore((s) => s.toggleBookmark);
+  const addXP = useStore((s) => s.addXP);
   const [isLoading, setIsLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>('all');
 

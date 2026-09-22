@@ -22,7 +22,16 @@ import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { AchievementsPanel } from '@/components/AchievementsPanel';
 
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
-  const { profile, assessmentHistory, caseHistory, addXP, updateStreak, srCards, flashcards, completedChallenges, markChallengeCompleted } = useStore();
+  // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
+  const profile = useStore((s) => s.profile);
+  const assessmentHistory = useStore((s) => s.assessmentHistory);
+  const caseHistory = useStore((s) => s.caseHistory);
+  const addXP = useStore((s) => s.addXP);
+  const updateStreak = useStore((s) => s.updateStreak);
+  const srCards = useStore((s) => s.srCards);
+  const flashcards = useStore((s) => s.flashcards);
+  const completedChallenges = useStore((s) => s.completedChallenges);
+  const markChallengeCompleted = useStore((s) => s.markChallengeCompleted);
 
   // Daily challenge
   const todayChallenge = useMemo(

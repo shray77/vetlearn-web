@@ -1,46 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getZAI } from '@/lib/zai';
 import { extractJSON } from '@/lib/json-utils';
+import { getCanonicalScenario } from '@/lib/simulator-session-store';
+import type { SimulatorScenario } from '@/lib/fallback-scenarios';
 
-const SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины, оценивающий работу студента в интерактивном симуляторе ветеринарной практики.
+// Скоринг ПОЛНОСТЬЮ детерминированный на сервере (анти-чит): клиент больше не
+// может поднять балл подстановкой «правильного диагноза» в payload. Роль AI —
+// только обучающие тексты, причём AI получает фактические цифры и пишет feedback,
+// согласованный с ними. Если AI недоступен — тексты генерируются локально.
 
-Студент осматривал животное, назначал анализы и должен был поставить диагноз и назначить лечение.
+const FEEDBACK_SYSTEM_PROMPT = `Ты — профессор ветеринарной медицины, дающий обратную связь студенту после симуляции клинического приёма.
 
-Оцени по 4 критериям:
-1. ПРАВИЛЬНОСТЬ ДИАГНОЗА (0-40 баллов): Совпадает ли с правильным диагнозом. Точный диагноз — 40, похожий — 20, неверный — 0.
-2. ПРАВИЛЬНОСТЬ ЛЕЧЕНИЯ (0-25 баллов): Адекватно ли подобрано лечение. Полностью верное — 25, частично — 15, неверное — 0.
-3. ПОЛНОТА ОБСЛЕДОВАНИЯ (0-20 баллов): Нашёл ли студент критические и важные находки. За каждую критическую находку — 5 баллов, за важную — 2 балла.
-4. ЭКОНОМНОСТЬ (0-15 баллов): Не потратил ли лишние деньги на ненужные анализы. Минимальные затраты при обнаружении всего — 15, умеренные — 10, избыточные — 5.
+Система уже рассчитала баллы по строгим критериям:
+1. ПРАВИЛЬНОСТЬ ДИАГНОЗА (0-40): точный диагноз — 40, иначе 0.
+2. ПРАВИЛЬНОСТЬ ЛЕЧЕНИЯ (0-25): верное — 25, иначе 0.
+3. ПОЛНОТА ОБСЛЕДОВАНИЯ (0-20): 5 баллов за каждую найденную критическую находку, 2 — за важную.
+4. ЭКОНОМНОСТЬ (0-15): 15 — минимум затрат при полном обследовании, 10 — умеренно, 5 — избыточно.
+
+Тебе будут переданы ФАКТИЧЕСКИЕ баллы студента и детали работы. Пиши обратную связь, согласованную с этими цифрами. НЕ выдумывай другие баллы и НЕ пересчитывай их.
 
 ФОРМАТ ОТВЕТА — строго JSON:
 {
-  "score": 85,
-  "diagnosisCorrect": true,
-  "treatmentCorrect": true,
-  "examinationScore": 18,
-  "economyScore": 12,
   "feedback": "Общая обратная связь в 2-3 предложениях...",
   "diagnosisFeedback": "Подробная обратная связь по диагнозу...",
   "treatmentFeedback": "Подробная обратная связь по лечению...",
   "examinationFeedback": "Подробная обратная связь по полноте обследования...",
-  "keyTakeaways": ["Главный вывод 1", "Главный вывод 2", "Главный вывод 3"],
-  "xpEarned": 60,
-  "grade": "good"
+  "keyTakeaways": ["Главный вывод 1", "Главный вывод 2", "Главный вывод 3"]
 }
-
-Оценки (grade):
-- excellent: 90-100 (Отлично)
-- good: 70-89 (Хорошо)
-- satisfactory: 50-69 (Удовлетворительно)
-- unsatisfactory: 0-49 (Неудовлетворительно)
-
-XP: score × 0.8 (округлённо, минимум 5)
 
 Все тексты ТОЛЬКО на русском языке. Верни ТОЛЬКО JSON.
 
-ЗАПРЕЩЕНО использовать английские слова, даже медицинские термины. Пиши по-русски: не "CBC" — "ОАК", не "X-ray" — "рентгенография", не "ultrasound" — "УЗИ", не "CT" — "КТ", не "findings" — "результаты", не "reveals" — "показывает", не "treatment" — "лечение", не "diagnosis" — "диагноз". Если напишешь хоть одно английское слово — это грубая ошибка.`;
+ЗАПРЕЩЕНО использовать английские слова, даже медицинские термины. Пиши по-русски: не "CBC" — "ОАК", не "X-ray" — "рентгенография", не "ultrasound" — "УЗИ", не "CT" — "КТ". Если напишешь хоть одно английское слово — это грубая ошибка.`;
 
-// --- Evaluation structure validation ---
+// --- Types ---
 
 interface SimulatorEvaluation {
   score: number;
@@ -57,58 +49,92 @@ interface SimulatorEvaluation {
   grade: 'excellent' | 'good' | 'satisfactory' | 'unsatisfactory';
 }
 
-function buildFallbackEvaluation(session: any): SimulatorEvaluation {
+interface VerifiedInput {
+  base: SimulatorScenario;
+  verifiedFindings: { region: string; toolId: string; finding: string; isNormal?: boolean; relevance?: string }[];
+  verifiedSpent: number;
+  diagnosisVerifiable: boolean;
+  treatmentVerifiable: boolean;
+}
+
+const norm = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
+
+// --- Deterministic scoring ---
+
+function computeDeterministicEvaluation(session: any, input: VerifiedInput): SimulatorEvaluation {
+  const { base, verifiedFindings, verifiedSpent } = input;
   const scenario = session?.scenario || {};
-  const findings = session?.discoveredFindings || [];
-  const budgetSpent = session?.budgetSpent || 0;
 
-  // Calculate scores
-  let diagnosisScore = 0;
-  const diagnosisCorrect = session?.diagnosisSubmitted === scenario?.correctDiagnosis;
-  if (diagnosisCorrect) diagnosisScore = 40;
+  // 1. Diagnosis — сверка с каноном, если канон доступен
+  let diagnosisCorrect: boolean;
+  if (input.diagnosisVerifiable) {
+    diagnosisCorrect = norm(session?.diagnosisSubmitted) === norm(base.correctDiagnosis);
+  } else {
+    // Канон недоступен (рестарт сервера / чужой сценарий) — доверяем AI-булеву,
+    // но он будет перекрыт потолком баллов ниже.
+    diagnosisCorrect = !!scenario?.diagnosisCorrect;
+  }
 
-  let treatmentScore = 0;
-  // correctTreatment фиксируется на сервере до шаффла; опциональный fallback на старые сценарии
-  const correctTreatment = typeof scenario?.correctTreatment === 'string' && scenario.correctTreatment
-    ? scenario.correctTreatment
-    : Array.isArray(scenario?.treatmentOptions) ? scenario.treatmentOptions[0] : scenario?.treatmentPlan;
-  const treatmentCorrect = Array.isArray(scenario?.treatmentOptions)
-    ? session?.treatmentSubmitted === correctTreatment
-    : session?.treatmentSubmitted === scenario?.treatmentPlan;
-  if (treatmentCorrect) treatmentScore = 25;
+  // 2. Treatment — канонический correctTreatment (строка, зафиксированная до шаффла)
+  let treatmentCorrect: boolean;
+  if (input.treatmentVerifiable) {
+    const correctTreatment = norm(base.correctTreatment) || norm(base.treatmentOptions?.[0]) || norm(base.treatmentPlan);
+    treatmentCorrect = norm(session?.treatmentSubmitted) === correctTreatment && correctTreatment.length > 0;
+  } else {
+    treatmentCorrect = !!scenario?.treatmentCorrect;
+  }
 
-  // Examination score: count critical and important findings found
-  const allFindings = Array.isArray(scenario?.findings) ? scenario.findings : [];
-  const criticalFindings = allFindings.filter((f: any) => f.relevance === 'critical' && !f.isNormal);
-  const importantFindings = allFindings.filter((f: any) => f.relevance === 'important' && !f.isNormal);
+  // 3. Examination — только верифицированные находки против канонических
+  const allFindings = Array.isArray(base.findings) ? base.findings : [];
+  const criticalFindings = allFindings.filter((f) => f.relevance === 'critical' && !f.isNormal);
+  const importantFindings = allFindings.filter((f) => f.relevance === 'important' && !f.isNormal);
 
   let examinationScore = 0;
   for (const cf of criticalFindings) {
-    const found = findings.some((f: any) => f.region === cf.region && f.toolId === cf.toolId);
-    if (found) examinationScore += 5;
+    if (verifiedFindings.some((f) => f.region === cf.region && f.toolId === cf.toolId)) examinationScore += 5;
   }
   for (const imf of importantFindings) {
-    const found = findings.some((f: any) => f.region === imf.region && f.toolId === imf.toolId);
-    if (found) examinationScore += 2;
+    if (verifiedFindings.some((f) => f.region === imf.region && f.toolId === imf.toolId)) examinationScore += 2;
   }
   examinationScore = Math.min(20, examinationScore);
 
-  // Economy score
+  // 4. Economy — по верифицированным тратам (кламп по сумме реально открытых тестов)
+  const budget = typeof base.budget === 'number' && base.budget > 0 ? base.budget : 6000;
+  const spentRatio = verifiedSpent / budget;
   let economyScore = 15;
-  const budget = scenario?.budget || 6000;
-  const spentRatio = budgetSpent / budget;
   if (spentRatio > 0.8) economyScore = 5;
   else if (spentRatio > 0.5) economyScore = 10;
 
-  const totalScore = Math.min(100, diagnosisScore + treatmentScore + examinationScore + economyScore);
+  // Итог: непроверяемые критерии — 0 (потолок), верифицируемые — из сравнения строк
+  const totalScore = Math.min(
+    100,
+    (diagnosisCorrect ? 40 : 0) + (treatmentCorrect ? 25 : 0) + examinationScore + economyScore
+  );
 
-  // Grade
-  let grade: 'excellent' | 'good' | 'satisfactory' | 'unsatisfactory' = 'unsatisfactory';
+  let grade: SimulatorEvaluation['grade'] = 'unsatisfactory';
   if (totalScore >= 90) grade = 'excellent';
   else if (totalScore >= 70) grade = 'good';
   else if (totalScore >= 50) grade = 'satisfactory';
 
   const xpEarned = Math.max(5, Math.min(120, Math.round(totalScore * 0.8)));
+
+  // Локальные тексты (используются, если AI недоступен)
+  const diagnosis = norm(base.correctDiagnosis) || norm(session?.diagnosisSubmitted) || 'не указан';
+  const treatment = norm(base.correctTreatment) || norm(base.treatmentOptions?.[0]) || norm(base.treatmentPlan) || 'не указано';
+  const texts = {
+    feedback: `Итого: ${totalScore} баллов из 100. ${diagnosisCorrect ? 'Диагноз поставлен верно.' : 'Диагноз неверный.'} ${treatmentCorrect ? 'Лечение подобрано корректно.' : 'Лечение требует коррекции.'}`,
+    diagnosisFeedback: diagnosisCorrect
+      ? `Верно! Правильный диагноз: ${diagnosis}.`
+      : `Неверно. Правильный диагноз: ${diagnosis}. Ваш диагноз: ${norm(session?.diagnosisSubmitted) || 'не указан'}.`,
+    treatmentFeedback: treatmentCorrect
+      ? 'Лечение подобрано корректно и соответствует стандартам ветеринарии.'
+      : `Рекомендуемое лечение: ${treatment}.`,
+    examinationFeedback: `Обнаружено ${verifiedFindings.length} находок из ${allFindings.length}. Критических: ${criticalFindings.length}, важных: ${importantFindings.length}.`,
+    keyTakeaways: [
+      `Правильный диагноз: ${diagnosis}`,
+      diagnosisCorrect ? 'Диагноз подтверждён.' : 'Внимательно изучите дифференциальную диагностику.',
+    ],
+  };
 
   return {
     score: totalScore,
@@ -116,67 +142,111 @@ function buildFallbackEvaluation(session: any): SimulatorEvaluation {
     treatmentCorrect,
     examinationScore,
     economyScore,
-    feedback: `Итого: ${totalScore} баллов из 100. ${diagnosisCorrect ? 'Диагноз поставлен верно.' : 'Диагноз неверный.'} ${treatmentCorrect ? 'Лечение подобрано корректно.' : 'Лечение требует коррекции.'}`,
-    diagnosisFeedback: diagnosisCorrect
-      ? `Верно! Правильный диагноз: ${scenario?.correctDiagnosis || 'не указан'}.`
-      : `Неверно. Правильный диагноз: ${scenario?.correctDiagnosis || 'не указан'}. Ваш диагноз: ${session?.diagnosisSubmitted || 'не указан'}.`,
-    treatmentFeedback: treatmentCorrect
-      ? 'Лечение подобрано корректно и соответствует стандартам ветеринарии.'
-      : `Рекомендуемое лечение: ${typeof scenario?.correctTreatment === 'string' && scenario.correctTreatment
-        ? scenario.correctTreatment
-        : Array.isArray(scenario?.treatmentOptions) ? scenario?.treatmentOptions[0] : scenario?.treatmentPlan || 'не указано'}.`,
-    examinationFeedback: `Обнаружено ${findings.length} находок из ${allFindings.length}. ${criticalFindings.length} критических находок.`,
-    keyTakeaways: [
-      `Правильный диагноз: ${scenario?.correctDiagnosis || '—'}`,
-      diagnosisCorrect ? 'Диагноз подтверждён.' : 'Внимательно изучите дифференциальную диагностику.',
-    ],
+    ...texts,
     xpEarned,
     grade,
   };
 }
 
-function validateEvaluation(data: any, session: any): SimulatorEvaluation {
-  const e = data as any;
+// --- Verification of client-claimed data ---
 
-  // Ensure numeric fields
-  if (typeof e.score !== 'number') e.score = 0;
-  e.score = Math.max(0, Math.min(100, e.score));
+function verifyInput(session: any, base: SimulatorScenario): VerifiedInput {
+  const claimedFindings = Array.isArray(session?.discoveredFindings) ? session.discoveredFindings : [];
+  const canonicalFindings = Array.isArray(base.findings) ? base.findings : [];
 
-  if (typeof e.examinationScore !== 'number') e.examinationScore = 0;
-  e.examinationScore = Math.max(0, Math.min(20, e.examinationScore));
+  // Находка засчитывается, только если она существует в сценарии (region+toolId+текст)
+  const verifiedFindings = claimedFindings
+    .filter((f: any) =>
+      f &&
+      typeof f.region === 'string' &&
+      typeof f.toolId === 'string' &&
+      canonicalFindings.some(
+        (cf) => cf.region === f.region && cf.toolId === f.toolId && norm(cf.finding) === norm(f.finding)
+      )
+    )
+    .slice(0, 50);
 
-  if (typeof e.economyScore !== 'number') e.economyScore = 0;
-  e.economyScore = Math.max(0, Math.min(15, e.economyScore));
+  // Траты: кламп по сумме стоимостей открытых тестов, реально существующих в сценарии.
+  // isRevealed клиент переключает сам, поэтому доверяем только существованию теста в каноне.
+  const claimedScenarioTests = Array.isArray(session?.scenario?.availableTests) ? session.scenario.availableTests : [];
+  const canonicalTests = Array.isArray(base.availableTests) ? base.availableTests : [];
+  const revealedIds = new Set(
+    claimedScenarioTests.filter((t: any) => t && t.isRevealed && typeof t.id === 'string').map((t: any) => t.id)
+  );
+  const maxJustifiedSpend = canonicalTests
+    .filter((t) => revealedIds.has(t.id) && typeof t.cost === 'number')
+    .reduce((sum, t) => sum + t.cost, 0);
+  const claimedSpent = typeof session?.budgetSpent === 'number' && session.budgetSpent > 0 ? session.budgetSpent : 0;
+  const verifiedSpent = Math.min(claimedSpent, maxJustifiedSpend);
 
-  if (typeof e.xpEarned !== 'number') e.xpEarned = Math.max(5, Math.round(e.score * 0.8));
-  e.xpEarned = Math.max(5, e.xpEarned);
+  // Верифицируемость ответов: канонический сценарий содержит правильные ответы.
+  // Если сцена пришла от нас sanitized (нормальный путь через rememberScenario) —
+  // ответы есть только в каноне из памяти сервера.
+  const diagnosisVerifiable = norm(base.correctDiagnosis).length > 0;
+  const treatmentVerifiable =
+    norm(base.correctTreatment).length > 0 || norm(base.treatmentOptions?.[0]).length > 0 || norm(base.treatmentPlan).length > 0;
 
-  if (!e.feedback || typeof e.feedback !== 'string') {
-    e.feedback = 'Обратная связь недоступна.';
+  return { base, verifiedFindings, verifiedSpent, diagnosisVerifiable, treatmentVerifiable };
+}
+
+// --- AI feedback texts ---
+
+async function fetchAIFeedback(base: SimulatorScenario, session: any, det: SimulatorEvaluation): Promise<Partial<SimulatorEvaluation> | null> {
+  try {
+    const zai = await getZAI();
+    const findings = session.discoveredFindings || [];
+    const allFindings = Array.isArray(base.findings) ? base.findings : [];
+
+    const userPrompt = `Дай обратную связь студенту симулятора ветеринарной практики.
+
+ПАЦИЕНТ:
+- Вид: ${base.species}, Порода: ${base.breed}
+- Возраст: ${base.age}, Пол: ${base.sex}, Вес: ${base.weight}
+- Жалоба владельца: "${base.ownerComplaint}"
+
+ФАКТИЧЕСКИЙ РЕЗУЛЬТАТ (рассчитан системой, согласуй текст с этими цифрами):
+- Итоговый балл: ${det.score}/100 (оценка: ${det.grade})
+- Диагноз студента: "${norm(session.diagnosisSubmitted) || 'Не указан'}" — ${det.diagnosisCorrect ? 'ВЕРНО' : 'НЕВЕРНО'} (правильный: "${norm(base.correctDiagnosis)}")
+- Лечение студента: "${norm(session.treatmentSubmitted) || 'Не указано'}" — ${det.treatmentCorrect ? 'ВЕРНО' : 'НЕВЕРНО'}
+- Полнота обследования: ${det.examinationScore}/20 (найдено находок: ${findings.length} из ${allFindings.length})
+- Экономность: ${det.economyScore}/15 (потрачено: ${session.budgetSpent || 0}₽ из ${base.budget}₽)
+
+Дай обучающую обратную связь по четырём критериям. Верни ТОЛЬКО JSON по формату.`;
+
+    const completion = await zai.chat.completions.create({
+      messages: [
+        { role: 'system', content: FEEDBACK_SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 2048,
+    });
+    const responseText = completion.choices[0]?.message?.content || '';
+    if (!responseText) return null;
+
+    const parsed: unknown = extractJSON(responseText);
+    if (parsed === null || typeof parsed !== 'object') return null;
+
+    const e = parsed as Record<string, unknown>;
+    const asString = (v: unknown): string | null => (typeof v === 'string' && v.trim() ? v.trim() : null);
+    const feedback = asString(e.feedback);
+    if (!feedback) return null; // без главного текста считаем ответ AI непригодным
+
+    const keyTakeaways = Array.isArray(e.keyTakeaways)
+      ? e.keyTakeaways.filter((t): t is string => typeof t === 'string' && t.trim().length > 0).slice(0, 5)
+      : [];
+
+    return {
+      feedback,
+      diagnosisFeedback: asString(e.diagnosisFeedback) ?? undefined,
+      treatmentFeedback: asString(e.treatmentFeedback) ?? undefined,
+      examinationFeedback: asString(e.examinationFeedback) ?? undefined,
+      keyTakeaways: keyTakeaways.length ? keyTakeaways : undefined,
+    } as Partial<SimulatorEvaluation>;
+  } catch (error) {
+    console.error('[simulator/evaluate] AI feedback failed, using deterministic texts:', error);
+    return null;
   }
-  if (!e.diagnosisFeedback || typeof e.diagnosisFeedback !== 'string') {
-    e.diagnosisFeedback = e.diagnosisCorrect ? 'Диагноз верный.' : 'Диагноз неверный.';
-  }
-  if (!e.treatmentFeedback || typeof e.treatmentFeedback !== 'string') {
-    e.treatmentFeedback = e.treatmentCorrect ? 'Лечение корректное.' : 'Лечение некорректное.';
-  }
-  if (!e.examinationFeedback || typeof e.examinationFeedback !== 'string') {
-    e.examinationFeedback = 'Данные по обследованию недоступны.';
-  }
-  if (!Array.isArray(e.keyTakeaways)) e.keyTakeaways = [];
-
-  // Ensure grade is valid
-  if (!['excellent', 'good', 'satisfactory', 'unsatisfactory'].includes(e.grade)) {
-    if (e.score >= 90) e.grade = 'excellent';
-    else if (e.score >= 70) e.grade = 'good';
-    else if (e.score >= 50) e.grade = 'satisfactory';
-    else e.grade = 'unsatisfactory';
-  }
-
-  e.diagnosisCorrect = !!e.diagnosisCorrect;
-  e.treatmentCorrect = !!e.treatmentCorrect;
-
-  return e as SimulatorEvaluation;
 }
 
 // --- Main handler ---
@@ -186,101 +256,33 @@ export async function POST(req: NextRequest) {
     const { session } = await req.json();
 
     if (!session || !session.scenario) {
-      return NextResponse.json(
-        { error: 'Укажите сессию симулятора' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Укажите сессию симулятора' }, { status: 400 });
     }
 
     // --- Payload size validation ---
     const MAX_SESSION_SIZE = 100 * 1024; // 100 KB
     if (JSON.stringify(session).length > MAX_SESSION_SIZE) {
-      return NextResponse.json(
-        { error: 'Данные сессии слишком большие (максимум 100 КБ)' },
-        { status: 413 }
-      );
+      return NextResponse.json({ error: 'Данные сессии слишком большие (максимум 100 КБ)' }, { status: 413 });
     }
 
-    const zai = await getZAI();
+    // --- Канонический сценарий: сервер помнит то, что сам сгенерировал ---
+    const canonical = getCanonicalScenario(session.scenario?.id);
+    // Fallback: если канон потерян (рестарт сервера), используем сценарий из сессии —
+    // но ответы в нём отсутствуют (sanitized), поэтому скоринг деградирует безопасно:
+    // непроверяемые критерии дают 0, находки всё равно верифицируются против сценария.
+    const base: SimulatorScenario = canonical ?? (session.scenario as SimulatorScenario);
 
-    const scenario = session.scenario;
-    const findings = session.discoveredFindings || [];
+    const verified = verifyInput(session, base);
+    const evaluation = computeDeterministicEvaluation(session, verified);
 
-    // Build summary of discovered vs total findings
-    const allFindings = Array.isArray(scenario.findings) ? scenario.findings : [];
-    const criticalFindings = allFindings.filter((f: any) => f.relevance === 'critical' && !f.isNormal);
-    const importantFindings = allFindings.filter((f: any) => f.relevance === 'important' && !f.isNormal);
-    const discoveredCritical = criticalFindings.filter((cf: any) =>
-      findings.some((f: any) => f.region === cf.region && f.toolId === cf.toolId)
-    );
-    const discoveredImportant = importantFindings.filter((imf: any) =>
-      findings.some((f: any) => f.region === imf.region && f.toolId === imf.toolId)
-    );
-
-    const testsOrdered = Array.isArray(scenario.availableTests)
-      ? scenario.availableTests.filter((t: any) => t.isRevealed)
-      : [];
-
-    const userPrompt = `Оцени работу студента в симуляторе ветеринарной практики.
-
-ПАЦИЕНТ:
-- Вид: ${scenario.species}, Порода: ${scenario.breed}
-- Возраст: ${scenario.age}, Пол: ${scenario.sex}, Вес: ${scenario.weight}
-- Жалоба владельца: "${scenario.ownerComplaint}"
-
-ПРАВИЛЬНЫЙ ДИАГНОЗ: ${scenario.correctDiagnosis}
-ПРАВИЛЬНОЕ ЛЕЧЕНИЕ: ${scenario.treatmentPlan}
-
-ДИАГНОЗ СТУДЕНТА: ${session.diagnosisSubmitted || 'Не указан'}
-ЛЕЧЕНИЕ СТУДЕНТА: ${session.treatmentSubmitted || 'Не указано'}
-
-ОБСЛЕДОВАНИЕ:
-- Всего находок в сценарии: ${allFindings.length}
-- Найдено студентом: ${findings.length}
-- Критических (ненормальных): ${criticalFindings.length} всего, ${discoveredCritical.length} найдено
-- Важных (ненормальных): ${importantFindings.length} всего, ${discoveredImportant.length} найдено
-
-Найденные студентом находки:
-${findings.map((f: any) => `- [${f.region}/${f.toolId}] ${f.isNormal ? '✅ Норма' : '⚠️ Патология'} (${f.relevance}): ${f.finding}`).join('\n')}
-
-Пропущенные критические находки:
-${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === cf.region && f.toolId === cf.toolId))
-  .map((f: any) => `- [${f.region}/${f.toolId}] ${f.finding}`).join('\n') || 'Нет (все найдены)'}
-
-ЛАБОРАТОРНЫЕ ТЕСТЫ:
-- Назначено тестов: ${testsOrdered.length} из ${scenario.availableTests?.length || 0}
-- Потрачено из бюджета: ${session.budgetSpent}₽ из ${scenario.budget}₽
-
-Дай детальную оценку. Будь конструктивным и обучающим.`;
-
-    // --- AI call (single attempt, no double-call overhead) ---
-    let responseText = '';
-
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 4096,
-    });
-    responseText = completion.choices[0]?.message?.content || '';
-
-    let evaluation: SimulatorEvaluation;
-
-    if (!responseText) {
-      console.error('[simulator/evaluate] Empty response from AI');
-      evaluation = buildFallbackEvaluation(session);
-    } else {
-      // --- Multi-strategy JSON extraction ---
-      let parsed: unknown = extractJSON(responseText);
-
-      if (parsed === null) {
-        console.error('[simulator/evaluate] All JSON parsing strategies failed. Using fallback evaluation.');
-        evaluation = buildFallbackEvaluation(session);
-      } else {
-        evaluation = validateEvaluation(parsed, session);
-      }
+    // --- AI-тексты поверх детерминированной оценки ---
+    const aiTexts = await fetchAIFeedback(base, session, evaluation);
+    if (aiTexts) {
+      if (aiTexts.feedback) evaluation.feedback = aiTexts.feedback;
+      if (aiTexts.diagnosisFeedback) evaluation.diagnosisFeedback = aiTexts.diagnosisFeedback;
+      if (aiTexts.treatmentFeedback) evaluation.treatmentFeedback = aiTexts.treatmentFeedback;
+      if (aiTexts.examinationFeedback) evaluation.examinationFeedback = aiTexts.examinationFeedback;
+      if (aiTexts.keyTakeaways?.length) evaluation.keyTakeaways = aiTexts.keyTakeaways;
     }
 
     return NextResponse.json({
@@ -289,9 +291,6 @@ ${criticalFindings.filter((cf: any) => !findings.some((f: any) => f.region === c
     });
   } catch (error) {
     console.error('[simulator/evaluate] Unexpected error:', error);
-    return NextResponse.json(
-      { error: 'Ошибка при оценке симуляции' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Ошибка при оценке симуляции' }, { status: 500 });
   }
 }
