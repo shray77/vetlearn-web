@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <radialGradient id="usbg1">
+      <stop offset="0" stop-color="#1E293B"/>
+      <stop offset="1" stop-color="#020617"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#usbg1)"/>
+  <!-- Ultrasound cone -->
+  <g opacity="0.6">
+    <path d="M 320 30 L 200 320 L 440 320 Z" fill="#1E40AF" opacity="0.3"/>
+    <path d="M 320 30 L 240 320 L 400 320 Z" fill="#1E40AF" opacity="0.4"/>
+  </g>
+  <!-- Hyperechoic nodule -->
+  <g>
+    <ellipse cx="280" cy="200" rx="50" ry="40" fill="#FBBF24" opacity="0.7"/>
+    <ellipse cx="280" cy="200" rx="35" ry="28" fill="#F59E0B" opacity="0.9"/>
+    <ellipse cx="280" cy="200" rx="20" ry="16" fill="#D97706"/>
+  </g>
+  <!-- Surrounding parenchyma -->
+  <g fill="#1E40AF" opacity="0.3">
+    <ellipse cx="180" cy="220" rx="60" ry="80"/>
+    <ellipse cx="400" cy="180" rx="70" ry="90"/>
+  </g>
+  <!-- Annotation -->
+  <line x1="330" y1="200" x2="500" y2="150" stroke="#EF4444" stroke-width="2"/>
+  <circle cx="280" cy="200" r="55" stroke="#EF4444" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+  <text x="500" y="145" font-family="sans-serif" font-size="14" fill="#EF4444" font-weight="bold">Гиперэхогенный узел</text>
+  <text x="20" y="345" font-family="sans-serif" font-size="11" fill="#64748B">VetLearn OSCE · ultrasound · public domain placeholder</text>
+</svg>
