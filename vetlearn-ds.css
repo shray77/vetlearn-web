@@ -1,0 +1,138 @@
+/* ==========================================================================
+   vetlearn-ds.css — характерный слой VetLearn AI поверх vet-ds v2.2
+   --------------------------------------------------------------------------
+   Миграция статического экспорта (GitHub-зеркало) на ДС «Научная периодика»
+   без пересборки: ремап shadcn-токенов сборки на палитру DS A (light/dark),
+   шрифты Geist → Inter / IBM Plex Mono (+ Instrument Serif на заголовках),
+   радиусы ≤ 8px, без glassmorphism. Акцент — «образование»: зелёная пара
+   vetdigest (#4C7A3F / #34D399), проверенная по AA.
+   Греческий комментарий: слой грузится ПОСЛЕ чанка сборки — каскад на нашей
+   стороне при равной специфичности.
+   ========================================================================== */
+
+/* ---------- тема-зависимые слоты shadcn → DS A ---------- */
+:root{
+  --font-geist-sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-geist-mono:"IBM Plex Mono",ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;
+
+  --background:#FAF9F5;
+  --foreground:#1C1B1A;
+  --card:#FFFFFF;
+  --card-foreground:#1C1B1A;
+  --popover:#FFFFFF;
+  --popover-foreground:#1C1B1A;
+  --primary:#4C7A3F;
+  --primary-foreground:#F4FBF2;
+  --secondary:#F1EEE6;
+  --secondary-foreground:#1C1B1A;
+  --muted:#F1EEE6;
+  --muted-foreground:#5B564C;
+  --accent:#EDF3EA;
+  --accent-foreground:#1C1B1A;
+  --destructive:#B3261E;
+  --border:#E3E0D5;
+  --input:#E3E0D5;
+  --ring:#4C7A3F;
+  --chart-1:#4C7A3F;
+  --chart-2:#33608C;
+  --chart-3:#B4531C;
+  --chart-4:#6D4FC4;
+  --chart-5:#B3261E;
+  --sidebar:#FFFFFF;
+  --sidebar-foreground:#1C1B1A;
+  --sidebar-primary:#4C7A3F;
+  --sidebar-primary-foreground:#F4FBF2;
+  --sidebar-accent:#EDF3EA;
+  --sidebar-accent-foreground:#1C1B1A;
+  --sidebar-border:#E3E0D5;
+  --sidebar-ring:#4C7A3F;
+  --radius:.5rem;
+}
+
+.dark{
+  --background:#211E19;
+  --foreground:#EDE9E0;
+  --card:#2A2620;
+  --card-foreground:#EDE9E0;
+  --popover:#2A2620;
+  --popover-foreground:#EDE9E0;
+  --primary:#34D399;
+  --primary-foreground:#06251B;
+  --secondary:#34302A;
+  --secondary-foreground:#EDE9E0;
+  --muted:#34302A;
+  --muted-foreground:#B8B1A3;
+  --accent:#203528;
+  --accent-foreground:#EDE9E0;
+  --destructive:#E87963;
+  --border:#3F3A32;
+  --input:#3F3A32;
+  --ring:#34D399;
+  --chart-1:#34D399;
+  --chart-2:#82A9CC;
+  --chart-3:#E08A4F;
+  --chart-4:#B9A5E3;
+  --chart-5:#E87963;
+  --sidebar:#2A2620;
+  --sidebar-foreground:#EDE9E0;
+  --sidebar-primary:#34D399;
+  --sidebar-primary-foreground:#06251B;
+  --sidebar-accent:#203528;
+  --sidebar-accent-foreground:#EDE9E0;
+  --sidebar-border:#3F3A32;
+  --sidebar-ring:#34D399;
+}
+
+/* ---------- шрифты: голос периодики ---------- */
+body,[class*="geist_"]{
+  font-family:var(--font-geist-sans)!important;
+  font-variant-numeric:tabular-nums;
+}
+code,pre,kbd,samp,[class*="font-mono"]{
+  font-family:var(--font-geist-mono)!important;
+}
+h1,h2{
+  font-family:"Instrument Serif",Georgia,"Times New Roman",serif!important;
+  font-weight:400!important;
+  letter-spacing:-.012em;
+}
+/* утилита для точечного serif-акцента, если понадобится */
+.font-display-ds{
+  font-family:"Instrument Serif",Georgia,serif!important;
+  font-weight:400!important;
+}
+
+/* ---------- де-слоп: радиусы ≤ 8px, без стекла ---------- */
+.rounded-xl,.rounded-2xl,.rounded-3xl,.rounded-\[1rem\],.rounded-\[1\.25rem\]{
+  border-radius:8px!important;
+}
+[class*="backdrop-blur"]{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* ---------- мягкие правки поверх слотов ---------- */
+/* цветные «лабнотки» на бумаге: чуть тише тени */
+.shadow-lg,.shadow-xl,.shadow-2xl{--tw-shadow:0 1px 2px rgba(28,27,26,.05),0 10px 28px rgba(28,27,26,.08)!important}
+/* фокус-ринг — акцент характера */
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+/* ---------- плавающий тумблер темы (DS-паттерн, подпись = цель) ---------- */
+.vlds-toggle{
+  position:fixed;right:18px;bottom:18px;z-index:80;
+  display:inline-flex;align-items:center;gap:7px;
+  min-height:34px;padding:0 13px;
+  border:1px solid var(--border);border-radius:4px;
+  background:var(--card);color:var(--foreground);
+  font:500 12px/1 var(--font-geist-mono);
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(28,27,26,.08),0 8px 22px rgba(28,27,26,.08);
+}
+.vlds-toggle:hover{border-color:var(--foreground)}
+.vlds-toggle svg{width:14px;height:14px}
+.vlds-toggle .vlds-moon{display:none}
+.dark .vlds-toggle .vlds-moon{display:block}
+.dark .vlds-toggle .vlds-sun{display:none}
+@media (max-width:640px){
+  .vlds-toggle{right:12px;bottom:12px}
+}
