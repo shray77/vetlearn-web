@@ -37,7 +37,7 @@ const SYSTEM_PROMPT = `Ты — опытный профессор ветерин
   ]
 }
 
-Цвета для веток (используй в порядке): "#28CD41", "#007AFF", "#FF9500", "#AF52DE", "#FF3B30", "#5856D6", "#00C7BE", "#FF2D55"
+Цвета для веток (используй в порядке): "#4C7A3F", "#33608C", "#B4531C", "#6D4FC4", "#B3261E", "#6D4FC4", "#00C7BE", "#FF2D55"
 ID должны быть уникальными. Верни ТОЛЬКО JSON без комментариев.`;
 
 
@@ -70,7 +70,7 @@ function validateMindMap(data: any): MindMapNode | null {
   };
 }
 
-const COLORS = ['#28CD41', '#007AFF', '#FF9500', '#AF52DE', '#FF3B30', '#5856D6', '#00C7BE', '#FF2D55'];
+const COLORS = ['#4C7A3F', '#33608C', '#B4531C', '#6D4FC4', '#B3261E', '#6D4FC4', '#00C7BE', '#FF2D55'];
 
 function getFallbackMindMap(topic: string): MindMapNode {
   return {

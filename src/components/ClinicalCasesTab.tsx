@@ -165,7 +165,7 @@ export function ClinicalCasesTab() {
                   onClick={() => setSelectedSpecies(sp.value)}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${
                     selectedSpecies === sp.value
-                      ? 'bg-[#E8F9EC] dark:bg-[#1A3D22] border-2 border-[#28CD41]/30 scale-105 shadow-sm'
+                      ? 'bg-[#EDF3EA] dark:bg-[#203528] border-2 border-[#4C7A3F]/30 scale-105 shadow-sm'
                       : 'bg-muted/50 hover:bg-muted border-2 border-transparent'
                   }`}
                 >
@@ -206,7 +206,7 @@ export function ClinicalCasesTab() {
               <button
                 onClick={() => setSelectedTopic('')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  !selectedTopic ? 'bg-[#28CD41] text-white' : 'bg-muted text-muted-foreground'
+                  !selectedTopic ? 'bg-[#4C7A3F] text-white' : 'bg-muted text-muted-foreground'
                 }`}
               >
                 Любая
@@ -216,7 +216,7 @@ export function ClinicalCasesTab() {
                   key={t.id}
                   onClick={() => setSelectedTopic(t.id === selectedTopic ? '' : t.id)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    selectedTopic === t.id ? 'bg-[#28CD41] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    selectedTopic === t.id ? 'bg-[#4C7A3F] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
                   {t.icon} {t.name}
@@ -227,7 +227,7 @@ export function ClinicalCasesTab() {
         </Card>
 
         <Button
-          className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-14 text-sm font-bold shadow-lg"
+          className="w-full squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-14 text-sm font-bold shadow-lg"
           onClick={handleGenerateCase}
           disabled={isGenerating}
         >
@@ -254,7 +254,7 @@ export function ClinicalCasesTab() {
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-5 text-center">
             <div className="text-5xl mb-2">
-              {caseResult.score >= 80 ? '🏆' : caseResult.score >= 50 ? '⭐' : '📚'}
+              {caseResult.score >= 80 ? '' : caseResult.score >= 50 ? '' : ''}
             </div>
             <h2 className="text-2xl font-bold gradient-text mb-1">
               {caseResult.score}%
@@ -269,7 +269,7 @@ export function ClinicalCasesTab() {
           <Card className="squircle-sm border-0 shadow-sm">
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Stethoscope className="w-4 h-4 text-[#007AFF]" /> Обратная связь
+                <Stethoscope className="w-4 h-4 text-[#33608C]" /> Обратная связь
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{caseResult.overallFeedback}</p>
             </CardContent>
@@ -282,15 +282,15 @@ export function ClinicalCasesTab() {
             <CardContent className="p-4">
               <div className="flex items-start gap-2 mb-2">
                 {fb.correct ? (
-                  <CheckCircle2 className="w-5 h-5 text-[#28CD41] mt-0.5 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-[#4C7A3F] mt-0.5 shrink-0" />
                 ) : (
-                  <XCircle className="w-5 h-5 text-[#FF3B30] mt-0.5 shrink-0" />
+                  <XCircle className="w-5 h-5 text-[#B3261E] mt-0.5 shrink-0" />
                 )}
                 <p className="text-sm font-medium">Вопрос {i + 1}</p>
               </div>
               <p className="text-xs text-muted-foreground mb-2">
                 Ваш ответ: {fb.studentAnswer}
-                {!fb.correct && <> • Правильно: <span className="text-[#28CD41] font-medium">{fb.correctAnswer}</span></>}
+                {!fb.correct && <> • Правильно: <span className="text-[#4C7A3F] font-medium">{fb.correctAnswer}</span></>}
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">{fb.explanation}</p>
             </CardContent>
@@ -301,12 +301,12 @@ export function ClinicalCasesTab() {
           <Card className="squircle-sm border-0 shadow-sm">
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-[#FF9500]" /> Главные выводы
+                <Lightbulb className="w-4 h-4 text-[#B4531C]" /> Главные выводы
               </h3>
               <ul className="space-y-1">
                 {caseResult.keyTakeaways.map((t: string, i: number) => (
                   <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                    <span className="text-[#28CD41] mt-0.5">•</span> {t}
+                    <span className="text-[#4C7A3F] mt-0.5">•</span> {t}
                   </li>
                 ))}
               </ul>
@@ -315,7 +315,7 @@ export function ClinicalCasesTab() {
         )}
 
         <Button
-          className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-12"
+          className="w-full squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-12"
           onClick={() => { setCurrentCase(null); setShowCaseResult(false); }}
         >
           <Sparkles className="w-4 h-4 mr-2" /> Новый клинический случай
@@ -378,7 +378,7 @@ export function ClinicalCasesTab() {
       {/* Case description (shown only for first question) */}
       {currentQuestionIndex === 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#007AFF]/5 to-[#AF52DE]/5">
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Badge className="text-xs">{currentCase.species}</Badge>
@@ -388,8 +388,8 @@ export function ClinicalCasesTab() {
               <h3 className="text-base font-bold">{currentCase.title}</h3>
               <div className="space-y-2.5 text-sm">
                 <div className="flex gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#FF3B30]/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-[#FF3B30]" />
+                  <div className="w-7 h-7 rounded-lg bg-[#B3261E]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-[#B3261E]" />
                   </div>
                   <div>
                     <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Жалобы</span>
@@ -397,8 +397,8 @@ export function ClinicalCasesTab() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#007AFF]/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <FileText className="w-3.5 h-3.5 text-[#007AFF]" />
+                  <div className="w-7 h-7 rounded-lg bg-[#33608C]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <FileText className="w-3.5 h-3.5 text-[#33608C]" />
                   </div>
                   <div>
                     <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Анамнез</span>
@@ -406,8 +406,8 @@ export function ClinicalCasesTab() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#28CD41]/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <Stethoscope className="w-3.5 h-3.5 text-[#28CD41]" />
+                  <div className="w-7 h-7 rounded-lg bg-[#4C7A3F]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Stethoscope className="w-3.5 h-3.5 text-[#4C7A3F]" />
                   </div>
                   <div>
                     <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Осмотр</span>
@@ -416,8 +416,8 @@ export function ClinicalCasesTab() {
                 </div>
                 {currentCase.labResults && (
                   <div className="flex gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#AF52DE]/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <BarChart3 className="w-3.5 h-3.5 text-[#AF52DE]" />
+                    <div className="w-7 h-7 rounded-lg bg-[#6D4FC4]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <BarChart3 className="w-3.5 h-3.5 text-[#6D4FC4]" />
                     </div>
                     <div>
                       <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Лаборатория</span>
@@ -456,23 +456,23 @@ export function ClinicalCasesTab() {
               <div className="space-y-2.5">
                 {q.options.map((option, i) => {
                   // When feedback is showing, highlight correct/incorrect options
-                  let optionClass = 'border-border hover:border-[#007AFF]/50 hover:bg-muted/50';
+                  let optionClass = 'border-border hover:border-[#33608C]/50 hover:bg-muted/50';
                   let letterClass = 'bg-muted text-muted-foreground';
 
                   if (showFeedback) {
                     if (i === q.correctIndex) {
-                      optionClass = 'border-[#28CD41] bg-[#E8F9EC] dark:bg-[#1A3D22]';
-                      letterClass = 'bg-[#28CD41] text-white';
+                      optionClass = 'border-[#4C7A3F] bg-[#EDF3EA] dark:bg-[#203528]';
+                      letterClass = 'bg-[#4C7A3F] text-white';
                     } else if (caseAnswers[currentQuestionIndex] === i && i !== q.correctIndex) {
-                      optionClass = 'border-[#FF3B30] bg-[#FFE5E3] dark:bg-[#3D1518]';
-                      letterClass = 'bg-[#FF3B30] text-white';
+                      optionClass = 'border-[#B3261E] bg-[#F5E3E1] dark:bg-[#3A2622]';
+                      letterClass = 'bg-[#B3261E] text-white';
                     } else {
                       optionClass = 'border-border/50 opacity-50';
                       letterClass = 'bg-muted/50 text-muted-foreground';
                     }
                   } else if (caseAnswers[currentQuestionIndex] === i) {
-                    optionClass = 'border-[#007AFF] bg-[#007AFF]/5 shadow-sm';
-                    letterClass = 'bg-[#007AFF] text-white';
+                    optionClass = 'border-[#33608C] bg-[#33608C]/5 shadow-sm';
+                    letterClass = 'bg-[#33608C] text-white';
                   }
 
                   return (
@@ -515,16 +515,16 @@ export function ClinicalCasesTab() {
                   >
                     <div className={`p-4 rounded-xl border-2 ${
                       feedbackCorrect
-                        ? 'bg-[#E8F9EC] dark:bg-[#1A3D22] border-[#28CD41]/30'
-                        : 'bg-[#FFF3CD] dark:bg-[#3D3000] border-[#FF9500]/30'
+                        ? 'bg-[#EDF3EA] dark:bg-[#203528] border-[#4C7A3F]/30'
+                        : 'bg-[#F3EAD3] dark:bg-[#33290F] border-[#B4531C]/30'
                     }`}>
                       <div className="flex items-center gap-2 mb-2">
                         {feedbackCorrect ? (
-                          <CheckCircle2 className="w-5 h-5 text-[#28CD41] shrink-0" />
+                          <CheckCircle2 className="w-5 h-5 text-[#4C7A3F] shrink-0" />
                         ) : (
-                          <XCircle className="w-5 h-5 text-[#FF9500] shrink-0" />
+                          <XCircle className="w-5 h-5 text-[#B4531C] shrink-0" />
                         )}
-                        <span className={`text-sm font-semibold ${feedbackCorrect ? 'text-[#28CD41]' : 'text-[#FF9500]'}`}>
+                        <span className={`text-sm font-semibold ${feedbackCorrect ? 'text-[#4C7A3F]' : 'text-[#B4531C]'}`}>
                           {feedbackCorrect ? 'Правильно!' : 'Неправильно'}
                         </span>
                       </div>
@@ -532,7 +532,7 @@ export function ClinicalCasesTab() {
                       {!feedbackCorrect && (
                         <p className="text-xs mt-2">
                           <span className="text-muted-foreground">Правильный ответ: </span>
-                          <span className="font-semibold text-[#28CD41]">{q.options[q.correctIndex]}</span>
+                          <span className="font-semibold text-[#4C7A3F]">{q.options[q.correctIndex]}</span>
                         </p>
                       )}
                     </div>
@@ -545,7 +545,7 @@ export function ClinicalCasesTab() {
       </AnimatePresence>
 
       <Button
-        className="w-full squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-12 text-sm font-semibold"
+        className="w-full squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-12 text-sm font-semibold"
         onClick={showFeedback ? handleFeedbackContinue : handleRevealFeedback}
         disabled={caseAnswers[currentQuestionIndex] === null}
       >

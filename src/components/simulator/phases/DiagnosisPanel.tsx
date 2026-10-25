@@ -31,12 +31,12 @@ export function DiagnosisPanel({
       <Card className="squircle-sm border-0 shadow-sm">
         <CardContent className="p-4 space-y-2">
           <h3 className="text-sm font-semibold flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#007AFF]" /> Ваши находки
+            <Eye className="w-4 h-4 text-[#33608C]" /> Ваши находки
           </h3>
           <div className="text-xs text-muted-foreground space-y-1">
             {discoveredFindings.filter(f => !f.isNormal).slice(0, 5).map((f, i) => (
               <div key={i} className="flex items-start gap-1.5">
-                <span className="text-[#FF3B30]">•</span>
+                <span className="text-[#B3261E]">•</span>
                 <span>{f.finding}</span>
               </div>
             ))}
@@ -50,7 +50,7 @@ export function DiagnosisPanel({
       <Card className="squircle-sm border-0 shadow-sm">
         <CardContent className="p-4 space-y-3">
           <h3 className="text-sm font-semibold flex items-center gap-2">
-            <ClipboardList className="w-4 h-4 text-[#FF9500]" /> Ваш диагноз
+            <ClipboardList className="w-4 h-4 text-[#B4531C]" /> Ваш диагноз
           </h3>
           <div className="space-y-2">
             {scenario.diagnosisOptions.map((option, i) => (
@@ -59,13 +59,13 @@ export function DiagnosisPanel({
                 onClick={() => onSelectDiagnosis(option)}
                 className={`w-full text-left p-3.5 rounded-xl border-2 transition-all ${
                   selectedDiagnosis === option
-                    ? 'border-[#007AFF] bg-[#007AFF]/5 shadow-sm'
-                    : 'border-border hover:border-[#007AFF]/50 hover:bg-muted/50'
+                    ? 'border-[#33608C] bg-[#33608C]/5 shadow-sm'
+                    : 'border-border hover:border-[#33608C]/50 hover:bg-muted/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                    selectedDiagnosis === option ? 'bg-[#007AFF] text-white' : 'bg-muted text-muted-foreground'
+                    selectedDiagnosis === option ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
                   }`}>
                     {['А', 'Б', 'В', 'Г'][i] || '•'}
                   </div>
@@ -82,7 +82,7 @@ export function DiagnosisPanel({
           <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Назад
         </Button>
         <Button
-          className="flex-1 squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-11 text-xs"
+          className="flex-1 squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-11 text-xs"
           disabled={!selectedDiagnosis}
           onClick={onConfirm}
         >

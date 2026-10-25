@@ -281,17 +281,17 @@ export function VoiceTutorTab() {
           <button
             onClick={() => setSelectedTopic('')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-              !selectedTopic ? 'bg-[#AF52DE] text-white' : 'bg-muted text-muted-foreground'
+              !selectedTopic ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
             }`}
           >
-            💬 Общий чат
+             Общий чат
           </button>
           {VET_TOPICS.map(t => (
             <button
               key={t.id}
               onClick={() => setSelectedTopic(t.id === selectedTopic ? '' : t.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                selectedTopic === t.id ? 'bg-[#AF52DE] text-white' : 'bg-muted text-muted-foreground'
+                selectedTopic === t.id ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
               }`}
             >
               {t.icon} {t.name}
@@ -304,8 +304,8 @@ export function VoiceTutorTab() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar space-y-3 px-1">
         {tutorMessages.length === 0 && (
           <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-2xl bg-[#AF52DE]/10 flex items-center justify-center mx-auto mb-3 animate-float">
-              <Mic className="w-8 h-8 text-[#AF52DE]" />
+            <div className="w-16 h-16 rounded-2xl bg-[#6D4FC4]/10 flex items-center justify-center mx-auto mb-3 animate-float">
+              <Mic className="w-8 h-8 text-[#6D4FC4]" />
             </div>
             <h3 className="text-base font-semibold mb-1">Голосовой репетитор</h3>
             <p className="text-sm text-muted-foreground px-8">
@@ -344,7 +344,7 @@ export function VoiceTutorTab() {
               <div
                 className={`p-3 rounded-2xl text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-[#28CD41] text-white rounded-br-md'
+                    ? 'bg-[#4C7A3F] text-white rounded-br-md'
                     : 'bg-card border shadow-sm rounded-bl-md'
                 }`}
               >
@@ -356,7 +356,7 @@ export function VoiceTutorTab() {
                   <button
                     onClick={() => handleSpeak(msg.content, msg.id)}
                     className={`ml-1 p-0.5 rounded transition-all ${
-                      isPlayingAudio === msg.id ? 'text-[#AF52DE]' : 'text-muted-foreground hover:text-[#AF52DE]'
+                      isPlayingAudio === msg.id ? 'text-[#6D4FC4]' : 'text-muted-foreground hover:text-[#6D4FC4]'
                     }`}
                   >
                     <Volume2 className="w-3 h-3" />
@@ -387,8 +387,8 @@ export function VoiceTutorTab() {
             onClick={isRecording ? handleStopRecording : handleStartRecording}
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
               isRecording
-                ? 'bg-[#FF3B30] text-white animate-pulse-ring'
-                : 'bg-[#AF52DE]/10 text-[#AF52DE] hover:bg-[#AF52DE]/20'
+                ? 'bg-[#B3261E] text-white animate-pulse-ring'
+                : 'bg-[#6D4FC4]/10 text-[#6D4FC4] hover:bg-[#6D4FC4]/20'
             }`}
           >
             <Mic className="w-5 h-5" />
@@ -411,7 +411,7 @@ export function VoiceTutorTab() {
           <Button
             onClick={handleSend}
             disabled={!inputText.trim() || isLoading}
-            className="w-10 h-10 rounded-xl p-0 shrink-0 bg-[#28CD41] hover:bg-[#1FA833] text-white"
+            className="w-10 h-10 rounded-xl p-0 shrink-0 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
           >
             <Send className="w-4 h-4" />
           </Button>

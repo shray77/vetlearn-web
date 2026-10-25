@@ -288,10 +288,10 @@ export const ATLAS_BANK: AtlasEntry[] = [
 ];
 
 export const ATLAS_MODALITY_LABELS: Record<AtlasEntry['modality'], { label: string; icon: string; color: string }> = {
-  radiology:      { label: 'Рентген',     icon: '🩻', color: '#0EA5E9' },
-  ultrasound:     { label: 'УЗИ',         icon: '📡', color: '#8B5CF6' },
-  cytology:       { label: 'Цитология',   icon: '🔬', color: '#F59E0B' },
-  histopathology: { label: 'Гистология',  icon: '🧫', color: '#EC4899' },
+  radiology:      { label: 'Рентген',     icon: '', color: '#33608C' },
+  ultrasound:     { label: 'УЗИ',         icon: '', color: '#6D4FC4' },
+  cytology:       { label: 'Цитология',   icon: '', color: '#B4531C' },
+  histopathology: { label: 'Гистология',  icon: '', color: '#EC4899' },
 };
 
 export function getAtlasEntries(filter?: { modality?: string; species?: string; difficulty?: string }): AtlasEntry[] {

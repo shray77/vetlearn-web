@@ -23,10 +23,10 @@ type StudyMode = 'learn' | 'quiz' | 'sr'; // sr = spaced repetition review
 
 // SR Rating button config
 const SR_RATINGS: Array<{ rating: SRRating; label: string; color: string; bg: string; hoverBg: string; icon: typeof RotateCcw }> = [
-  { rating: 0, label: 'Снова', color: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/10', hoverBg: 'hover:bg-[#FF3B30]/20', icon: RotateCcw },
-  { rating: 1, label: 'Трудно', color: 'text-[#FF9500]', bg: 'bg-[#FF9500]/10', hoverBg: 'hover:bg-[#FF9500]/20', icon: AlertCircle },
-  { rating: 2, label: 'Хорошо', color: 'text-[#28CD41]', bg: 'bg-[#28CD41]/10', hoverBg: 'hover:bg-[#28CD41]/20', icon: CheckCircle2 },
-  { rating: 3, label: 'Легко', color: 'text-[#007AFF]', bg: 'bg-[#007AFF]/10', hoverBg: 'hover:bg-[#007AFF]/20', icon: Sparkles },
+  { rating: 0, label: 'Снова', color: 'text-[#B3261E]', bg: 'bg-[#B3261E]/10', hoverBg: 'hover:bg-[#B3261E]/20', icon: RotateCcw },
+  { rating: 1, label: 'Трудно', color: 'text-[#B4531C]', bg: 'bg-[#B4531C]/10', hoverBg: 'hover:bg-[#B4531C]/20', icon: AlertCircle },
+  { rating: 2, label: 'Хорошо', color: 'text-[#4C7A3F]', bg: 'bg-[#4C7A3F]/10', hoverBg: 'hover:bg-[#4C7A3F]/20', icon: CheckCircle2 },
+  { rating: 3, label: 'Легко', color: 'text-[#33608C]', bg: 'bg-[#33608C]/10', hoverBg: 'hover:bg-[#33608C]/20', icon: Sparkles },
 ];
 
 export function FlashcardsTab() {
@@ -397,20 +397,20 @@ export function FlashcardsTab() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
             <button
               onClick={startSRReview}
-              className="w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-[#FF9500]/30 bg-gradient-to-r from-[#FF9500]/5 to-[#FF3B30]/5 hover:from-[#FF9500]/10 hover:to-[#FF3B30]/10 transition-all active:scale-[0.98]"
+              className="w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-[#B4531C]/30 bg-gradient-to-r from-[#B4531C]/5 to-[#B3261E]/5 hover:from-[#B4531C]/10 hover:to-[#B3261E]/10 transition-all active:scale-[0.98]"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#FF9500]/15 flex items-center justify-center shrink-0">
-                <Timer className="w-6 h-6 text-[#FF9500]" />
+              <div className="w-12 h-12 rounded-xl bg-[#B4531C]/15 flex items-center justify-center shrink-0">
+                <Timer className="w-6 h-6 text-[#B4531C]" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-sm font-bold text-[#FF9500]">
+                <p className="text-sm font-bold text-[#B4531C]">
                   {dueCardIds.length} карточек к повторению
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   Интервальное повторение — нажмите для начала
                 </p>
               </div>
-              <ChevronRight className="w-5 h-5 text-[#FF9500]" />
+              <ChevronRight className="w-5 h-5 text-[#B4531C]" />
             </button>
           </motion.div>
         )}
@@ -419,8 +419,8 @@ export function FlashcardsTab() {
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#AF52DE]/10 flex items-center justify-center shrink-0">
-                <Camera className="w-5 h-5 text-[#AF52DE]" />
+              <div className="w-10 h-10 rounded-xl bg-[#6D4FC4]/10 flex items-center justify-center shrink-0">
+                <Camera className="w-5 h-5 text-[#6D4FC4]" />
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold">Сканировать конспект</h3>
@@ -428,7 +428,7 @@ export function FlashcardsTab() {
               </div>
               <Button
                 size="sm"
-                className="squircle-sm bg-[#AF52DE] hover:bg-[#9B30D9] text-white h-9 text-xs font-semibold"
+                className="squircle-sm bg-[#6D4FC4] hover:bg-[#6D4FC4] text-white h-9 text-xs font-semibold"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isOCRProcessing}
               >
@@ -466,8 +466,8 @@ export function FlashcardsTab() {
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#28CD41]/10 flex items-center justify-center shrink-0">
-                <Upload className="w-5 h-5 text-[#28CD41]" />
+              <div className="w-10 h-10 rounded-xl bg-[#4C7A3F]/10 flex items-center justify-center shrink-0">
+                <Upload className="w-5 h-5 text-[#4C7A3F]" />
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold">Импорт из конспекта</h3>
@@ -475,7 +475,7 @@ export function FlashcardsTab() {
               </div>
               <Button
                 size="sm"
-                className="squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-9 text-xs font-semibold"
+                className="squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-9 text-xs font-semibold"
                 onClick={() => setImportOpen(true)}
               >
                 <Upload className="w-3 h-3 mr-1" /> Импорт
@@ -499,7 +499,7 @@ export function FlashcardsTab() {
                   }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     selectedTopic === t.id
-                      ? 'bg-[#28CD41] text-white shadow-sm'
+                      ? 'bg-[#4C7A3F] text-white shadow-sm'
                       : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
@@ -520,7 +520,7 @@ export function FlashcardsTab() {
                   <button
                     onClick={() => setSelectedSubtopic('')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      !selectedSubtopic ? 'bg-[#28CD41]/10 text-[#28CD41] border border-[#28CD41]/30' : 'bg-muted text-muted-foreground'
+                      !selectedSubtopic ? 'bg-[#4C7A3F]/10 text-[#4C7A3F] border border-[#4C7A3F]/30' : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     Все разделы
@@ -531,7 +531,7 @@ export function FlashcardsTab() {
                       onClick={() => setSelectedSubtopic(s.id === selectedSubtopic ? '' : s.id)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                         selectedSubtopic === s.id
-                          ? 'bg-[#28CD41]/10 text-[#28CD41] border border-[#28CD41]/30'
+                          ? 'bg-[#4C7A3F]/10 text-[#4C7A3F] border border-[#4C7A3F]/30'
                           : 'bg-muted text-muted-foreground hover:bg-muted/80'
                       }`}
                     >
@@ -553,24 +553,24 @@ export function FlashcardsTab() {
                 onClick={() => setMode('learn')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${
                   mode === 'learn'
-                    ? 'bg-[#28CD41]/10 border-2 border-[#28CD41]/30 shadow-sm'
+                    ? 'bg-[#4C7A3F]/10 border-2 border-[#4C7A3F]/30 shadow-sm'
                     : 'bg-muted/50 border-2 border-transparent hover:bg-muted'
                 }`}
               >
-                <BookOpen className={`w-6 h-6 ${mode === 'learn' ? 'text-[#28CD41]' : 'text-muted-foreground'}`} />
-                <span className={`text-xs font-semibold ${mode === 'learn' ? 'text-[#28CD41]' : 'text-muted-foreground'}`}>Обучение</span>
+                <BookOpen className={`w-6 h-6 ${mode === 'learn' ? 'text-[#4C7A3F]' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-semibold ${mode === 'learn' ? 'text-[#4C7A3F]' : 'text-muted-foreground'}`}>Обучение</span>
                 <span className="text-[10px] text-muted-foreground text-center">Переворачивайте карточки для изучения</span>
               </button>
               <button
                 onClick={() => setMode('quiz')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${
                   mode === 'quiz'
-                    ? 'bg-[#FF9500]/10 border-2 border-[#FF9500]/30 shadow-sm'
+                    ? 'bg-[#B4531C]/10 border-2 border-[#B4531C]/30 shadow-sm'
                     : 'bg-muted/50 border-2 border-transparent hover:bg-muted'
                 }`}
               >
-                <Brain className={`w-6 h-6 ${mode === 'quiz' ? 'text-[#FF9500]' : 'text-muted-foreground'}`} />
-                <span className={`text-xs font-semibold ${mode === 'quiz' ? 'text-[#FF9500]' : 'text-muted-foreground'}`}>Тест</span>
+                <Brain className={`w-6 h-6 ${mode === 'quiz' ? 'text-[#B4531C]' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-semibold ${mode === 'quiz' ? 'text-[#B4531C]' : 'text-muted-foreground'}`}>Тест</span>
                 <span className="text-[10px] text-muted-foreground text-center">Оцените свои знания</span>
               </button>
             </div>
@@ -579,7 +579,7 @@ export function FlashcardsTab() {
 
         {/* Generate button */}
         <Button
-          className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-14 text-sm font-bold shadow-lg"
+          className="w-full squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-14 text-sm font-bold shadow-lg"
           onClick={handleGenerate}
           disabled={isGenerating || !selectedTopic}
         >
@@ -597,7 +597,7 @@ export function FlashcardsTab() {
           <Card className="squircle-sm border-0 shadow-sm">
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-[#007AFF]" />
+                <RefreshCw className="w-4 h-4 text-[#33608C]" />
                 Интервальное повторение (SM-2)
               </h3>
               <div className="grid grid-cols-4 gap-2">
@@ -605,16 +605,16 @@ export function FlashcardsTab() {
                   <div className="text-lg font-bold">{srStats.total}</div>
                   <div className="text-[9px] text-muted-foreground">Всего</div>
                 </div>
-                <div className="text-center p-2 rounded-lg bg-[#FF9500]/10">
-                  <div className="text-lg font-bold text-[#FF9500]">{srStats.due}</div>
+                <div className="text-center p-2 rounded-lg bg-[#B4531C]/10">
+                  <div className="text-lg font-bold text-[#B4531C]">{srStats.due}</div>
                   <div className="text-[9px] text-muted-foreground">К повторению</div>
                 </div>
-                <div className="text-center p-2 rounded-lg bg-[#007AFF]/10">
-                  <div className="text-lg font-bold text-[#007AFF]">{srStats.learning}</div>
+                <div className="text-center p-2 rounded-lg bg-[#33608C]/10">
+                  <div className="text-lg font-bold text-[#33608C]">{srStats.learning}</div>
                   <div className="text-[9px] text-muted-foreground">Изучаются</div>
                 </div>
-                <div className="text-center p-2 rounded-lg bg-[#28CD41]/10">
-                  <div className="text-lg font-bold text-[#28CD41]">{srStats.mature}</div>
+                <div className="text-center p-2 rounded-lg bg-[#4C7A3F]/10">
+                  <div className="text-lg font-bold text-[#4C7A3F]">{srStats.mature}</div>
                   <div className="text-[9px] text-muted-foreground">Усвоены</div>
                 </div>
               </div>
@@ -627,7 +627,7 @@ export function FlashcardsTab() {
           <Card className="squircle-sm border-0 shadow-sm">
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#28CD41]" />
+                <Layers className="w-4 h-4 text-[#4C7A3F]" />
                 Недавние колоды
               </h3>
               <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
@@ -643,9 +643,9 @@ export function FlashcardsTab() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <span className="text-[10px] text-[#28CD41] font-medium">✓ {deck.known}</span>
+                      <span className="text-[10px] text-[#4C7A3F] font-medium">✓ {deck.known}</span>
                       <span className="text-[10px] text-muted-foreground">/</span>
-                      <span className="text-[10px] text-[#FF3B30] font-medium">✗ {deck.unknown}</span>
+                      <span className="text-[10px] text-[#B3261E] font-medium">✗ {deck.unknown}</span>
                     </div>
                   </div>
                 ))}
@@ -677,7 +677,7 @@ export function FlashcardsTab() {
               transition={{ type: 'spring', duration: 0.5 }}
             >
               <div className="text-5xl mb-3">
-                {isSRMode ? '🧠' : pct >= 80 ? '🏆' : pct >= 50 ? '⭐' : '📚'}
+                {isSRMode ? '' : pct >= 80 ? '' : pct >= 50 ? '' : ''}
               </div>
               <h2 className="text-2xl font-bold gradient-text mb-1">
                 {isSRMode ? `${srReviewedToday} карт.` : `${pct}%`}
@@ -692,24 +692,24 @@ export function FlashcardsTab() {
             {!isSRMode && (
               <div className="flex justify-center gap-6 mb-4">
                 <div className="text-center">
-                  <div className="w-12 h-12 rounded-xl bg-[#28CD41]/10 flex items-center justify-center mx-auto mb-1">
-                    <CheckCircle2 className="w-6 h-6 text-[#28CD41]" />
+                  <div className="w-12 h-12 rounded-xl bg-[#4C7A3F]/10 flex items-center justify-center mx-auto mb-1">
+                    <CheckCircle2 className="w-6 h-6 text-[#4C7A3F]" />
                   </div>
-                  <p className="text-lg font-bold text-[#28CD41]">{knownCards.size}</p>
+                  <p className="text-lg font-bold text-[#4C7A3F]">{knownCards.size}</p>
                   <p className="text-[10px] text-muted-foreground">Знаю</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 rounded-xl bg-[#FF3B30]/10 flex items-center justify-center mx-auto mb-1">
-                    <XCircle className="w-6 h-6 text-[#FF3B30]" />
+                  <div className="w-12 h-12 rounded-xl bg-[#B3261E]/10 flex items-center justify-center mx-auto mb-1">
+                    <XCircle className="w-6 h-6 text-[#B3261E]" />
                   </div>
-                  <p className="text-lg font-bold text-[#FF3B30]">{unknownCards.size}</p>
+                  <p className="text-lg font-bold text-[#B3261E]">{unknownCards.size}</p>
                   <p className="text-[10px] text-muted-foreground">Не знаю</p>
                 </div>
               </div>
             )}
 
             {isSRMode && dueCardIds.length > 0 && (
-              <div className="p-3 rounded-xl bg-[#FF9500]/5 border border-[#FF9500]/20 mb-4">
+              <div className="p-3 rounded-xl bg-[#B4531C]/5 border border-[#B4531C]/20 mb-4">
                 <p className="text-xs text-muted-foreground">
                   Осталось {dueCardIds.length} карточек к повторению
                 </p>
@@ -720,7 +720,7 @@ export function FlashcardsTab() {
 
         <div className="grid grid-cols-2 gap-3">
           <Button
-            className="squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-12 text-sm font-semibold"
+            className="squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-12 text-sm font-semibold"
             onClick={() => {
               if (isSRMode) {
                 startSRReview();
@@ -734,7 +734,7 @@ export function FlashcardsTab() {
             {isSRMode ? 'Ещё раз' : 'Повторить'}
           </Button>
           <Button
-            className="squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-12 text-sm font-semibold"
+            className="squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-12 text-sm font-semibold"
             onClick={exitDeck}
           >
             <Sparkles className="w-4 h-4 mr-2" /> Новые
@@ -767,9 +767,9 @@ export function FlashcardsTab() {
           <Badge
             variant="secondary"
             className={`text-[10px] ${
-              mode === 'sr' ? 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20'
-                : mode === 'quiz' ? 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20'
-                : 'bg-[#28CD41]/10 text-[#28CD41] border-[#28CD41]/20'
+              mode === 'sr' ? 'bg-[#33608C]/10 text-[#33608C] border-[#33608C]/20'
+                : mode === 'quiz' ? 'bg-[#B4531C]/10 text-[#B4531C] border-[#B4531C]/20'
+                : 'bg-[#4C7A3F]/10 text-[#4C7A3F] border-[#4C7A3F]/20'
             }`}
           >
             {mode === 'sr' ? (
@@ -800,14 +800,14 @@ export function FlashcardsTab() {
             {currentIndex + 1} / {displayCards.length} {mode === 'sr' ? '(к повторению)' : 'карточек'}
           </span>
           {mode === 'quiz' && (
-            <span className="text-[#28CD41] font-medium">
+            <span className="text-[#4C7A3F] font-medium">
               ✓ {knownCards.size}
               <span className="text-muted-foreground mx-1">•</span>
-              <span className="text-[#FF3B30]">✗ {unknownCards.size}</span>
+              <span className="text-[#B3261E]">✗ {unknownCards.size}</span>
             </span>
           )}
           {mode === 'sr' && (
-            <span className="text-[#007AFF] font-medium">
+            <span className="text-[#33608C] font-medium">
               Повторено: {srReviewedToday}
             </span>
           )}
@@ -847,8 +847,8 @@ export function FlashcardsTab() {
           >
             <Card className={`squircle border-0 shadow-md w-full h-full flex flex-col justify-between ${
               mode === 'sr'
-                ? 'bg-gradient-to-br from-[#007AFF]/5 via-background to-[#5856D6]/5'
-                : 'bg-gradient-to-br from-[#28CD41]/5 via-background to-[#28CD41]/10'
+                ? 'bg-gradient-to-br from-[#33608C]/5 via-background to-[#6D4FC4]/5'
+                : 'bg-gradient-to-br from-[#4C7A3F]/5 via-background to-[#4C7A3F]/10'
             }`}>
               <CardContent className="p-5 flex flex-col h-full justify-between">
                 <div>
@@ -886,11 +886,11 @@ export function FlashcardsTab() {
               zIndex: isFlipped ? 1 : 0,
             }}
           >
-            <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#007AFF]/5 via-background to-[#AF52DE]/5 w-full h-full flex flex-col justify-between">
+            <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#33608C]/5 via-background to-[#6D4FC4]/5 w-full h-full flex flex-col justify-between">
               <CardContent className="p-5 flex flex-col h-full justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <Badge className="text-[10px] bg-[#007AFF] text-white">
+                    <Badge className="text-[10px] bg-[#33608C] text-white">
                       Определение
                     </Badge>
                     {currentSRData && mode === 'sr' && (
@@ -954,14 +954,14 @@ export function FlashcardsTab() {
           <p className="text-xs text-center text-muted-foreground mb-3">Оцените свой ответ:</p>
           <div className="grid grid-cols-2 gap-3">
             <Button
-              className="squircle-sm h-12 text-sm font-semibold bg-[#28CD41] hover:bg-[#1FA833] text-white"
+              className="squircle-sm h-12 text-sm font-semibold bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
               onClick={() => handleRate(true)}
             >
               <CheckCircle2 className="w-4 h-4 mr-2" />
               Знаю
             </Button>
             <Button
-              className="squircle-sm h-12 text-sm font-semibold bg-[#FF3B30] hover:bg-[#E0342B] text-white"
+              className="squircle-sm h-12 text-sm font-semibold bg-[#B3261E] hover:bg-[#B3261E] text-white"
               onClick={() => handleRate(false)}
             >
               <XCircle className="w-4 h-4 mr-2" />
@@ -990,12 +990,12 @@ export function FlashcardsTab() {
                 key={i}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
                   i === currentIndex
-                    ? 'bg-[#28CD41] scale-125'
+                    ? 'bg-[#4C7A3F] scale-125'
                     : i < currentIndex
                       ? knownCards.has(displayCards[i].id)
-                        ? 'bg-[#28CD41]/50'
+                        ? 'bg-[#4C7A3F]/50'
                         : unknownCards.has(displayCards[i].id)
-                          ? 'bg-[#FF3B30]/50'
+                          ? 'bg-[#B3261E]/50'
                           : 'bg-muted-foreground/30'
                     : 'bg-muted/50'
                 }`}
@@ -1007,7 +1007,7 @@ export function FlashcardsTab() {
             size="lg"
             onClick={handleNext}
             disabled={isNextDisabled}
-            className={`squircle-sm h-11 px-6 font-bold shadow-md ${isLastCard ? 'bg-[#28CD41] hover:bg-[#1FA833] text-white' : 'bg-[#007AFF] hover:bg-[#0066DD] text-white'}`}
+            className={`squircle-sm h-11 px-6 font-bold shadow-md ${isLastCard ? 'bg-[#4C7A3F] hover:bg-[#3D6332] text-white' : 'bg-[#33608C] hover:bg-[#264E70] text-white'}`}
           >
             {isLastCard ? (
               <><Trophy className="w-4 h-4 mr-1" /> Готово</>

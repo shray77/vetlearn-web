@@ -238,7 +238,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
             <div className="sticky top-0 bg-background z-10 px-5 pt-4 pb-3 border-b flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold">
-                  {mode === 'flashcards' ? '📥 Импорт карточек' : '📥 Импорт вопросов'}
+                  {mode === 'flashcards' ? ' Импорт карточек' : ' Импорт вопросов'}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {stage === 'input' && 'Загрузите конспект/текст для генерации'}
@@ -317,7 +317,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
 
                   {filename && (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 text-xs">
-                      {fileType === 'image' ? <ImageIcon className="w-4 h-4" /> : fileType === 'pdf' ? <FileText className="w-4 h-4 text-[#FF3B30]" /> : <FileText className="w-4 h-4" />}
+                      {fileType === 'image' ? <ImageIcon className="w-4 h-4" /> : fileType === 'pdf' ? <FileText className="w-4 h-4 text-[#B3261E]" /> : <FileText className="w-4 h-4" />}
                       <span className="font-medium truncate flex-1">{filename}</span>
                       <button
                         onClick={() => {
@@ -335,14 +335,14 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                   <Button
                     onClick={handleExtract}
                     disabled={!rawText.trim()}
-                    className="w-full bg-[#28CD41] hover:bg-[#1FA833] text-white"
+                    className="w-full bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
                     Сгенерировать {mode === 'flashcards' ? 'карточки' : 'вопросы'}
                   </Button>
 
                   <p className="text-[10px] text-muted-foreground text-center">
-                    ⚠️ Загружайте только собственные материалы. Не нарушайте авторские права.
+                    ⚠ Загружайте только собственные материалы. Не нарушайте авторские права.
                   </p>
                 </>
               )}
@@ -350,8 +350,8 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
               {/* Stage: extracting */}
               {stage === 'extracting' && (
                 <div className="py-12 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-[#28CD41]/10 flex items-center justify-center mx-auto mb-3">
-                    <Sparkles className="w-6 h-6 text-[#28CD41] animate-pulse" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#4C7A3F]/10 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-6 h-6 text-[#4C7A3F] animate-pulse" />
                   </div>
                   <p className="text-sm font-medium">Извлекаем текст и генерируем...</p>
                   <p className="text-[11px] text-muted-foreground mt-1">Это может занять 10-20 секунд</p>
@@ -398,7 +398,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                               </>
                             )}
                             <div className="flex gap-2">
-                              <Button size="sm" onClick={() => applyEdit(item.id)} className="h-7 text-xs bg-[#28CD41] hover:bg-[#1FA833] text-white">
+                              <Button size="sm" onClick={() => applyEdit(item.id)} className="h-7 text-xs bg-[#4C7A3F] hover:bg-[#3D6332] text-white">
                                 <Check className="w-3 h-3 mr-1" /> OK
                               </Button>
                               <Button size="sm" variant="ghost" onClick={() => setEditingId(null)} className="h-7 text-xs">
@@ -439,7 +439,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                                 </button>
                                 <button
                                   onClick={() => deleteItem(item.id)}
-                                  className="p-1 rounded hover:bg-[#FF3B30]/10 text-[#FF3B30]"
+                                  className="p-1 rounded hover:bg-[#B3261E]/10 text-[#B3261E]"
                                   title="Удалить"
                                 >
                                   <Trash2 className="w-3 h-3" />
@@ -459,7 +459,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                     <Button
                       onClick={handleSave}
                       disabled={generated.length === 0}
-                      className="flex-1 bg-[#28CD41] hover:bg-[#1FA833] text-white"
+                      className="flex-1 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
                     >
                       <Check className="w-4 h-4 mr-2" />
                       Сохранить ({generated.length})
@@ -471,7 +471,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
               {/* Stage: saving */}
               {stage === 'saving' && (
                 <div className="py-12 text-center">
-                  <Sparkles className="w-8 h-8 mx-auto mb-2 text-[#28CD41] animate-pulse" />
+                  <Sparkles className="w-8 h-8 mx-auto mb-2 text-[#4C7A3F] animate-pulse" />
                   <p className="text-sm">Сохраняем...</p>
                 </div>
               )}

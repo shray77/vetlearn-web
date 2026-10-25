@@ -16,7 +16,7 @@ const SYSTEM_PROMPT = `Ты — ветеринарный врач, создаё�
   "correctDiagnosis": "диагноз", "diagnosisOptions": [4 варианта, первый — правильный],
   "treatmentPlan": "план лечения", "treatmentOptions": [4 варианта, первый — правильный],
   "findings": [{"region":"head|neck|thorax|abdomen|skin|front_legs|hind_legs|tail","toolId":"inspection|stethoscope|thermometer|palpation|otoscope|ophthalmoscope|percussion|skin_scrape","finding":"описание","isNormal":false,"relevance":"critical|important|minor"}],
-  "availableTests": [{"id":"test1","name":"название","icon":"🔬","cost":800,"category":"blood|imaging|microscopy|other","result":"результат","isRevealed":false}],
+  "availableTests": [{"id":"test1","name":"название","icon":"","cost":800,"category":"blood|imaging|microscopy|other","result":"результат","isRevealed":false}],
   "budget": 6000, "xpReward": 75,
   "anamnesisQuestions": [{"question":"вопрос","answer":"ответ владельца"}]
 }
@@ -106,14 +106,14 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
     // Validate lab tests
     if (!Array.isArray(s.availableTests) || s.availableTests.length < 2) {
       s.availableTests = [
-        { id: 'cbc', name: 'ОАК', icon: '🩸', cost: 800, category: 'blood', result: 'В пределах нормы', isRevealed: false },
-        { id: 'biochemistry', name: 'Биохимия крови', icon: '🧪', cost: 1500, category: 'blood', result: 'В пределах нормы', isRevealed: false },
+        { id: 'cbc', name: 'ОАК', icon: '', cost: 800, category: 'blood', result: 'В пределах нормы', isRevealed: false },
+        { id: 'biochemistry', name: 'Биохимия крови', icon: '', cost: 1500, category: 'blood', result: 'В пределах нормы', isRevealed: false },
       ];
     } else {
       s.availableTests = s.availableTests.map((t: any, i: number) => ({
         id: t.id || `test_${i}`,
         name: typeof t.name === 'string' ? t.name : `Тест ${i + 1}`,
-        icon: typeof t.icon === 'string' ? t.icon : '🔬',
+        icon: typeof t.icon === 'string' ? t.icon : '',
         cost: typeof t.cost === 'number' ? t.cost : 1000,
         category: ['blood', 'imaging', 'microscopy', 'other'].includes(t.category) ? t.category : 'other',
         result: typeof t.result === 'string' ? t.result : 'Результат недоступен',

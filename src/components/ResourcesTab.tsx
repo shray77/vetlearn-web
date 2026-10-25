@@ -62,10 +62,10 @@ export function ResourcesTab() {
     : resources.filter(r => r.type === activeFilter);
 
   const typeIcons: Record<string, { icon: typeof BookOpen; label: string; color: string }> = {
-    book: { icon: BookOpen, label: 'Учебники', color: 'text-[#28CD41]' },
-    video: { icon: Video, label: 'Видео', color: 'text-[#FF3B30]' },
-    article: { icon: FileText, label: 'Статьи', color: 'text-[#007AFF]' },
-    course: { icon: GraduationCap, label: 'Курсы', color: 'text-[#AF52DE]' },
+    book: { icon: BookOpen, label: 'Учебники', color: 'text-[#4C7A3F]' },
+    video: { icon: Video, label: 'Видео', color: 'text-[#B3261E]' },
+    article: { icon: FileText, label: 'Статьи', color: 'text-[#33608C]' },
+    course: { icon: GraduationCap, label: 'Курсы', color: 'text-[#6D4FC4]' },
   };
 
   return (
@@ -77,10 +77,10 @@ export function ResourcesTab() {
 
       {/* Knowledge gaps summary */}
       {profile.learningPath.length > 0 && (
-        <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#FF9500]/5 to-[#FF3B30]/5">
+        <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#B4531C]/5 to-[#B3261E]/5">
           <CardContent className="p-4">
             <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-[#FF9500]" /> Область для развития
+              <AlertCircle className="w-4 h-4 text-[#B4531C]" /> Область для развития
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {profile.learningPath.filter(p => p.priority === 'high').map((item, i) => (
@@ -92,7 +92,7 @@ export function ResourcesTab() {
       )}
 
       <Button
-        className="w-full squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-12 text-sm font-bold"
+        className="w-full squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-12 text-sm font-bold"
         onClick={handleGenerateResources}
         disabled={isLoading}
       >
@@ -165,7 +165,7 @@ export function ResourcesTab() {
                           </div>
                           <button onClick={() => toggleBookmark(resource.id || `${i}`)} className="shrink-0">
                             {isBookmarked ? (
-                              <BookmarkCheck className="w-4 h-4 text-[#28CD41]" />
+                              <BookmarkCheck className="w-4 h-4 text-[#4C7A3F]" />
                             ) : (
                               <Bookmark className="w-4 h-4 text-muted-foreground" />
                             )}
@@ -178,7 +178,7 @@ export function ResourcesTab() {
                               href={resource.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[10px] text-[#007AFF] hover:underline"
+                              className="inline-flex items-center gap-1 text-[10px] text-[#33608C] hover:underline"
                             >
                               {resource.urlVerified ? 'Открыть' : 'Найти в Google'} <ExternalLink className="w-3 h-3" />
                             </a>

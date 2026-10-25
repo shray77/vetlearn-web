@@ -55,23 +55,23 @@ interface QuestionRecord {
 
 function getGradeColor(grade: string): string {
   switch (grade) {
-    case 'Отлично': return '#28CD41';
-    case 'Хорошо': return '#007AFF';
-    case 'Удовлетворительно': return '#FF9500';
-    default: return '#FF3B30';
+    case 'Отлично': return '#4C7A3F';
+    case 'Хорошо': return '#33608C';
+    case 'Удовлетворительно': return '#B4531C';
+    default: return '#B3261E';
   }
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 8) return 'text-[#28CD41]';
-  if (score >= 5) return 'text-[#FF9500]';
-  return 'text-[#FF3B30]';
+  if (score >= 8) return 'text-[#4C7A3F]';
+  if (score >= 5) return 'text-[#B4531C]';
+  return 'text-[#B3261E]';
 }
 
 function getScoreBg(score: number): string {
-  if (score >= 8) return 'bg-[#28CD41]/10 border-[#28CD41]/30';
-  if (score >= 5) return 'bg-[#FF9500]/10 border-[#FF9500]/30';
-  return 'bg-[#FF3B30]/10 border-[#FF3B30]/30';
+  if (score >= 8) return 'bg-[#4C7A3F]/10 border-[#4C7A3F]/30';
+  if (score >= 5) return 'bg-[#B4531C]/10 border-[#B4531C]/30';
+  return 'bg-[#B3261E]/10 border-[#B3261E]/30';
 }
 
 function formatTime(seconds: number): string {
@@ -428,7 +428,7 @@ export function MockExamTab() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#28CD41] to-[#1FA833] flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] flex items-center justify-center mx-auto mb-3 shadow-lg">
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-xl font-bold">Экзаменационная комиссия</h2>
@@ -439,11 +439,11 @@ export function MockExamTab() {
 
         {/* Info card */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <Card className="p-4 bg-[#28CD41]/5 border-[#28CD41]/20">
+          <Card className="p-4 bg-[#4C7A3F]/5 border-[#4C7A3F]/20">
             <div className="flex items-start gap-3">
-              <MessageSquare className="w-5 h-5 text-[#28CD41] mt-0.5 shrink-0" />
+              <MessageSquare className="w-5 h-5 text-[#4C7A3F] mt-0.5 shrink-0" />
               <div className="text-sm space-y-1">
-                <p className="font-medium text-[#28CD41]">Формат экзамена</p>
+                <p className="font-medium text-[#4C7A3F]">Формат экзамена</p>
                 <p className="text-muted-foreground leading-relaxed">
                   AI-экзаменатор задаёт вопросы, на которые вы отвечаете <span className="font-medium">свободным текстом</span>.
                   Ответы оцениваются по содержанию и полноте. После частично правильных ответов возможен дополнительный вопрос.
@@ -464,7 +464,7 @@ export function MockExamTab() {
                   onClick={() => toggleTopic(topic.id)}
                   className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border ${
                     selectedTopics.includes(topic.id)
-                      ? 'bg-[#28CD41]/10 border-[#28CD41]/40 text-[#28CD41]'
+                      ? 'bg-[#4C7A3F]/10 border-[#4C7A3F]/40 text-[#4C7A3F]'
                       : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-muted'
                   }`}
                 >
@@ -473,7 +473,7 @@ export function MockExamTab() {
               ))}
             </div>
             {selectedTopics.length === 0 && (
-              <p className="text-xs text-[#FF3B30] mt-2">Выберите хотя бы одну тему</p>
+              <p className="text-xs text-[#B3261E] mt-2">Выберите хотя бы одну тему</p>
             )}
           </Card>
         </motion.div>
@@ -515,7 +515,7 @@ export function MockExamTab() {
                   onClick={() => setQuestionCount(count)}
                   className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all border ${
                     questionCount === count
-                      ? 'bg-[#28CD41] text-white border-transparent shadow-md'
+                      ? 'bg-[#4C7A3F] text-white border-transparent shadow-md'
                       : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-muted'
                   }`}
                 >
@@ -531,7 +531,7 @@ export function MockExamTab() {
           <Button
             onClick={handleStartExam}
             disabled={selectedTopics.length === 0 || isLoading}
-            className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#28CD41] to-[#1FA833] text-white font-semibold text-sm shadow-lg hover:shadow-xl transition-all"
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#4C7A3F] to-[#3D6332] text-white font-semibold text-sm shadow-lg hover:shadow-xl transition-all"
           >
             {isLoading ? (
               <>
@@ -570,7 +570,7 @@ export function MockExamTab() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#28CD41] to-[#1FA833] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
               <div>
@@ -590,7 +590,7 @@ export function MockExamTab() {
                 variant="ghost"
                 size="sm"
                 onClick={handleEndExam}
-                className="h-8 px-2 text-xs text-[#FF3B30] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10"
+                className="h-8 px-2 text-xs text-[#B3261E] hover:text-[#B3261E] hover:bg-[#B3261E]/10"
               >
                 <Square className="w-3.5 h-3.5 mr-1" />
                 Закончить
@@ -620,7 +620,7 @@ export function MockExamTab() {
               {/* Examiner question */}
               <div className="flex justify-start">
                 <div className="max-w-[85%]">
-                  <Badge variant="outline" className="text-[10px] mb-1 border-[#28CD41]/30 text-[#28CD41]">
+                  <Badge variant="outline" className="text-[10px] mb-1 border-[#4C7A3F]/30 text-[#4C7A3F]">
                     <GraduationCap className="w-3 h-3 mr-1" /> Экзаменатор
                   </Badge>
                   <div className="p-3 rounded-2xl rounded-bl-md bg-card border shadow-sm text-sm leading-relaxed">
@@ -645,9 +645,9 @@ export function MockExamTab() {
                   <div className={`p-3 rounded-2xl rounded-bl-md border text-sm leading-relaxed ${getScoreBg(record.feedback.score)}`}>
                     <div className="flex items-center gap-2 mb-1.5">
                       {record.feedback.correct ? (
-                        <CheckCircle2 className="w-4 h-4 text-[#28CD41]" />
+                        <CheckCircle2 className="w-4 h-4 text-[#4C7A3F]" />
                       ) : (
-                        <AlertCircle className="w-4 h-4 text-[#FF9500]" />
+                        <AlertCircle className="w-4 h-4 text-[#B4531C]" />
                       )}
                       <span className={`font-semibold text-xs ${getScoreColor(record.feedback.score)}`}>
                         {record.feedback.score}/10 баллов
@@ -703,7 +703,7 @@ export function MockExamTab() {
             >
               <div className="flex justify-start">
                 <div className="max-w-[85%]">
-                  <Badge variant="outline" className="text-[10px] mb-1 border-[#28CD41]/30 text-[#28CD41]">
+                  <Badge variant="outline" className="text-[10px] mb-1 border-[#4C7A3F]/30 text-[#4C7A3F]">
                     <GraduationCap className="w-3 h-3 mr-1" /> Экзаменатор
                   </Badge>
                   <div className="p-3 rounded-2xl rounded-bl-md bg-card border shadow-sm text-sm leading-relaxed">
@@ -719,7 +719,7 @@ export function MockExamTab() {
                     onClick={() => setShowHints(!showHints)}
                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <Lightbulb className="w-3.5 h-3.5 text-[#FF9500]" />
+                    <Lightbulb className="w-3.5 h-3.5 text-[#B4531C]" />
                     <span>{showHints ? 'Скрыть подсказки' : 'Показать подсказки'}</span>
                     <ChevronDown className={`w-3 h-3 transition-transform ${showHints ? 'rotate-180' : ''}`} />
                   </button>
@@ -733,8 +733,8 @@ export function MockExamTab() {
                       >
                         <div className="mt-1 space-y-1">
                           {currentQuestion.hints.map((hint, i) => (
-                            <p key={i} className="text-xs text-[#FF9500] bg-[#FF9500]/5 px-2 py-1 rounded-lg">
-                              💡 {hint}
+                            <p key={i} className="text-xs text-[#B4531C] bg-[#B4531C]/5 px-2 py-1 rounded-lg">
+                               {hint}
                             </p>
                           ))}
                         </div>
@@ -793,7 +793,7 @@ export function MockExamTab() {
               <Button
                 onClick={handleSubmitAnswer}
                 disabled={!currentFollowUpAnswer.trim() || isLoading}
-                className="w-full h-10 rounded-xl bg-[#28CD41] hover:bg-[#1FA833] text-white text-sm font-medium"
+                className="w-full h-10 rounded-xl bg-[#4C7A3F] hover:bg-[#3D6332] text-white text-sm font-medium"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Отправить ответ
@@ -813,7 +813,7 @@ export function MockExamTab() {
               <Button
                 onClick={handleSubmitAnswer}
                 disabled={!currentAnswer.trim() || isLoading}
-                className="w-full h-10 rounded-xl bg-[#28CD41] hover:bg-[#1FA833] text-white text-sm font-medium"
+                className="w-full h-10 rounded-xl bg-[#4C7A3F] hover:bg-[#3D6332] text-white text-sm font-medium"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Ответить
@@ -887,7 +887,7 @@ export function MockExamTab() {
               <div className="w-px h-12 bg-border" />
               <div className="text-center">
                 <motion.p
-                  className="text-2xl font-bold text-[#28CD41]"
+                  className="text-2xl font-bold text-[#4C7A3F]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
@@ -919,15 +919,15 @@ export function MockExamTab() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <div className="grid grid-cols-1 gap-3">
             {results.strengths.length > 0 && (
-              <Card className="p-4 bg-[#28CD41]/5 border-[#28CD41]/20">
+              <Card className="p-4 bg-[#4C7A3F]/5 border-[#4C7A3F]/20">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-[#28CD41]" />
-                  <h3 className="text-sm font-semibold text-[#28CD41]">Сильные стороны</h3>
+                  <TrendingUp className="w-4 h-4 text-[#4C7A3F]" />
+                  <h3 className="text-sm font-semibold text-[#4C7A3F]">Сильные стороны</h3>
                 </div>
                 <div className="space-y-1">
                   {results.strengths.map((s, i) => (
                     <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5 leading-relaxed">
-                      <CheckCircle2 className="w-3 h-3 text-[#28CD41] mt-0.5 shrink-0" />
+                      <CheckCircle2 className="w-3 h-3 text-[#4C7A3F] mt-0.5 shrink-0" />
                       {s}
                     </p>
                   ))}
@@ -936,15 +936,15 @@ export function MockExamTab() {
             )}
 
             {results.weaknesses.length > 0 && (
-              <Card className="p-4 bg-[#FF3B30]/5 border-[#FF3B30]/20">
+              <Card className="p-4 bg-[#B3261E]/5 border-[#B3261E]/20">
                 <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-4 h-4 text-[#FF3B30]" />
-                  <h3 className="text-sm font-semibold text-[#FF3B30]">Слабые стороны</h3>
+                  <Target className="w-4 h-4 text-[#B3261E]" />
+                  <h3 className="text-sm font-semibold text-[#B3261E]">Слабые стороны</h3>
                 </div>
                 <div className="space-y-1">
                   {results.weaknesses.map((w, i) => (
                     <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5 leading-relaxed">
-                      <XCircle className="w-3 h-3 text-[#FF3B30] mt-0.5 shrink-0" />
+                      <XCircle className="w-3 h-3 text-[#B3261E] mt-0.5 shrink-0" />
                       {w}
                     </p>
                   ))}
@@ -958,7 +958,7 @@ export function MockExamTab() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="p-4">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <Star className="w-4 h-4 text-[#FF9500]" />
+              <Star className="w-4 h-4 text-[#B4531C]" />
               Обзор ответов
             </h3>
             <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar pr-1">
@@ -989,7 +989,7 @@ export function MockExamTab() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <Card className="p-4">
               <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-[#FF9500]" />
+                <Lightbulb className="w-4 h-4 text-[#B4531C]" />
                 Рекомендации
               </h3>
               <div className="space-y-1">
@@ -1008,7 +1008,7 @@ export function MockExamTab() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
           <Button
             onClick={handleReset}
-            className="w-full h-11 rounded-2xl bg-gradient-to-r from-[#28CD41] to-[#1FA833] text-white font-semibold text-sm shadow-lg"
+            className="w-full h-11 rounded-2xl bg-gradient-to-r from-[#4C7A3F] to-[#3D6332] text-white font-semibold text-sm shadow-lg"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             Пройти ещё раз

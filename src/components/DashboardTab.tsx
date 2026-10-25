@@ -159,10 +159,10 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
   const levelConfig = useMemo(() => {
     if (!profile.determinedLevel) return null;
     const configs: Record<string, { label: string; color: string; bg: string; borderColor: string }> = {
-      beginner: { label: 'Начинающий', color: 'text-[#28CD41]', bg: 'bg-[#E8F9EC] dark:bg-[#1A3D22]', borderColor: 'border-[#28CD41]/30' },
-      intermediate: { label: 'Средний', color: 'text-[#FF9500]', bg: 'bg-[#FFF3CD] dark:bg-[#3D3000]', borderColor: 'border-[#FF9500]/30' },
-      advanced: { label: 'Продвинутый', color: 'text-[#FF3B30]', bg: 'bg-[#FFE5E3] dark:bg-[#3D1510]', borderColor: 'border-[#FF3B30]/30' },
-      expert: { label: 'Экспертный', color: 'text-[#AF52DE]', bg: 'bg-[#F3E8FF] dark:bg-[#2D1A3D]', borderColor: 'border-[#AF52DE]/30' },
+      beginner: { label: 'Начинающий', color: 'text-[#4C7A3F]', bg: 'bg-[#EDF3EA] dark:bg-[#203528]', borderColor: 'border-[#4C7A3F]/30' },
+      intermediate: { label: 'Средний', color: 'text-[#B4531C]', bg: 'bg-[#F3EAD3] dark:bg-[#33290F]', borderColor: 'border-[#B4531C]/30' },
+      advanced: { label: 'Продвинутый', color: 'text-[#B3261E]', bg: 'bg-[#F5E3E1] dark:bg-[#3A2622]', borderColor: 'border-[#B3261E]/30' },
+      expert: { label: 'Экспертный', color: 'text-[#6D4FC4]', bg: 'bg-[#EDE9F6] dark:bg-[#34302A]', borderColor: 'border-[#6D4FC4]/30' },
     };
     return configs[profile.determinedLevel] || null;
   }, [profile.determinedLevel]);
@@ -177,7 +177,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
     const learningPathText = (profile.learningPath || [])
       .map(item => `- ${item.topicName} (${item.priority})`)
       .join('\n  ');
-    const text = `🐾 VetLearn AI — Мой прогресс\n━━━━━━━━━━━━━━━━━━━━━━\n📊 Уровень: ${profile.level}\n⚡ Опыт: ${profile.xp} / ${profile.xpToNext} XP\n🔥 Серия: ${profile.streak} дней\n📝 Тестов пройдено: ${profile.assessmentsCompleted}\n🎯 Точность: ${accuracy}%\n\n🗺️ Карта знаний:\n  ${skillMapText || 'Нет данных'}\n\n📚 План обучения:\n  ${learningPathText || 'Нет данных'}\n\nСгенерировано в VetLearn AI`;
+    const text = ` VetLearn AI — Мой прогресс\n━━━━━━━━━━━━━━━━━━━━━━\n Уровень: ${profile.level}\n Опыт: ${profile.xp} / ${profile.xpToNext} XP\n Серия: ${profile.streak} дней\n Тестов пройдено: ${profile.assessmentsCompleted}\n Точность: ${accuracy}%\n\n Карта знаний:\n  ${skillMapText || 'Нет данных'}\n\n План обучения:\n  ${learningPathText || 'Нет данных'}\n\nСгенерировано в VetLearn AI`;
     navigator.clipboard.writeText(text).then(() => {
       toast.success('Прогресс скопирован!');
     }).catch(() => {
@@ -193,11 +193,11 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="squircle overflow-hidden border-0 shadow-lg bg-gradient-to-br from-[#28CD41] to-[#1FA833]">
+        <Card className="squircle overflow-hidden border-0 shadow-lg bg-gradient-to-br from-[#4C7A3F] to-[#3D6332]">
           <CardContent className="p-5 text-white">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl">
-                🐾
+                
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-bold">{profile.name}</h2>
@@ -217,7 +217,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   <div className="h-2.5 bg-black/20 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full rounded-full"
-                      style={{ background: 'linear-gradient(90deg, #FFD60A, #FF9500)' }}
+                      style={{ background: 'linear-gradient(90deg, #D9A24A, #B4531C)' }}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(0, Math.min(100, xpInLevel))}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
@@ -233,22 +233,22 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
       {/* Version Badge */}
       <div className="flex justify-center">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-muted/80 text-muted-foreground border border-border/50">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#28CD41] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#4C7A3F] animate-pulse" />
           VetLearn AI v0.3.0
         </span>
       </div>
 
       {/* Daily Challenge — D.6 */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className={`border-0 shadow-md ${isTodayDone ? 'bg-gradient-to-br from-[#28CD41]/15 to-[#28CD41]/5' : 'bg-gradient-to-br from-[#FF9500]/15 to-[#AF52DE]/5'}`}>
+        <Card className={`border-0 shadow-md ${isTodayDone ? 'bg-gradient-to-br from-[#4C7A3F]/15 to-[#4C7A3F]/5' : 'bg-gradient-to-br from-[#B4531C]/15 to-[#6D4FC4]/5'}`}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-[#FF9500]" />
+              <Calendar className="w-4 h-4 text-[#B4531C]" />
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Челлендж дня
               </span>
               {isTodayDone && (
-                <Badge className="ml-auto bg-[#28CD41] text-white border-0 text-[10px]">
+                <Badge className="ml-auto bg-[#4C7A3F] text-white border-0 text-[10px]">
                   <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" /> Выполнено
                 </Badge>
               )}
@@ -265,7 +265,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   {!isTodayDone ? (
                     <Button
                       size="sm"
-                      className="h-7 text-[11px] bg-[#28CD41] hover:bg-[#1FA833] text-white"
+                      className="h-7 text-[11px] bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
                       onClick={handleStartChallenge}
                     >
                       Начать <ArrowRight className="w-3 h-3 ml-1" />
@@ -295,9 +295,9 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     key={c.date}
                     className={`flex-1 text-center p-1.5 rounded-lg ${
                       done
-                        ? 'bg-[#28CD41]/10 text-[#28CD41]'
+                        ? 'bg-[#4C7A3F]/10 text-[#4C7A3F]'
                         : 'bg-muted/50 text-muted-foreground'
-                    } ${isToday ? 'ring-2 ring-[#FF9500]' : ''}`}
+                    } ${isToday ? 'ring-2 ring-[#B4531C]' : ''}`}
                     title={`${c.date}: ${c.title}`}
                   >
                     <div className="text-base">{done ? '✓' : c.icon}</div>
@@ -320,10 +320,10 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         className="grid grid-cols-4 gap-2"
       >
         {[
-          { icon: Flame, label: 'Серия', value: profile.streak, color: 'text-[#FF9500]', bg: 'bg-[#FFF3CD] dark:bg-[#3D3000]' },
-          { icon: Star, label: 'Кейсы', value: profile.completedCases, color: 'text-[#FF9500]', bg: 'bg-[#FFF3CD] dark:bg-[#3D3000]' },
-          { icon: Target, label: 'Точность', value: `${accuracy}%`, color: 'text-[#28CD41]', bg: 'bg-[#E8F9EC] dark:bg-[#1A3D22]' },
-          { icon: Award, label: 'Уровень', value: profile.level, color: 'text-[#AF52DE]', bg: 'bg-[#F3E8FF] dark:bg-[#2D1A3D]' },
+          { icon: Flame, label: 'Серия', value: profile.streak, color: 'text-[#B4531C]', bg: 'bg-[#F3EAD3] dark:bg-[#33290F]' },
+          { icon: Star, label: 'Кейсы', value: profile.completedCases, color: 'text-[#B4531C]', bg: 'bg-[#F3EAD3] dark:bg-[#33290F]' },
+          { icon: Target, label: 'Точность', value: `${accuracy}%`, color: 'text-[#4C7A3F]', bg: 'bg-[#EDF3EA] dark:bg-[#203528]' },
+          { icon: Award, label: 'Уровень', value: profile.level, color: 'text-[#6D4FC4]', bg: 'bg-[#EDE9F6] dark:bg-[#34302A]' },
         ].map((stat, i) => (
           <Card key={i} className="squircle-sm border-0 shadow-sm p-3 text-center">
             <div className={`w-8 h-8 rounded-xl ${stat.bg} flex items-center justify-center mx-auto mb-1.5`}>
@@ -352,12 +352,12 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
             className="h-1"
             style={{
               background: aiInsight.type === 'good_progress'
-                ? 'linear-gradient(90deg, #28CD41, #007AFF)'
+                ? 'linear-gradient(90deg, #4C7A3F, #33608C)'
                 : aiInsight.type === 'weak_areas'
-                  ? 'linear-gradient(90deg, #FF9500, #FF3B30)'
+                  ? 'linear-gradient(90deg, #B4531C, #B3261E)'
                   : aiInsight.type === 'no_placement'
-                    ? 'linear-gradient(90deg, #AF52DE, #007AFF)'
-                    : 'linear-gradient(90deg, #007AFF, #5856D6)',
+                    ? 'linear-gradient(90deg, #6D4FC4, #33608C)'
+                    : 'linear-gradient(90deg, #33608C, #6D4FC4)',
             }}
           />
           <CardContent className="p-4">
@@ -368,10 +368,10 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   className="w-11 h-11 rounded-xl flex items-center justify-center"
                   style={{
                     background: aiInsight.type === 'good_progress'
-                      ? 'linear-gradient(135deg, #28CD41, #007AFF)'
+                      ? 'linear-gradient(135deg, #4C7A3F, #33608C)'
                       : aiInsight.type === 'weak_areas'
-                        ? 'linear-gradient(135deg, #FF9500, #FF3B30)'
-                        : 'linear-gradient(135deg, #007AFF, #AF52DE)',
+                        ? 'linear-gradient(135deg, #B4531C, #B3261E)'
+                        : 'linear-gradient(135deg, #33608C, #6D4FC4)',
                   }}
                   animate={{
                     boxShadow: [
@@ -385,7 +385,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   <Brain className="w-5 h-5 text-white" />
                 </motion.div>
                 <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF9500] flex items-center justify-center"
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#B4531C] flex items-center justify-center"
                   animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                 >
@@ -422,7 +422,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onNavigate(aiInsight.actionTab)}
-                    className="text-xs font-semibold text-[#007AFF] hover:text-[#0062CC] transition-colors"
+                    className="text-xs font-semibold text-[#33608C] hover:text-[#264E70] transition-colors"
                   >
                     {aiInsight.actionLabel} →
                   </button>
@@ -441,18 +441,18 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                         >
                           {accuracyTrend === 'up' ? (
                             <>
-                              <TrendingUp className="w-3.5 h-3.5 text-[#28CD41]" />
-                              <span className="text-[10px] font-semibold text-[#28CD41]">Рост</span>
+                              <TrendingUp className="w-3.5 h-3.5 text-[#4C7A3F]" />
+                              <span className="text-[10px] font-semibold text-[#4C7A3F]">Рост</span>
                             </>
                           ) : accuracyTrend === 'down' ? (
                             <>
-                              <TrendingDown className="w-3.5 h-3.5 text-[#FF3B30]" />
-                              <span className="text-[10px] font-semibold text-[#FF3B30]">Падение</span>
+                              <TrendingDown className="w-3.5 h-3.5 text-[#B3261E]" />
+                              <span className="text-[10px] font-semibold text-[#B3261E]">Падение</span>
                             </>
                           ) : (
                             <>
-                              <Minus className="w-3.5 h-3.5 text-[#FF9500]" />
-                              <span className="text-[10px] font-semibold text-[#FF9500]">Стабильно</span>
+                              <Minus className="w-3.5 h-3.5 text-[#B4531C]" />
+                              <span className="text-[10px] font-semibold text-[#B4531C]">Стабильно</span>
                             </>
                           )}
                         </motion.div>
@@ -468,8 +468,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                             transition={{ delay: i * 0.1, duration: 0.3 }}
                             className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold"
                             style={{
-                              backgroundColor: a.score >= 75 ? '#E8F9EC' : a.score >= 50 ? '#FFF3CD' : '#FFE5E3',
-                              color: a.score >= 75 ? '#28CD41' : a.score >= 50 ? '#FF9500' : '#FF3B30',
+                              backgroundColor: a.score >= 75 ? '#EDF3EA' : a.score >= 50 ? '#F3EAD3' : '#F5E3E1',
+                              color: a.score >= 75 ? '#4C7A3F' : a.score >= 50 ? '#B4531C' : '#B3261E',
                             }}
                           >
                             {a.score}
@@ -499,8 +499,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#E8F9EC] dark:bg-[#1A3D22] flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-[#28CD41]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EDF3EA] dark:bg-[#203528] flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-[#4C7A3F]" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm">Продолжить обучение</h3>
@@ -517,13 +517,13 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           </Card>
         ) : (
           <Card
-            className="squircle border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow bg-gradient-to-r from-[#28CD41]/10 to-[#007AFF]/10"
+            className="squircle border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow bg-gradient-to-r from-[#4C7A3F]/10 to-[#33608C]/10"
             onClick={() => onNavigate('learning')}
           >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#28CD41] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#4C7A3F] flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -531,7 +531,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     <p className="text-xs text-muted-foreground">Пройдите первичное тестирование</p>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#28CD41]" />
+                <ArrowRight className="w-5 h-5 text-[#4C7A3F]" />
               </div>
             </CardContent>
           </Card>
@@ -561,8 +561,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#FF9500]/10 flex items-center justify-center">
-                    <Timer className="w-5 h-5 text-[#FF9500]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#B4531C]/10 flex items-center justify-center">
+                    <Timer className="w-5 h-5 text-[#B4531C]" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm">Повторение</h3>
@@ -571,7 +571,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#FF9500]" />
+                <ChevronRight className="w-5 h-5 text-[#B4531C]" />
               </div>
             </CardContent>
           </Card>
@@ -590,8 +590,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           onClick={() => onNavigate('cases')}
         >
           <CardContent className="p-4">
-            <div className="w-10 h-10 rounded-xl bg-[#007AFF]/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-              <Stethoscope className="w-5 h-5 text-[#007AFF]" />
+            <div className="w-10 h-10 rounded-xl bg-[#33608C]/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Stethoscope className="w-5 h-5 text-[#33608C]" />
             </div>
             <h3 className="font-semibold text-sm">AI Кейсы</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Уникальные клинические задачи</p>
@@ -603,8 +603,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           onClick={() => onNavigate('tutor')}
         >
           <CardContent className="p-4">
-            <div className="w-10 h-10 rounded-xl bg-[#AF52DE]/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-              <Mic className="w-5 h-5 text-[#AF52DE]" />
+            <div className="w-10 h-10 rounded-xl bg-[#6D4FC4]/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Mic className="w-5 h-5 text-[#6D4FC4]" />
             </div>
             <h3 className="font-semibold text-sm">Репетитор</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Голосовой AI-помощник</p>
@@ -630,7 +630,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         <Card className="squircle border-0 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[#28CD41]" />
+              <BarChart3 className="w-4 h-4 text-[#4C7A3F]" />
               Карта знаний
             </CardTitle>
           </CardHeader>
@@ -646,7 +646,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   Пройдите первичное тестирование,<br />чтобы увидеть карту знаний
                 </p>
                 <Button
-                  className="mt-3 bg-[#28CD41] hover:bg-[#1FA833] text-white"
+                  className="mt-3 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
                   size="sm"
                   onClick={() => onNavigate('learning')}
                 >
@@ -669,7 +669,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           className="w-full squircle-sm h-11 text-sm font-medium"
           onClick={handleExportProgress}
         >
-          <Copy className="w-4 h-4 mr-2 text-[#28CD41]" />
+          <Copy className="w-4 h-4 mr-2 text-[#4C7A3F]" />
           Скопировать прогресс
         </Button>
       </motion.div>
@@ -684,7 +684,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           <Card className="squircle border-0 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#FF9500]" />
+                <Clock className="w-4 h-4 text-[#B4531C]" />
                 Последняя активность
               </CardTitle>
             </CardHeader>
@@ -692,8 +692,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
               <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                 {assessmentHistory.slice(0, 3).map((a, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50">
-                    <div className="w-8 h-8 rounded-lg bg-[#E8F9EC] dark:bg-[#1A3D22] flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-[#28CD41]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#EDF3EA] dark:bg-[#203528] flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-[#4C7A3F]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">Тестирование</p>
@@ -706,8 +706,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                 ))}
                 {caseHistory.slice(0, 3).map((c, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50">
-                    <div className="w-8 h-8 rounded-lg bg-[#007AFF]/10 flex items-center justify-center">
-                      <Stethoscope className="w-4 h-4 text-[#007AFF]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#33608C]/10 flex items-center justify-center">
+                      <Stethoscope className="w-4 h-4 text-[#33608C]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{c.title}</p>

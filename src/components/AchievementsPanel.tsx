@@ -54,10 +54,10 @@ export function AchievementsPanel() {
     <div className="space-y-3">
       {/* Weekly League Card */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-[#FF9500]/10 to-[#AF52DE]/10">
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-[#B4531C]/10 to-[#6D4FC4]/10">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Trophy className="w-4 h-4 text-[#FF9500]" />
+              <Trophy className="w-4 h-4 text-[#B4531C]" />
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Недельная лига
               </span>
@@ -86,7 +86,7 @@ export function AchievementsPanel() {
                 <div className="flex items-center justify-between mt-1 text-[10px] text-muted-foreground">
                   <span>{currentLeague.minXpThisWeek} XP</span>
                   {nextLeague && <span>{nextLeague.minXpThisWeek} XP</span>}
-                  {!nextLeague && <span>Максимум достигнут 👑</span>}
+                  {!nextLeague && <span>Максимум достигнут </span>}
                 </div>
               </div>
             </div>
@@ -121,7 +121,7 @@ export function AchievementsPanel() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Star className="w-4 h-4 text-[#FF9500]" />
+              <Star className="w-4 h-4 text-[#B4531C]" />
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Достижения
               </span>

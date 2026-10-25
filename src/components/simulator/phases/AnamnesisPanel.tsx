@@ -27,8 +27,8 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
       <Card className="squircle-sm border-0 shadow-sm">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#007AFF]/10 flex items-center justify-center shrink-0 text-lg">
-              👤
+            <div className="w-10 h-10 rounded-full bg-[#33608C]/10 flex items-center justify-center shrink-0 text-lg">
+              
             </div>
             <div>
               <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 relative">
@@ -45,7 +45,7 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-[#007AFF]" /> Вопросы владельцу
+              <MessageCircle className="w-4 h-4 text-[#33608C]" /> Вопросы владельцу
             </h3>
             <span className="text-[10px] text-muted-foreground">
               {asked}/{MAX_ANAMNESIS_QUESTIONS} вопросов
@@ -66,7 +66,7 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
                       isRevealed
                         ? 'bg-muted/50 border-border/50'
                         : canAsk
-                          ? 'border-[#007AFF]/30 hover:border-[#007AFF]/50 hover:bg-[#007AFF]/5 cursor-pointer'
+                          ? 'border-[#33608C]/30 hover:border-[#33608C]/50 hover:bg-[#33608C]/5 cursor-pointer'
                           : 'border-transparent bg-muted/30 opacity-50'
                     }`}
                   >
@@ -77,14 +77,14 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="text-xs text-muted-foreground mt-2 pl-3 border-l-2 border-[#007AFF]/30"
+                          className="text-xs text-muted-foreground mt-2 pl-3 border-l-2 border-[#33608C]/30"
                         >
                           {qa.answer}
                         </motion.p>
                       )}
                     </AnimatePresence>
                     {!isRevealed && canAsk && (
-                      <p className="text-[10px] text-[#007AFF] mt-1">Нажмите, чтобы спросить →</p>
+                      <p className="text-[10px] text-[#33608C] mt-1">Нажмите, чтобы спросить →</p>
                     )}
                   </button>
                 </div>
@@ -95,7 +95,7 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
       </Card>
 
       <Button
-        className="w-full squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-12 text-sm font-semibold"
+        className="w-full squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-12 text-sm font-semibold"
         onClick={onNext}
       >
         Перейти к осмотру <ChevronRight className="w-4 h-4 ml-1" />

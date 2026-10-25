@@ -33,7 +33,7 @@ export function AnalyticsCard() {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1">
-            <Target className="w-4 h-4 text-[#AF52DE]" />
+            <Target className="w-4 h-4 text-[#6D4FC4]" />
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Глубокая аналитика
             </span>
@@ -47,18 +47,18 @@ export function AnalyticsCard() {
   }
 
   const trendIcon = (trend: string) => {
-    if (trend === 'up') return <TrendingUp className="w-3 h-3 text-[#28CD41]" />;
-    if (trend === 'down') return <TrendingDown className="w-3 h-3 text-[#FF3B30]" />;
+    if (trend === 'up') return <TrendingUp className="w-3 h-3 text-[#4C7A3F]" />;
+    if (trend === 'down') return <TrendingDown className="w-3 h-3 text-[#B3261E]" />;
     if (trend === 'stable') return <Minus className="w-3 h-3 text-muted-foreground" />;
     return <Clock className="w-3 h-3 text-muted-foreground" />;
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#AF52DE]/5 to-[#007AFF]/5">
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#6D4FC4]/5 to-[#33608C]/5">
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-[#AF52DE]" />
+            <Target className="w-4 h-4 text-[#6D4FC4]" />
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Глубокая аналитика
             </span>
@@ -79,10 +79,10 @@ export function AnalyticsCard() {
                     ? CheckCircle2
                     : Info;
                 const color = p.type === 'warning'
-                  ? 'text-[#FF9500]'
+                  ? 'text-[#B4531C]'
                   : p.type === 'success'
-                    ? 'text-[#28CD41]'
-                    : 'text-[#007AFF]';
+                    ? 'text-[#4C7A3F]'
+                    : 'text-[#33608C]';
                 return (
                   <div key={i} className="flex items-start gap-2 text-[11px]">
                     <Icon className={`w-3 h-3 mt-0.5 shrink-0 ${color}`} />
@@ -109,7 +109,7 @@ export function AnalyticsCard() {
                     </Badge>
                     {t.trend !== 'insufficient_data' && (
                       <span className={`text-[9px] tabular-nums w-8 text-right ${
-                        t.delta > 0 ? 'text-[#28CD41]' : t.delta < 0 ? 'text-[#FF3B30]' : 'text-muted-foreground'
+                        t.delta > 0 ? 'text-[#4C7A3F]' : t.delta < 0 ? 'text-[#B3261E]' : 'text-muted-foreground'
                       }`}>
                         {t.delta > 0 ? '+' : ''}{t.delta}
                       </span>
@@ -135,9 +135,9 @@ export function AnalyticsCard() {
                       variant="secondary"
                       className={`text-[10px] ${
                         s.weakness === 'high'
-                          ? 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20'
+                          ? 'bg-[#B3261E]/10 text-[#B3261E] border-[#B3261E]/20'
                           : s.weakness === 'medium'
-                            ? 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20'
+                            ? 'bg-[#B4531C]/10 text-[#B4531C] border-[#B4531C]/20'
                             : ''
                       }`}
                     >
@@ -151,7 +151,7 @@ export function AnalyticsCard() {
           {/* Streak + best time */}
           <div className="pt-2 border-t border-border/30 flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-1.5">
-              <Award className="w-3 h-3 text-[#FF9500]" />
+              <Award className="w-3 h-3 text-[#B4531C]" />
               <span className="text-muted-foreground">Лучшая серия:</span>
               <span className="font-semibold">{insights.longestCorrectStreak}</span>
             </div>
@@ -162,7 +162,7 @@ export function AnalyticsCard() {
               if (!best) return null;
               return (
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 text-[#007AFF]" />
+                  <Clock className="w-3 h-3 text-[#33608C]" />
                   <span className="text-muted-foreground">Лучшее время:</span>
                   <span className="font-semibold">{best.label.split(' ')[0]}</span>
                 </div>

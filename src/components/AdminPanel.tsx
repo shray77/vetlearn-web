@@ -104,7 +104,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
           <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-3" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-[#FF9500]" />
+              <Crown className="w-5 h-5 text-[#B4531C]" />
               <h2 className="text-lg font-bold">Админ-панель</h2>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
@@ -117,11 +117,11 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
           <p className="text-xs text-muted-foreground">Секретная панель управления. 7 тапов по логотипу.</p>
 
           {/* God Mode */}
-          <Card className="border-0 shadow-sm bg-gradient-to-r from-[#FF9500]/10 to-[#AF52DE]/10">
+          <Card className="border-0 shadow-sm bg-gradient-to-r from-[#B4531C]/10 to-[#6D4FC4]/10">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FF9500]/20 flex items-center justify-center">
-                  <Wand2 className="w-5 h-5 text-[#FF9500]" />
+                <div className="w-10 h-10 rounded-xl bg-[#B4531C]/20 flex items-center justify-center">
+                  <Wand2 className="w-5 h-5 text-[#B4531C]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold">God Mode</h3>

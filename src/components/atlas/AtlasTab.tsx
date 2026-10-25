@@ -64,7 +64,7 @@ export function AtlasTab() {
     <div className="space-y-4 pb-4">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-[#5856D6]" />
+          <BookOpen className="w-6 h-6 text-[#6D4FC4]" />
           Атлас
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -72,7 +72,7 @@ export function AtlasTab() {
         </p>
       </div>
 
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#5856D6]/5 to-[#0EA5E9]/5">
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#6D4FC4]/5 to-[#33608C]/5">
         <CardContent className="p-3 flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Изучено</p>
@@ -80,7 +80,7 @@ export function AtlasTab() {
               {viewed.size} / {ATLAS_BANK.length}
             </p>
           </div>
-          <Microscope className="w-8 h-8 text-[#5856D6] opacity-30" />
+          <Microscope className="w-8 h-8 text-[#6D4FC4] opacity-30" />
         </CardContent>
       </Card>
 
@@ -89,7 +89,7 @@ export function AtlasTab() {
         <button
           onClick={() => setFilterModality('all')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-            filterModality === 'all' ? 'bg-[#5856D6] text-white' : 'bg-muted text-muted-foreground'
+            filterModality === 'all' ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
           }`}
         >
           Все ({ATLAS_BANK.length})
@@ -136,7 +136,7 @@ export function AtlasTab() {
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="text-sm font-semibold leading-tight">{entry.title}</h3>
                         {isViewed && (
-                          <Badge variant="secondary" className="text-[10px] shrink-0 bg-[#28CD41]/15 text-[#28CD41]">
+                          <Badge variant="secondary" className="text-[10px] shrink-0 bg-[#4C7A3F]/15 text-[#4C7A3F]">
                             ✓ Изучено
                           </Badge>
                         )}
@@ -238,13 +238,13 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       <Card className="border-0 shadow-sm">
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Microscope className="w-4 h-4 text-[#0EA5E9]" />
+            <Microscope className="w-4 h-4 text-[#33608C]" />
             <h3 className="text-sm font-semibold">Находки</h3>
           </div>
           <ul className="space-y-1.5">
             {entry.findings.map((f, i) => (
               <li key={i} className="flex items-start gap-2 text-xs">
-                <span className="text-[#0EA5E9] shrink-0 mt-0.5">▸</span>
+                <span className="text-[#33608C] shrink-0 mt-0.5">▸</span>
                 <span>{f}</span>
               </li>
             ))}
@@ -253,10 +253,10 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       </Card>
 
       {/* Interpretation */}
-      <Card className="border-0 shadow-sm bg-[#AF52DE]/5">
+      <Card className="border-0 shadow-sm bg-[#6D4FC4]/5">
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Lightbulb className="w-4 h-4 text-[#AF52DE]" />
+            <Lightbulb className="w-4 h-4 text-[#6D4FC4]" />
             <h3 className="text-sm font-semibold">Интерпретация</h3>
           </div>
           <p className="text-xs leading-relaxed">{entry.interpretation}</p>
@@ -267,7 +267,7 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       <Card className="border-0 shadow-sm">
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <ClipboardList className="w-4 h-4 text-[#FF9500]" />
+            <ClipboardList className="w-4 h-4 text-[#B4531C]" />
             <h3 className="text-sm font-semibold">Дифференциальный диагноз</h3>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -275,9 +275,9 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
               <Badge
                 key={i}
                 variant="secondary"
-                className={`text-[11px] ${i === 0 ? 'bg-[#FF9500]/15 text-[#FF9500]' : ''}`}
+                className={`text-[11px] ${i === 0 ? 'bg-[#B4531C]/15 text-[#B4531C]' : ''}`}
               >
-                {i === 0 && '★ '}{d}
+                {i === 0 && ' '}{d}
               </Badge>
             ))}
           </div>
@@ -285,16 +285,16 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       </Card>
 
       {/* Recommended actions */}
-      <Card className="border-0 shadow-sm bg-[#28CD41]/5">
+      <Card className="border-0 shadow-sm bg-[#4C7A3F]/5">
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Heart className="w-4 h-4 text-[#28CD41]" />
+            <Heart className="w-4 h-4 text-[#4C7A3F]" />
             <h3 className="text-sm font-semibold">Рекомендуемые действия</h3>
           </div>
           <ul className="space-y-1.5">
             {entry.recommendedActions.map((a, i) => (
               <li key={i} className="flex items-start gap-2 text-xs">
-                <span className="text-[#28CD41] shrink-0 mt-0.5">{i + 1}.</span>
+                <span className="text-[#4C7A3F] shrink-0 mt-0.5">{i + 1}.</span>
                 <span>{a}</span>
               </li>
             ))}
@@ -303,16 +303,16 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       </Card>
 
       {/* Key learning points */}
-      <Card className="border-0 shadow-sm bg-[#FF9500]/5">
+      <Card className="border-0 shadow-sm bg-[#B4531C]/5">
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-4 h-4 text-[#FF9500]" />
+            <Activity className="w-4 h-4 text-[#B4531C]" />
             <h3 className="text-sm font-semibold">Ключевые выводы</h3>
           </div>
           <ul className="space-y-1.5">
             {entry.keyLearningPoints.map((p, i) => (
               <li key={i} className="flex items-start gap-2 text-xs italic">
-                <span className="text-[#FF9500] shrink-0 mt-0.5">→</span>
+                <span className="text-[#B4531C] shrink-0 mt-0.5">→</span>
                 <span>{p}</span>
               </li>
             ))}

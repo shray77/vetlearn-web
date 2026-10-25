@@ -84,3 +84,29 @@ Stage Summary:
 - Simulator code is solid: proper timeouts, res.ok checks, fallback scenarios
 - Phosphor Icons installed for incremental migration (bottom nav + header logo done)
 - Recommended: full migration to Phosphor duotone for all icon contexts (see research)
+---
+Task ID: 2 (глобальный: Task 158 vet-worklog)
+Agent: Z.ai
+Task: vet-ds v2.2 «Научная периодика» нативно в исходниках + OfflineApiBridge
+
+Work Log:
+- Токен GitLab получен → клон main (0b99f183); сверка: GitHub gh-pages =
+  экспорт этого же коммита + deploy-фиксы + артефакт-слой Task 157
+- globals.css: :root/.dark перелиты в палитру A, vet-* токены, радиусы
+  ≤8px, serif h1/h2, де-слоп (backdrop-blur, тени), vlds-toggle
+- layout.tsx: Inter/IBM Plex Mono/Instrument Serif через next/font
+  (+кириллица); переменные шрифтов перенесены на <html> — фикс латентного
+  бага базового шрифта со времён Geist
+- Эмодзи-зачистка 179 шт (типографика ✓✗⚠ и стрелки остались);
+  цветовой ремап Apple→ДС 807 хексов; manifest + PWA-иконки (графит/бумага)
+- OfflineApiBridge реконструирован в исходниках (флаг
+  NEXT_PUBLIC_OFFLINE_API_BRIDGE=1): тот самый офлайн-шим, который раньше
+  вливался в бандл деплой-скриптом
+- lint: 5 ошибок — все 5 существовали на main до изменений (проверено
+  worktree-сравнением); tsc и build чистые
+
+Stage Summary:
+- Коммит в main; свежий Pages-экспорт собран пайплайном
+  scripts/vl158_build_pages.sh и задеплоен в GitHub gh-pages
+- Серверная версия внешне меняется только в лучшую сторону: та же ДС,
+  роуты не тронуты, rate-limiter/middleware на месте

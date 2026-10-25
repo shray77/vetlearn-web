@@ -20,13 +20,13 @@ interface Milestone {
 }
 
 const MILESTONES: Milestone[] = [
-  { id: 'start', emoji: '🌱', title: 'Начало', description: 'Первый тест пройден', color: '#28CD41' },
-  { id: 'diagnostic', emoji: '📊', title: 'Диагностика', description: 'Входное тестирование', color: '#007AFF' },
-  { id: 'foundation', emoji: '📚', title: 'Фундамент', description: '3+ темы >50% владения', color: '#AF52DE' },
-  { id: 'clinical', emoji: '🧠', title: 'Клиническое мышление', description: '5+ тестов пройдено', color: '#FF9500' },
-  { id: 'cases', emoji: '🏥', title: 'Клинические кейсы', description: '3+ кейса выполнено', color: '#007AFF' },
-  { id: 'expert', emoji: '⭐', title: 'Эксперт', description: 'Все темы >70%', color: '#FF9500' },
-  { id: 'master', emoji: '👑', title: 'Мастер', description: 'Все темы >90%', color: '#FF3B30' },
+  { id: 'start', emoji: '', title: 'Начало', description: 'Первый тест пройден', color: '#4C7A3F' },
+  { id: 'diagnostic', emoji: '', title: 'Диагностика', description: 'Входное тестирование', color: '#33608C' },
+  { id: 'foundation', emoji: '', title: 'Фундамент', description: '3+ темы >50% владения', color: '#6D4FC4' },
+  { id: 'clinical', emoji: '', title: 'Клиническое мышление', description: '5+ тестов пройдено', color: '#B4531C' },
+  { id: 'cases', emoji: '', title: 'Клинические кейсы', description: '3+ кейса выполнено', color: '#33608C' },
+  { id: 'expert', emoji: '', title: 'Эксперт', description: 'Все темы >70%', color: '#B4531C' },
+  { id: 'master', emoji: '', title: 'Мастер', description: 'Все темы >90%', color: '#B3261E' },
 ];
 
 const TOTAL_TOPICS = VET_TOPICS.length;
@@ -124,8 +124,8 @@ function RoadPath({ completedCount, total }: { completedCount: number; total: nu
       )}
       <defs>
         <linearGradient id="roadGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#28CD41" />
-          <stop offset="100%" stopColor="#007AFF" />
+          <stop offset="0%" stopColor="#4C7A3F" />
+          <stop offset="100%" stopColor="#33608C" />
         </linearGradient>
       </defs>
     </svg>
@@ -184,7 +184,7 @@ function MilestoneNode({
         {isCompleted && (
           <div
             className="absolute -inset-1.5 rounded-full opacity-30 blur-md"
-            style={{ backgroundColor: '#28CD41' }}
+            style={{ backgroundColor: '#4C7A3F' }}
           />
         )}
 
@@ -192,8 +192,8 @@ function MilestoneNode({
           className={`
             w-12 h-12 rounded-full flex items-center justify-center text-lg
             border-2 transition-colors
-            ${isCompleted ? 'bg-[#28CD41] border-[#28CD41] text-white shadow-lg' : ''}
-            ${isCurrent ? 'bg-background border-[#007AFF] shadow-md' : ''}
+            ${isCompleted ? 'bg-[#4C7A3F] border-[#4C7A3F] text-white shadow-lg' : ''}
+            ${isCurrent ? 'bg-background border-[#33608C] shadow-md' : ''}
             ${isLocked ? 'bg-muted border-border opacity-50' : ''}
           `}
         >
@@ -212,7 +212,7 @@ function MilestoneNode({
         <p
           className={`text-xs font-semibold leading-tight ${
             isCompleted
-              ? 'text-[#28CD41]'
+              ? 'text-[#4C7A3F]'
               : isCurrent
                 ? 'text-foreground'
                 : 'text-muted-foreground'
@@ -229,7 +229,7 @@ function MilestoneNode({
       <div
         className={`
           w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold
-          ${isCompleted ? 'bg-[#28CD41] text-white' : 'bg-muted text-muted-foreground'}
+          ${isCompleted ? 'bg-[#4C7A3F] text-white' : 'bg-muted text-muted-foreground'}
         `}
       >
         {index + 1}
@@ -248,7 +248,7 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
     <Card className="squircle border-0 shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#007AFF]" />
+          <Sparkles className="w-4 h-4 text-[#33608C]" />
           Путь обучения
           {!allCompleted && currentMilestone >= 0 && (
             <span className="ml-auto text-[10px] text-muted-foreground font-normal">
@@ -256,8 +256,8 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
             </span>
           )}
           {allCompleted && (
-            <span className="ml-auto text-[10px] text-[#28CD41] font-semibold animate-shimmer">
-              Все пройдено! 🎉
+            <span className="ml-auto text-[10px] text-[#4C7A3F] font-semibold animate-shimmer">
+              Все пройдено! 
             </span>
           )}
         </CardTitle>
@@ -297,7 +297,7 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
             {/* Completed line */}
             {completedCount > 0 && (
               <motion.div
-                className="absolute left-[23px] top-0 w-0.5 bg-gradient-to-b from-[#28CD41] to-[#007AFF]"
+                className="absolute left-[23px] top-0 w-0.5 bg-gradient-to-b from-[#4C7A3F] to-[#33608C]"
                 initial={{ height: 0 }}
                 animate={{
                   height: `${(completedCount / MILESTONES.length) * 100}%`,
@@ -359,13 +359,13 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
                           />
                         )}
                         {isCompleted && (
-                          <div className="absolute -inset-1 rounded-full opacity-30 blur-sm bg-[#28CD41]" />
+                          <div className="absolute -inset-1 rounded-full opacity-30 blur-sm bg-[#4C7A3F]" />
                         )}
                         <div
                           className={`
                             w-7 h-7 rounded-full flex items-center justify-center border-2
-                            ${isCompleted ? 'bg-[#28CD41] border-[#28CD41] text-white' : ''}
-                            ${isCurrent ? 'bg-background border-[#007AFF]' : ''}
+                            ${isCompleted ? 'bg-[#4C7A3F] border-[#4C7A3F] text-white' : ''}
+                            ${isCurrent ? 'bg-background border-[#33608C]' : ''}
                             ${isLocked ? 'bg-muted border-border opacity-40' : ''}
                           `}
                         >
@@ -385,7 +385,7 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
                       <p
                         className={`text-sm font-semibold ${
                           isCompleted
-                            ? 'text-[#28CD41]'
+                            ? 'text-[#4C7A3F]'
                             : isCurrent
                               ? 'text-foreground'
                               : 'text-muted-foreground'
@@ -416,13 +416,13 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
             <span className="text-[10px] text-muted-foreground">
               Общий прогресс
             </span>
-            <span className="text-[10px] font-semibold text-[#007AFF]">
+            <span className="text-[10px] font-semibold text-[#33608C]">
               {completedCount} / {MILESTONES.length}
             </span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-[#28CD41] to-[#007AFF]"
+              className="h-full rounded-full bg-gradient-to-r from-[#4C7A3F] to-[#33608C]"
               initial={{ width: 0 }}
               animate={{ width: `${(completedCount / MILESTONES.length) * 100}%` }}
               transition={{ duration: 1.5, ease: 'easeOut', delay: 0.8 }}

@@ -68,7 +68,7 @@ export function OnboardingModal() {
                   onClick={() => handleSelect(t.id)}
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${
                     selected === t.id
-                      ? 'border-[#28CD41] bg-[#28CD41]/5'
+                      ? 'border-[#4C7A3F] bg-[#4C7A3F]/5'
                       : 'border-transparent bg-muted/50 hover:bg-muted'
                   }`}
                 >
@@ -100,7 +100,7 @@ export function OnboardingModal() {
                     </div>
                   </div>
                   {selected === t.id && (
-                    <div className="w-6 h-6 rounded-full bg-[#28CD41] flex items-center justify-center shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-[#4C7A3F] flex items-center justify-center shrink-0">
                       <Check className="w-4 h-4 text-white" />
                     </div>
                   )}
@@ -116,7 +116,7 @@ export function OnboardingModal() {
                 size="sm"
                 onClick={handleConfirm}
                 disabled={!selected}
-                className="flex-1 bg-[#28CD41] hover:bg-[#1FA833] text-white"
+                className="flex-1 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
               >
                 Подтвердить
               </Button>

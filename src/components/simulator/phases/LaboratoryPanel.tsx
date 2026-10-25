@@ -23,11 +23,11 @@ export function LaboratoryPanel({ scenario, remainingBudget, onOrderTest, onBack
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold flex items-center gap-2">
-              <Beaker className="w-4 h-4 text-[#AF52DE]" /> Лабораторные тесты
+              <Beaker className="w-4 h-4 text-[#6D4FC4]" /> Лабораторные тесты
             </h3>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#FF9500]/10">
-              <Coins className="w-3.5 h-3.5 text-[#FF9500]" />
-              <span className="text-xs font-semibold text-[#FF9500]">{remainingBudget}₽</span>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#B4531C]/10">
+              <Coins className="w-3.5 h-3.5 text-[#B4531C]" />
+              <span className="text-xs font-semibold text-[#B4531C]">{remainingBudget}₽</span>
             </div>
           </div>
 
@@ -43,7 +43,7 @@ export function LaboratoryPanel({ scenario, remainingBudget, onOrderTest, onBack
                     test.isRevealed
                       ? 'bg-muted/30 border-border/50'
                       : canAfford
-                        ? 'border-[#AF52DE]/30 hover:border-[#AF52DE]/50 hover:bg-[#AF52DE]/5'
+                        ? 'border-[#6D4FC4]/30 hover:border-[#6D4FC4]/50 hover:bg-[#6D4FC4]/5'
                         : 'border-transparent bg-muted/20 opacity-50'
                   }`}
                 >
@@ -69,10 +69,10 @@ export function LaboratoryPanel({ scenario, remainingBudget, onOrderTest, onBack
                         )}
                       </AnimatePresence>
                       {!test.isRevealed && canAfford && (
-                        <p className="text-[10px] text-[#AF52DE] mt-0.5">Нажмите, чтобы назначить →</p>
+                        <p className="text-[10px] text-[#6D4FC4] mt-0.5">Нажмите, чтобы назначить →</p>
                       )}
                       {!canAfford && !test.isRevealed && (
-                        <p className="text-[10px] text-[#FF3B30] mt-0.5">Недостаточно средств</p>
+                        <p className="text-[10px] text-[#B3261E] mt-0.5">Недостаточно средств</p>
                       )}
                     </div>
                   </div>
@@ -92,7 +92,7 @@ export function LaboratoryPanel({ scenario, remainingBudget, onOrderTest, onBack
           <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Осмотр
         </Button>
         <Button
-          className="flex-1 squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-11 text-xs"
+          className="flex-1 squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-11 text-xs"
           onClick={onDiagnosis}
         >
           Поставить диагноз <ChevronRight className="w-3.5 h-3.5 ml-1" />

@@ -16,10 +16,10 @@ import {
 } from 'lucide-react';
 
 const GRADE_CONFIG: Record<string, { label: string; emoji: string; color: string }> = {
-  excellent: { label: 'Отлично', emoji: '🏆', color: '#28CD41' },
-  good: { label: 'Хорошо', emoji: '⭐', color: '#007AFF' },
-  satisfactory: { label: 'Удовлетворительно', emoji: '📖', color: '#FF9500' },
-  unsatisfactory: { label: 'Неудовлетворительно', emoji: '📚', color: '#FF3B30' },
+  excellent: { label: 'Отлично', emoji: '', color: '#4C7A3F' },
+  good: { label: 'Хорошо', emoji: '', color: '#33608C' },
+  satisfactory: { label: 'Удовлетворительно', emoji: '', color: '#B4531C' },
+  unsatisfactory: { label: 'Неудовлетворительно', emoji: '', color: '#B3261E' },
 };
 
 interface SimulatorResultsProps {
@@ -36,7 +36,7 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
       <AnimatePresence mode="wait">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
           {/* Score card */}
-          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#007AFF]/5 to-[#AF52DE]/5">
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
             <CardContent className="p-6 text-center">
               <motion.div
                 initial={{ scale: 0 }}
@@ -54,8 +54,8 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
                 {gc.label}
               </Badge>
               <div className="mt-3 flex items-center justify-center gap-2">
-                <Star className="w-4 h-4 text-[#FF9500]" />
-                <span className="text-sm font-semibold text-[#FF9500]">+{evaluation.xpEarned} XP</span>
+                <Star className="w-4 h-4 text-[#B4531C]" />
+                <span className="text-sm font-semibold text-[#B4531C]">+{evaluation.xpEarned} XP</span>
               </div>
             </CardContent>
           </Card>
@@ -68,9 +68,9 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
                   {evaluation.diagnosisCorrect ? (
-                    <CheckCircle2 className="w-5 h-5 text-[#28CD41]" />
+                    <CheckCircle2 className="w-5 h-5 text-[#4C7A3F]" />
                   ) : (
-                    <XCircle className="w-5 h-5 text-[#FF3B30]" />
+                    <XCircle className="w-5 h-5 text-[#B3261E]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -85,9 +85,9 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
                   {evaluation.treatmentCorrect ? (
-                    <CheckCircle2 className="w-5 h-5 text-[#28CD41]" />
+                    <CheckCircle2 className="w-5 h-5 text-[#4C7A3F]" />
                   ) : (
-                    <XCircle className="w-5 h-5 text-[#FF3B30]" />
+                    <XCircle className="w-5 h-5 text-[#B3261E]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -100,8 +100,8 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#007AFF]/10 flex items-center justify-center shrink-0">
-                  <Eye className="w-5 h-5 text-[#007AFF]" />
+                <div className="w-8 h-8 rounded-lg bg-[#33608C]/10 flex items-center justify-center shrink-0">
+                  <Eye className="w-5 h-5 text-[#33608C]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center">
@@ -113,8 +113,8 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FF9500]/10 flex items-center justify-center shrink-0">
-                  <Coins className="w-5 h-5 text-[#FF9500]" />
+                <div className="w-8 h-8 rounded-lg bg-[#B4531C]/10 flex items-center justify-center shrink-0">
+                  <Coins className="w-5 h-5 text-[#B4531C]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center">
@@ -131,7 +131,7 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
           <Card className="squircle-sm border-0 shadow-sm">
             <CardContent className="p-4 space-y-3">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <ClipboardList className="w-4 h-4 text-[#007AFF]" /> Обратная связь
+                <ClipboardList className="w-4 h-4 text-[#33608C]" /> Обратная связь
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{evaluation.feedback}</p>
 
@@ -163,12 +163,12 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
             <Card className="squircle-sm border-0 shadow-sm">
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4 text-[#FF9500]" /> Главные выводы
+                  <Lightbulb className="w-4 h-4 text-[#B4531C]" /> Главные выводы
                 </h3>
                 <ul className="space-y-1.5">
                   {evaluation.keyTakeaways.map((t, i) => (
                     <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                      <span className="text-[#28CD41] mt-0.5">•</span> {t}
+                      <span className="text-[#4C7A3F] mt-0.5">•</span> {t}
                     </li>
                   ))}
                 </ul>
@@ -186,7 +186,7 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
               <RotateCcw className="w-4 h-4 mr-2" /> Вернуться
             </Button>
             <Button
-              className="flex-1 squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-12"
+              className="flex-1 squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-12"
               onClick={onNewPatient}
               disabled={isGenerating}
             >

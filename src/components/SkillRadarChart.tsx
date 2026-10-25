@@ -14,21 +14,21 @@ export function SkillRadarChart({ skillMap }: { skillMap: Record<string, number>
   return (
     <ResponsiveContainer width="100%" height={300}>
       <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
-        <PolarGrid stroke="#E5E5EA" />
+        <PolarGrid stroke="#E3E0D5" />
         <PolarAngleAxis
           dataKey="topic"
-          tick={{ fill: '#86868B', fontSize: 11 }}
+          tick={{ fill: '#6E695C', fontSize: 11 }}
         />
         <PolarRadiusAxis
           angle={90}
           domain={[0, 100]}
-          tick={{ fill: '#86868B', fontSize: 9 }}
+          tick={{ fill: '#6E695C', fontSize: 9 }}
         />
         <Radar
           name="Уровень"
           dataKey="mastery"
-          stroke="#28CD41"
-          fill="#28CD41"
+          stroke="#4C7A3F"
+          fill="#4C7A3F"
           fillOpacity={0.25}
           strokeWidth={2}
         />

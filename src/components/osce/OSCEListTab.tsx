@@ -72,7 +72,7 @@ export function OSCEListTab() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <ScanLine className="w-6 h-6 text-[#0EA5E9]" />
+          <ScanLine className="w-6 h-6 text-[#33608C]" />
           OSCE-станции
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -81,11 +81,11 @@ export function OSCEListTab() {
       </div>
 
       {/* Progress summary */}
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#0EA5E9]/5 to-[#8B5CF6]/5">
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-[#FF9500]" />
+              <Trophy className="w-4 h-4 text-[#B4531C]" />
               <span className="text-sm font-semibold">Общий прогресс</span>
             </div>
             <span className="text-xs text-muted-foreground">
@@ -125,7 +125,7 @@ export function OSCEListTab() {
           onClick={() => setTrackFilter(!trackFilter)}
           className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
             trackFilter
-              ? 'bg-[#28CD41] text-white'
+              ? 'bg-[#4C7A3F] text-white'
               : 'bg-muted text-muted-foreground'
           }`}
         >
@@ -141,7 +141,7 @@ export function OSCEListTab() {
         <button
           onClick={() => setFilterType('all')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-            filterType === 'all' ? 'bg-[#0EA5E9] text-white' : 'bg-muted text-muted-foreground'
+            filterType === 'all' ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
           }`}
         >
           Все типы

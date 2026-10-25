@@ -57,7 +57,7 @@ export function ExaminationPanel({
       {/* Tool panel */}
       <Card className="squircle-sm border-0 shadow-sm">
         <CardContent className="p-3">
-          <h3 className="text-xs font-semibold text-muted-foreground mb-2">🛠 Инструменты</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground mb-2"> Инструменты</h3>
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
             {VET_TOOLS.map(tool => (
               <button
@@ -65,7 +65,7 @@ export function ExaminationPanel({
                 onClick={() => onSelectTool(selectedTool === tool.id ? null : tool.id)}
                 className={`flex flex-col items-center gap-1 p-2 rounded-xl min-w-[64px] shrink-0 transition-all border-2 ${
                   selectedTool === tool.id
-                    ? 'border-[#007AFF] bg-[#007AFF]/10 shadow-sm'
+                    ? 'border-[#33608C] bg-[#33608C]/10 shadow-sm'
                     : 'border-transparent bg-muted/50 hover:bg-muted'
                 }`}
               >
@@ -88,17 +88,17 @@ export function ExaminationPanel({
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-semibold flex items-center gap-1.5">
-                📋 Находки ({discoveredFindings.length})
+                 Находки ({discoveredFindings.length})
               </h3>
             </div>
             <ScrollArea className="max-h-40">
               <div className="space-y-1.5">
                 {discoveredFindings.map((f, i) => {
                   const borderColor = f.relevance === 'critical'
-                    ? 'border-l-[#FF3B30]'
+                    ? 'border-l-[#B3261E]'
                     : f.relevance === 'important'
-                      ? 'border-l-[#FF9500]'
-                      : 'border-l-[#28CD41]';
+                      ? 'border-l-[#B4531C]'
+                      : 'border-l-[#4C7A3F]';
                   return (
                     <div key={`${f.region}-${f.toolId}-${i}`} className={`finding-slide pl-3 border-l-2 ${borderColor}`}>
                       <div className="flex items-center gap-1.5 mb-0.5">
@@ -106,9 +106,9 @@ export function ExaminationPanel({
                           {BODY_REGION_LABELS[f.region as BodyRegion]} • {VET_TOOLS.find(t => t.id === f.toolId)?.icon} {VET_TOOLS.find(t => t.id === f.toolId)?.name}
                         </span>
                         {f.isNormal ? (
-                          <Badge className="text-[9px] px-1.5 py-0 bg-[#28CD41]/10 text-[#28CD41]">норма</Badge>
+                          <Badge className="text-[9px] px-1.5 py-0 bg-[#4C7A3F]/10 text-[#4C7A3F]">норма</Badge>
                         ) : (
-                          <Badge className="text-[9px] px-1.5 py-0 bg-[#FF3B30]/10 text-[#FF3B30]">
+                          <Badge className="text-[9px] px-1.5 py-0 bg-[#B3261E]/10 text-[#B3261E]">
                             {f.relevance === 'critical' ? 'критично' : 'патология'}
                           </Badge>
                         )}
@@ -132,8 +132,8 @@ export function ExaminationPanel({
             exit={{ opacity: 0, y: 20 }}
             className={`p-3 rounded-xl border-2 text-sm ${
               lastFinding.isNormal
-                ? 'bg-[#28CD41]/10 border-[#28CD41]/30 text-[#28CD41]'
-                : 'bg-[#FF3B30]/10 border-[#FF3B30]/30 text-[#FF3B30]'
+                ? 'bg-[#4C7A3F]/10 border-[#4C7A3F]/30 text-[#4C7A3F]'
+                : 'bg-[#B3261E]/10 border-[#B3261E]/30 text-[#B3261E]'
             }`}
           >
             {lastFinding.finding}
@@ -151,13 +151,13 @@ export function ExaminationPanel({
           <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Анамнез
         </Button>
         <Button
-          className="flex-1 squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-11 text-xs"
+          className="flex-1 squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-11 text-xs"
           onClick={onLaboratory}
         >
           <FlaskConical className="w-3.5 h-3.5 mr-1" /> Лаб. тесты
         </Button>
         <Button
-          className="flex-1 squircle-sm bg-[#28CD41] hover:bg-[#1FA833] text-white h-11 text-xs"
+          className="flex-1 squircle-sm bg-[#4C7A3F] hover:bg-[#3D6332] text-white h-11 text-xs"
           onClick={onDiagnosis}
         >
           Диагноз <ChevronRight className="w-3.5 h-3.5 ml-1" />

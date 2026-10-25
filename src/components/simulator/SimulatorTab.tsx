@@ -308,9 +308,9 @@ export function SimulatorTab() {
       setDiscoveredFindings(prev => [...prev, finding]);
       setLastFinding(finding);
       if (!finding.isNormal) {
-        toast.warning(`⚠️ ${finding.finding}`);
+        toast.warning(`⚠ ${finding.finding}`);
       } else {
-        toast.success(`✅ ${finding.finding}`);
+        toast.success(` ${finding.finding}`);
       }
     } else {
       // No specific finding — normal result
@@ -323,7 +323,7 @@ export function SimulatorTab() {
       };
       setDiscoveredFindings(prev => [...prev, normalFinding]);
       setLastFinding(normalFinding);
-      toast.success(`✅ Норма — ${BODY_REGION_LABELS[region]}`);
+      toast.success(` Норма — ${BODY_REGION_LABELS[region]}`);
     }
 
     // Auto-clear last finding after delay
@@ -356,7 +356,7 @@ export function SimulatorTab() {
       return updated;
     });
 
-    toast.success(`🧪 ${test.name}: результат получен`);
+    toast.success(` ${test.name}: результат получен`);
   }, [scenario, budgetSpent]);
 
   // ===== Anamnesis =====
@@ -541,9 +541,9 @@ export function SimulatorTab() {
             {PHASE_LABELS[simPhase]}
           </Badge>
           {scenario && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#FF9500]/10">
-              <Coins className="w-3.5 h-3.5 text-[#FF9500]" />
-              <span className="text-[11px] font-semibold text-[#FF9500]">{remainingBudget}₽</span>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#B4531C]/10">
+              <Coins className="w-3.5 h-3.5 text-[#B4531C]" />
+              <span className="text-[11px] font-semibold text-[#B4531C]">{remainingBudget}₽</span>
             </div>
           )}
         </div>
@@ -551,11 +551,11 @@ export function SimulatorTab() {
 
       {/* Patient info */}
       {scenario && (
-        <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-br from-[#007AFF]/5 to-transparent">
+        <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-transparent">
           <CardContent className="p-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[#007AFF]/10 flex items-center justify-center text-2xl">
-                {SPECIES_EMOJIS[scenario.species] || '🐾'}
+              <div className="w-12 h-12 rounded-xl bg-[#33608C]/10 flex items-center justify-center text-2xl">
+                {SPECIES_EMOJIS[scenario.species] || ''}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{scenario.breed}, {scenario.age}</p>

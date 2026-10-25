@@ -4,8 +4,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'pharmacology',
     name: 'Фармакология',
-    icon: '💊',
-    color: '#FF6B6B',
+    icon: '',
+    color: '#E87963',
     description: 'Антибиотики, НПВС, анестезия, антипаразитарные препараты',
     subtopics: [
       { id: 'antibiotics', name: 'Антибиотики', parentTopicId: 'pharmacology', description: 'Классификация, спектр действия, побочные эффекты', questionCount: 25 },
@@ -17,7 +17,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'surgery',
     name: 'Хирургия',
-    icon: '🔪',
+    icon: '',
     color: '#4ECDC4',
     description: 'Стерилизация, швы, ампутация, лапаротомия',
     subtopics: [
@@ -30,7 +30,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'diagnostics',
     name: 'Диагностика',
-    icon: '🔬',
+    icon: '',
     color: '#45B7D1',
     description: 'Лабораторная, инструментальная, рентген, УЗИ',
     subtopics: [
@@ -43,7 +43,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'therapy',
     name: 'Терапия',
-    icon: '🩺',
+    icon: '',
     color: '#96CEB4',
     description: 'Внутренние болезни: ЖКТ, дыхательная, мочевыделительная',
     subtopics: [
@@ -56,8 +56,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'parasitology',
     name: 'Паразитология',
-    icon: '🦠',
-    color: '#FFEAA7',
+    icon: '',
+    color: '#F3EAD3',
     description: 'Гельминтозы, арахнозы, энтомозы, протозоозы',
     subtopics: [
       { id: 'helminthoses', name: 'Гельминтозы', parentTopicId: 'parasitology', description: 'Нематодозы, трематодозы, цестодозы', questionCount: 22 },
@@ -69,8 +69,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'epizootology',
     name: 'Эпизоотология',
-    icon: '📋',
-    color: '#DDA0DD',
+    icon: '',
+    color: '#B9A5E3',
     description: 'Инфекционные болезни, карантин, вакцинация',
     subtopics: [
       { id: 'infectious', name: 'Инфекционные болезни', parentTopicId: 'epizootology', description: 'Чума, ящур, бешенство, сибирская язва', questionCount: 30 },
@@ -81,7 +81,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'obstetrics',
     name: 'Акушерство и гинекология',
-    icon: '🤱',
+    icon: '',
     color: '#FFB6C1',
     description: 'Беременность, роды, послеродовой период',
     subtopics: [
@@ -93,8 +93,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'hematology',
     name: 'Анемия и болезни крови',
-    icon: '🩸',
-    color: '#E74C3C',
+    icon: '',
+    color: '#B3261E',
     description: 'Анемии, лейкозы, коагулопатии',
     subtopics: [
       { id: 'anemia', name: 'Анемии', parentTopicId: 'hematology', description: 'Типы, диагностика, лечение', questionCount: 18 },
@@ -105,8 +105,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'anatomy',
     name: 'Анатомия и физиология',
-    icon: '🦴',
-    color: '#8B6914',
+    icon: '',
+    color: '#8A5A14',
     description: 'Опорно-двигательная, сердечно-сосудистая, пищеварительная, нервная системы',
     subtopics: [
       { id: 'musculoskeletal', name: 'Опорно-двигательная система', parentTopicId: 'anatomy', description: 'Кости, суставы, мышцы, связки', questionCount: 20 },
@@ -118,8 +118,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'pathophysiology',
     name: 'Патологическая физиология',
-    icon: '🧬',
-    color: '#6C3483',
+    icon: '',
+    color: '#6D4FC4',
     description: 'Воспаление, гипоксия, шок, опухолевый рост',
     subtopics: [
       { id: 'inflammation', name: 'Воспаление и лихорадка', parentTopicId: 'pathophysiology', description: 'Медиаторы, фазы воспаления, местные и общие реакции', questionCount: 18 },
@@ -131,7 +131,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'microbiology',
     name: 'Микробиология',
-    icon: '🔬',
+    icon: '',
     color: '#2C3E50',
     description: 'Бактерии, вирусы, грибы, иммунитет',
     subtopics: [
@@ -144,8 +144,8 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'zoohygiene',
     name: 'Зоогигиена и кормление',
-    icon: '🏡',
-    color: '#27AE60',
+    icon: '',
+    color: '#4C7A3F',
     description: 'Гигиена содержания, кормление, санитарные требования',
     subtopics: [
       { id: 'housing_hygiene', name: 'Гигиена содержания', parentTopicId: 'zoohygiene', description: 'Микроклимат, плотность посадки, параметры воздуха', questionCount: 16 },
@@ -157,20 +157,20 @@ export const VET_TOPICS: VetTopic[] = [
 ];
 
 export const SPECIES_OPTIONS: { value: SpeciesType; label: string; icon: string }[] = [
-  { value: 'КРС', label: 'КРС', icon: '🐄' },
-  { value: 'МРС', label: 'МРС', icon: '🐑' },
-  { value: 'свиньи', label: 'Свиньи', icon: '🐷' },
-  { value: 'птица', label: 'Птица', icon: '🐔' },
-  { value: 'собаки', label: 'Собаки', icon: '🐕' },
-  { value: 'кошки', label: 'Кошки', icon: '🐈' },
-  { value: 'лошади', label: 'Лошади', icon: '🐴' },
+  { value: 'КРС', label: 'КРС', icon: '' },
+  { value: 'МРС', label: 'МРС', icon: '' },
+  { value: 'свиньи', label: 'Свиньи', icon: '' },
+  { value: 'птица', label: 'Птица', icon: '' },
+  { value: 'собаки', label: 'Собаки', icon: '' },
+  { value: 'кошки', label: 'Кошки', icon: '' },
+  { value: 'лошади', label: 'Лошади', icon: '' },
 ];
 
 export const DIFFICULTY_OPTIONS: { value: DifficultyType; label: string; color: string }[] = [
-  { value: 'beginner', label: 'Начинающий', color: '#28CD41' },
-  { value: 'intermediate', label: 'Средний', color: '#FF9500' },
-  { value: 'advanced', label: 'Продвинутый', color: '#FF3B30' },
-  { value: 'expert', label: 'Экспертный', color: '#AF52DE' },
+  { value: 'beginner', label: 'Начинающий', color: '#4C7A3F' },
+  { value: 'intermediate', label: 'Средний', color: '#B4531C' },
+  { value: 'advanced', label: 'Продвинутый', color: '#B3261E' },
+  { value: 'expert', label: 'Экспертный', color: '#6D4FC4' },
 ];
 
 export function getTopicById(id: string): VetTopic | undefined {

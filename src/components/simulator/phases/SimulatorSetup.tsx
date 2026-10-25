@@ -37,7 +37,7 @@ export function SimulatorSetup({
     <div className="space-y-4 pb-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex items-center gap-2 mb-1">
-          <Activity className="w-5 h-5 text-[#007AFF]" />
+          <Activity className="w-5 h-5 text-[#33608C]" />
           <h2 className="text-lg font-bold">Ветеринарный симулятор</h2>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -45,11 +45,11 @@ export function SimulatorSetup({
         </p>
       </motion.div>
 
-      <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#007AFF]/5 to-[#AF52DE]/5">
+      <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#007AFF]/10 flex items-center justify-center shrink-0">
-              <Stethoscope className="w-5 h-5 text-[#007AFF]" />
+            <div className="w-10 h-10 rounded-xl bg-[#33608C]/10 flex items-center justify-center shrink-0">
+              <Stethoscope className="w-5 h-5 text-[#33608C]" />
             </div>
             <div className="text-xs text-muted-foreground leading-relaxed space-y-1">
               <p className="font-semibold text-foreground text-sm">Как это работает?</p>
@@ -66,7 +66,7 @@ export function SimulatorSetup({
 
       {completedSimulations > 0 && (
         <div className="flex items-center gap-2 px-1">
-          <Star className="w-4 h-4 text-[#FF9500]" />
+          <Star className="w-4 h-4 text-[#B4531C]" />
           <span className="text-xs text-muted-foreground">Симуляций пройдено: {completedSimulations}</span>
         </div>
       )}
@@ -81,7 +81,7 @@ export function SimulatorSetup({
                 onClick={() => onSelectSpecies(sp.value)}
                 className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${
                   selectedSpecies === sp.value
-                    ? 'bg-[#E8F9EC] dark:bg-[#1A3D22] border-2 border-[#28CD41]/30 scale-105 shadow-sm'
+                    ? 'bg-[#EDF3EA] dark:bg-[#203528] border-2 border-[#4C7A3F]/30 scale-105 shadow-sm'
                     : 'bg-muted/50 hover:bg-muted border-2 border-transparent'
                 }`}
               >
@@ -122,7 +122,7 @@ export function SimulatorSetup({
             <button
               onClick={() => onSelectTopic('')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                !selectedTopic ? 'bg-[#007AFF] text-white' : 'bg-muted text-muted-foreground'
+                !selectedTopic ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
               }`}
             >
               Любая
@@ -132,7 +132,7 @@ export function SimulatorSetup({
                 key={t.id}
                 onClick={() => onSelectTopic(t.id === selectedTopic ? '' : t.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  selectedTopic === t.id ? 'bg-[#007AFF] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  selectedTopic === t.id ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
                 {t.icon} {t.name}
@@ -143,7 +143,7 @@ export function SimulatorSetup({
       </Card>
 
       <Button
-        className="w-full squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-14 text-sm font-bold shadow-lg"
+        className="w-full squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-14 text-sm font-bold shadow-lg"
         onClick={onStart}
         disabled={isGenerating}
       >

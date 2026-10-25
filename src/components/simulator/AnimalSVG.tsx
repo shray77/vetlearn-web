@@ -229,7 +229,7 @@ export const AnimalSVG = React.memo(function AnimalSVG({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-2 opacity-40">
-                {normalizedSpecies === 'собаки' ? '🐕' : normalizedSpecies === 'кошки' ? '🐈' : normalizedSpecies === 'КРС' ? '🐄' : normalizedSpecies === 'свиньи' ? '🐷' : normalizedSpecies === 'МРС' ? '🐑' : normalizedSpecies === 'лошади' ? '🐴' : '🐔'}
+                {normalizedSpecies === 'собаки' ? '' : normalizedSpecies === 'кошки' ? '' : normalizedSpecies === 'КРС' ? '' : normalizedSpecies === 'свиньи' ? '' : normalizedSpecies === 'МРС' ? '' : normalizedSpecies === 'лошади' ? '' : ''}
               </div>
               <p className="text-xs text-muted-foreground">{species}</p>
             </div>
@@ -265,7 +265,7 @@ export const AnimalSVG = React.memo(function AnimalSVG({
                       handleClick(zone.region);
                     }
                   }}
-                  className="group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#007AFF]"
+                  className="group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#33608C]"
                 >
                   {/* Hover label */}
                   {isHov && <HoverLabel zone={zone} />}

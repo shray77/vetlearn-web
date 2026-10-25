@@ -121,7 +121,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
         </button>
         {stage === 'answering' && (
           <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-semibold tabular-nums ${
-            timeWarning ? 'bg-[#FF3B30]/10 text-[#FF3B30] animate-pulse' : 'bg-muted text-muted-foreground'
+            timeWarning ? 'bg-[#B3261E]/10 text-[#B3261E] animate-pulse' : 'bg-muted text-muted-foreground'
           }`}>
             <Clock className="w-3 h-3" />
             {formatTime(timeLeft)}
@@ -213,7 +213,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
                   />
                   <div className="flex items-center justify-between text-[10px]">
                     {tooShort ? (
-                      <span className="text-[#FF9500]">
+                      <span className="text-[#B4531C]">
                         Минимум {q.minLength} символов (ещё {q.minLength - answers[i].trim().length})
                       </span>
                     ) : (
@@ -230,7 +230,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
           <Button
             onClick={handleSubmit}
             disabled={!allAnswered}
-            className="w-full bg-[#28CD41] hover:bg-[#1FA833] text-white"
+            className="w-full bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
           >
             <Send className="w-4 h-4 mr-2" />
             {allAnswered ? 'Отправить ответы' : 'Ответьте на все вопросы (мин. 30 символов)'}
@@ -242,8 +242,8 @@ export function OSCEStationRunner({ station, onExit }: Props) {
       {stage === 'submitting' && (
         <Card className="border-0 shadow-sm">
           <CardContent className="p-8 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#0EA5E9]/10 flex items-center justify-center mx-auto mb-3">
-              <Send className="w-6 h-6 text-[#0EA5E9] animate-pulse" />
+            <div className="w-12 h-12 rounded-2xl bg-[#33608C]/10 flex items-center justify-center mx-auto mb-3">
+              <Send className="w-6 h-6 text-[#33608C] animate-pulse" />
             </div>
             <p className="text-sm font-medium">AI-экзаменатор оценивает ответы...</p>
             <p className="text-[11px] text-muted-foreground mt-1">Это может занять 15-30 секунд</p>
@@ -259,10 +259,10 @@ export function OSCEStationRunner({ station, onExit }: Props) {
           className="space-y-3"
         >
           {/* Total score */}
-          <Card className={`border-0 shadow-sm ${result.totalScore >= 7 ? 'bg-[#28CD41]/5' : result.totalScore >= 5 ? 'bg-[#FF9500]/5' : 'bg-[#FF3B30]/5'}`}>
+          <Card className={`border-0 shadow-sm ${result.totalScore >= 7 ? 'bg-[#4C7A3F]/5' : result.totalScore >= 5 ? 'bg-[#B4531C]/5' : 'bg-[#B3261E]/5'}`}>
             <CardContent className="p-5 text-center">
               <Trophy className={`w-10 h-10 mx-auto mb-2 ${
-                result.totalScore >= 7 ? 'text-[#28CD41]' : result.totalScore >= 5 ? 'text-[#FF9500]' : 'text-[#FF3B30]'
+                result.totalScore >= 7 ? 'text-[#4C7A3F]' : result.totalScore >= 5 ? 'text-[#B4531C]' : 'text-[#B3261E]'
               }`} />
               <div className="text-3xl font-bold tabular-nums">{result.totalScore}/10</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -285,11 +285,11 @@ export function OSCEStationRunner({ station, onExit }: Props) {
                 <CardContent className="p-3 space-y-2">
                   <div className="flex items-start gap-2">
                     {score >= 7 ? (
-                      <CheckCircle2 className="w-4 h-4 text-[#28CD41] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#4C7A3F] shrink-0 mt-0.5" />
                     ) : score >= 5 ? (
-                      <AlertCircle className="w-4 h-4 text-[#FF9500] shrink-0 mt-0.5" />
+                      <AlertCircle className="w-4 h-4 text-[#B4531C] shrink-0 mt-0.5" />
                     ) : (
-                      <XCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />
+                      <XCircle className="w-4 h-4 text-[#B3261E] shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">

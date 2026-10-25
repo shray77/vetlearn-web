@@ -72,14 +72,14 @@ export function AiDiagnosticsCard() {
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 shrink-0 rounded-xl bg-[#007AFF]/10 flex items-center justify-center">
-              <Activity className="w-5 h-5 text-[#007AFF]" />
+            <div className="w-10 h-10 shrink-0 rounded-xl bg-[#33608C]/10 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-[#33608C]" />
             </div>
             <div className="min-w-0">
               <h3 className="font-semibold text-sm flex items-center gap-1.5">
                 Статус ИИ
-                {status === 'ok' && <CheckCircle2 className="w-4 h-4 text-[#28CD41]" />}
-                {status === 'fail' && <XCircle className="w-4 h-4 text-[#FF3B30]" />}
+                {status === 'ok' && <CheckCircle2 className="w-4 h-4 text-[#4C7A3F]" />}
+                {status === 'fail' && <XCircle className="w-4 h-4 text-[#B3261E]" />}
               </h3>
               <p className="text-xs text-muted-foreground truncate">
                 {status === 'idle' && 'Проверьте живое соединение с языковой моделью'}

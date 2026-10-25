@@ -13,7 +13,7 @@ export function ConfettiCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ['#28CD41', '#FF9500', '#007AFF', '#AF52DE', '#FF3B30', '#FFD666', '#34C759'];
+    const colors = ['#4C7A3F', '#B4531C', '#33608C', '#6D4FC4', '#B3261E', '#D9A24A', '#34D399'];
     const pieces: { x: number; y: number; vx: number; vy: number; color: string; size: number; rotation: number; rotationSpeed: number }[] = [];
 
     for (let i = 0; i < 200; i++) {

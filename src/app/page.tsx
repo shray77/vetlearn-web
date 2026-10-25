@@ -131,7 +131,7 @@ export default function Home() {
         <main className="flex-1 max-w-4xl mx-auto w-full px-4 pt-4 pb-20">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#28CD41] to-[#1FA833] flex items-center justify-center mx-auto mb-3 animate-pulse">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] flex items-center justify-center mx-auto mb-3 animate-pulse">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-paw-print w-5 h-5 text-white"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>
               </div>
               <p className="text-sm text-muted-foreground">Загрузка...</p>

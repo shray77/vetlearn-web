@@ -410,9 +410,9 @@ export function getOSCEStationById(id: string): OSCEStation | undefined {
 }
 
 export const OSCE_TYPE_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-  radiology: { label: 'Рентген', icon: '🩻', color: '#0EA5E9' },
-  ultrasound: { label: 'УЗИ', icon: '📡', color: '#8B5CF6' },
-  cytology: { label: 'Цитология', icon: '🔬', color: '#F59E0B' },
-  histopathology: { label: 'Гистология', icon: '🧫', color: '#EC4899' },
-  physical_exam: { label: 'Осмотр', icon: '🩺', color: '#28CD41' },
+  radiology: { label: 'Рентген', icon: '', color: '#33608C' },
+  ultrasound: { label: 'УЗИ', icon: '', color: '#6D4FC4' },
+  cytology: { label: 'Цитология', icon: '', color: '#B4531C' },
+  histopathology: { label: 'Гистология', icon: '', color: '#EC4899' },
+  physical_exam: { label: 'Осмотр', icon: '', color: '#4C7A3F' },
 };

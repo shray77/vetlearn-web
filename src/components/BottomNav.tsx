@@ -40,13 +40,13 @@ const MAIN_TABS = [
 
 // ===== EXTRA TABS (in "Ещё" sheet) =====
 const EXTRA_TABS = [
-  { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#28CD41', desc: 'Термин ↔ определение + интервальное повторение' },
-  { id: 'mindmap', label: 'Карта знаний', icon: BarChart3, color: '#007AFF', desc: 'AI интеллект-карты по темам' },
-  { id: 'exam', label: 'Экзамен', icon: GraduationCap, color: '#E74C3C', desc: 'Устный ИИ-экзамен' },
-  { id: 'resources', label: 'Ресурсы', icon: Lightbulb, color: '#FF9500', desc: 'Учебные материалы' },
-  { id: 'simulator', label: 'Симулятор', icon: Activity, color: '#5856D6', desc: 'Практика: осмотр, диагноз, лечение' },
-  { id: 'osce', label: 'OSCE-станции', icon: ScanLine, color: '#0EA5E9', desc: 'Визуальная диагностика: рентген, УЗИ, цитология' },
-  { id: 'atlas', label: 'Атлас', icon: Microscope, color: '#7C3AED', desc: 'Библиотека изображений с разборами (обучение)' },
+  { id: 'flashcards', label: 'Карточки', icon: Layers, color: '#4C7A3F', desc: 'Термин ↔ определение + интервальное повторение' },
+  { id: 'mindmap', label: 'Карта знаний', icon: BarChart3, color: '#33608C', desc: 'AI интеллект-карты по темам' },
+  { id: 'exam', label: 'Экзамен', icon: GraduationCap, color: '#B3261E', desc: 'Устный ИИ-экзамен' },
+  { id: 'resources', label: 'Ресурсы', icon: Lightbulb, color: '#B4531C', desc: 'Учебные материалы' },
+  { id: 'simulator', label: 'Симулятор', icon: Activity, color: '#6D4FC4', desc: 'Практика: осмотр, диагноз, лечение' },
+  { id: 'osce', label: 'OSCE-станции', icon: ScanLine, color: '#33608C', desc: 'Визуальная диагностика: рентген, УЗИ, цитология' },
+  { id: 'atlas', label: 'Атлас', icon: Microscope, color: '#6D4FC4', desc: 'Библиотека изображений с разборами (обучение)' },
 ];
 
 // ===== ABOUT MODAL =====
@@ -56,7 +56,7 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
       <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <PawPrint className="w-5 h-5 text-[#28CD41]" />
+            <PawPrint className="w-5 h-5 text-[#4C7A3F]" />
             О VetLearn AI
           </DialogTitle>
           <DialogDescription>AI-платформа для обучения ветеринарной медицине</DialogDescription>
@@ -74,56 +74,56 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
             <h4 className="font-semibold mb-2">Модули платформы</h4>
             <div className="space-y-2">
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <BookOpen className="w-4 h-4 text-[#28CD41] mt-0.5 shrink-0" />
+                <BookOpen className="w-4 h-4 text-[#4C7A3F] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Тестирование</p>
                   <p className="text-[11px] text-muted-foreground">Адаптивные тесты по всем ветеринарным дисциплинам с AI-генерацией вопросов</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Stethoscope className="w-4 h-4 text-[#007AFF] mt-0.5 shrink-0" />
+                <Stethoscope className="w-4 h-4 text-[#33608C] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Клинические кейсы</p>
                   <p className="text-[11px] text-muted-foreground">Уникальные клинические случаи с пошаговым разбором и обратной связью</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Mic className="w-4 h-4 text-[#AF52DE] mt-0.5 shrink-0" />
+                <Mic className="w-4 h-4 text-[#6D4FC4] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Репетитор</p>
                   <p className="text-[11px] text-muted-foreground">Голосовой AI-помощник для объяснения сложных ветеринарных концепций</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Layers className="w-4 h-4 text-[#28CD41] mt-0.5 shrink-0" />
+                <Layers className="w-4 h-4 text-[#4C7A3F] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Карточки + SM-2</p>
                   <p className="text-[11px] text-muted-foreground">AI-карточки с интервальным повторением, сканирование конспектов</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Map className="w-4 h-4 text-[#007AFF] mt-0.5 shrink-0" />
+                <Map className="w-4 h-4 text-[#33608C] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Интеллект-карты</p>
                   <p className="text-[11px] text-muted-foreground">AI создаёт иерархические карты знаний по ветеринарным темам</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <GraduationCap className="w-4 h-4 text-[#E74C3C] mt-0.5 shrink-0" />
+                <GraduationCap className="w-4 h-4 text-[#B3261E] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Экзамен</p>
                   <p className="text-[11px] text-muted-foreground">AI-экзаменатор в формате устного экзамена с оценкой свободных ответов</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Lightbulb className="w-4 h-4 text-[#FF9500] mt-0.5 shrink-0" />
+                <Lightbulb className="w-4 h-4 text-[#B4531C] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Ресурсы</p>
                   <p className="text-[11px] text-muted-foreground">Персонализированные учебные материалы и рекомендации на основе знаний</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <BarChart3 className="w-4 h-4 text-[#FF3B30] mt-0.5 shrink-0" />
+                <BarChart3 className="w-4 h-4 text-[#B3261E] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Карта знаний</p>
                   <p className="text-[11px] text-muted-foreground">Визуализация уровня знаний по всем дисциплинам в виде радарной диаграммы</p>
@@ -139,9 +139,9 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
               плана обучения и адаптация сложности материалов под ваш уровень.
             </p>
           </div>
-          <div className="p-3 rounded-xl bg-[#28CD41]/5 border border-[#28CD41]/20">
+          <div className="p-3 rounded-xl bg-[#4C7A3F]/5 border border-[#4C7A3F]/20">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#28CD41]/15 text-[#28CD41] border border-[#28CD41]/25">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#4C7A3F]/15 text-[#4C7A3F] border border-[#4C7A3F]/25">
                 v0.3.0
               </span>
               <span className="text-[10px] text-muted-foreground">·</span>
@@ -175,7 +175,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#2A2620]/90 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
         <div className="max-w-4xl mx-auto flex items-center justify-around h-[52px] px-1">
           {/* 4 main tabs — lucide icons */}
           {MAIN_TABS.map((item) => {
@@ -187,7 +187,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                 onClick={() => onTabChange(item.id)}
                 className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-2xl transition-all duration-200 touch-target ${
                   isActive
-                    ? 'text-[#28CD41] dark:text-[#30D158]'
+                    ? 'text-[#4C7A3F] dark:text-[#34D399]'
                     : 'text-muted-foreground hover:text-foreground active:text-foreground/70'
                 }`}
               >
@@ -201,7 +201,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                   {isActive && (
                     <motion.div
                       layoutId="nav-dot"
-                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#28CD41] dark:bg-[#30D158]"
+                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#4C7A3F] dark:bg-[#34D399]"
                     />
                   )}
                 </div>
@@ -217,7 +217,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
             onClick={() => setMoreOpen(true)}
             className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-2xl transition-all duration-200 touch-target ${
               isExtraTabActive
-                ? 'text-[#007AFF] dark:text-[#0A84FF]'
+                ? 'text-[#33608C] dark:text-[#82A9CC]'
                 : 'text-muted-foreground hover:text-foreground active:text-foreground/70'
             }`}
           >
@@ -229,11 +229,11 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
               {isExtraTabActive && (
                 <motion.div
                   layoutId="nav-dot"
-                  className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF]"
+                  className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#33608C] dark:bg-[#82A9CC]"
                 />
               )}
             </div>
-            <span className={`text-[10px] leading-none ${isExtraTabActive ? 'font-semibold text-[#007AFF] dark:text-[#0A84FF]' : 'font-medium'}`}>
+            <span className={`text-[10px] leading-none ${isExtraTabActive ? 'font-semibold text-[#33608C] dark:text-[#82A9CC]' : 'font-medium'}`}>
               Ещё
             </span>
           </button>
@@ -259,7 +259,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                   onClick={() => handleTabClick(item.id)}
                   className={`flex items-center gap-4 p-3.5 rounded-2xl border-2 transition-all duration-200 touch-target justify-start ${
                     isActive
-                      ? 'border-[#007AFF]/30 bg-[#007AFF]/5 dark:bg-[#0A84FF]/10'
+                      ? 'border-[#33608C]/30 bg-[#33608C]/5 dark:bg-[#82A9CC]/10'
                       : 'border-transparent bg-muted/50 hover:bg-muted active:scale-[0.98]'
                   }`}
                 >
@@ -274,7 +274,7 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
                     <p className="text-[11px] text-muted-foreground">{item.desc}</p>
                   </div>
                   {isActive && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] shrink-0" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#33608C] dark:bg-[#82A9CC] shrink-0" />
                   )}
                 </button>
               );

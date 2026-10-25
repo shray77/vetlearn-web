@@ -122,10 +122,10 @@ export function Header() {
   const isDark = theme === 'dark';
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#2A2620]/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2.5 touch-target" onClick={handleLogoTap}>
-            <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#28CD41] to-[#1FA833] dark:from-[#30D158] dark:to-[#28CD41] flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
+            <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] dark:from-[#34D399] dark:to-[#4C7A3F] flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
               <PawPrint size={16} className="text-white" fill="currentColor" />
             </div>
             <div>
@@ -135,11 +135,11 @@ export function Header() {
           </div>
 
         <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFF3CD] dark:bg-[#3D3000] text-[#856404] dark:text-[#FFD666] text-[11px] font-semibold tabular-nums">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F3EAD3] dark:bg-[#33290F] text-[#8A5A14] dark:text-[#D9A24A] text-[11px] font-semibold tabular-nums">
             <Flame className="w-3 h-3" />
             <span>{profile.streak}</span>
           </div>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E8F9EC] dark:bg-[#1A3D22] text-[#1FA833] dark:text-[#30D158] text-[11px] font-semibold tabular-nums">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EDF3EA] dark:bg-[#203528] text-[#3D6332] dark:text-[#34D399] text-[11px] font-semibold tabular-nums">
             <Zap className="w-3 h-3" />
             <span>{profile.xp}</span>
           </div>
@@ -197,12 +197,12 @@ export function Header() {
                 <div className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/50">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                      {notificationsEnabled ? <Bell className="w-4 h-4 text-[#FF9500]" /> : <BellOff className="w-4 h-4 text-muted-foreground" />}
+                      {notificationsEnabled ? <Bell className="w-4 h-4 text-[#B4531C]" /> : <BellOff className="w-4 h-4 text-muted-foreground" />}
                     </div>
                     <div>
                       <span className="text-sm font-medium">Уведомления</span>
                       {notificationPermission === 'denied' && (
-                        <p className="text-[11px] text-[#FF3B30]">Заблокированы в настройках браузера</p>
+                        <p className="text-[11px] text-[#B3261E]">Заблокированы в настройках браузера</p>
                       )}
                     </div>
                   </div>
@@ -218,10 +218,10 @@ export function Header() {
                 </div>
 
                 {/* Export/Import — D.4 cross-device backup */}
-                <div className="p-3.5 rounded-2xl bg-[#007AFF]/5 border border-[#007AFF]/20">
+                <div className="p-3.5 rounded-2xl bg-[#33608C]/5 border border-[#33608C]/20">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#007AFF]/10 flex items-center justify-center">
-                      <Download className="w-4 h-4 text-[#007AFF]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#33608C]/10 flex items-center justify-center">
+                      <Download className="w-4 h-4 text-[#33608C]" />
                     </div>
                     <div>
                       <span className="text-sm font-medium">Резервная копия</span>
@@ -262,10 +262,10 @@ export function Header() {
                 </div>
 
                 {/* Clear data */}
-                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FF3B30]/5 border border-[#FF3B30]/20">
+                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#B3261E]/5 border border-[#B3261E]/20">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#FF3B30]/10 flex items-center justify-center">
-                      <Trash2 className="w-4 h-4 text-[#FF3B30]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#B3261E]/10 flex items-center justify-center">
+                      <Trash2 className="w-4 h-4 text-[#B3261E]" />
                     </div>
                     <div>
                       <span className="text-sm font-medium">Очистить все данные</span>
@@ -313,7 +313,7 @@ export function Header() {
                 }}
                 className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${
                   profile.specializationTrack === t.id
-                    ? 'border-[#28CD41] bg-[#28CD41]/5'
+                    ? 'border-[#4C7A3F] bg-[#4C7A3F]/5'
                     : 'border-transparent bg-muted/50 hover:bg-muted'
                 }`}
               >
@@ -328,7 +328,7 @@ export function Header() {
                   <p className="text-[11px] text-muted-foreground mt-0.5">{t.description}</p>
                 </div>
                 {profile.specializationTrack === t.id && (
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#28CD41] shrink-0" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#4C7A3F] shrink-0" />
                 )}
               </button>
             ))}

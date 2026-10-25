@@ -27,7 +27,7 @@ function TreeNode({
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded || depth < 1);
   const hasChildren = node.children && node.children.length > 0;
-  const color = node.color || (depth === 0 ? '#28CD41' : undefined);
+  const color = node.color || (depth === 0 ? '#4C7A3F' : undefined);
 
   return (
     <div className="select-none">
@@ -189,7 +189,7 @@ export function MindMapTab() {
       return text;
     }
 
-    const text = `🗺️ ${mindMap.label} — Интеллект-карта\n${'═'.repeat(30)}\n\n${nodeToText(mindMap)}\n\nСгенерировано в VetLearn AI`;
+    const text = ` ${mindMap.label} — Интеллект-карта\n${'═'.repeat(30)}\n\n${nodeToText(mindMap)}\n\nСгенерировано в VetLearn AI`;
     navigator.clipboard.writeText(text).then(() => {
       toast.success('Карта скопирована!');
     }).catch(() => {
@@ -220,7 +220,7 @@ export function MindMapTab() {
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   selectedTopic === t.id
-                    ? 'bg-[#28CD41] text-white shadow-sm'
+                    ? 'bg-[#4C7A3F] text-white shadow-sm'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
@@ -241,7 +241,7 @@ export function MindMapTab() {
                 <button
                   onClick={() => setSelectedSubtopic('')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    !selectedSubtopic ? 'bg-[#28CD41]/10 text-[#28CD41] border border-[#28CD41]/30' : 'bg-muted text-muted-foreground'
+                    !selectedSubtopic ? 'bg-[#4C7A3F]/10 text-[#4C7A3F] border border-[#4C7A3F]/30' : 'bg-muted text-muted-foreground'
                   }`}
                 >
                   Все разделы
@@ -252,7 +252,7 @@ export function MindMapTab() {
                     onClick={() => setSelectedSubtopic(s.id === selectedSubtopic ? '' : s.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       selectedSubtopic === s.id
-                        ? 'bg-[#28CD41]/10 text-[#28CD41] border border-[#28CD41]/30'
+                        ? 'bg-[#4C7A3F]/10 text-[#4C7A3F] border border-[#4C7A3F]/30'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
@@ -267,7 +267,7 @@ export function MindMapTab() {
 
       {/* Generate button */}
       <Button
-        className="w-full squircle-sm bg-[#007AFF] hover:bg-[#0066DD] text-white h-14 text-sm font-bold shadow-lg"
+        className="w-full squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-14 text-sm font-bold shadow-lg"
         onClick={handleGenerate}
         disabled={isGenerating || !selectedTopic}
       >
@@ -289,11 +289,11 @@ export function MindMapTab() {
         >
           {/* Header */}
           <Card className="squircle border-0 shadow-sm overflow-hidden">
-            <div className="h-1" style={{ background: `linear-gradient(90deg, ${mindMap.children[0]?.color || '#28CD41'}, ${mindMap.children[1]?.color || '#007AFF'}, ${mindMap.children[2]?.color || '#FF9500'})` }} />
+            <div className="h-1" style={{ background: `linear-gradient(90deg, ${mindMap.children[0]?.color || '#4C7A3F'}, ${mindMap.children[1]?.color || '#33608C'}, ${mindMap.children[2]?.color || '#B4531C'})` }} />
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Map className="w-5 h-5 text-[#007AFF]" />
+                  <Map className="w-5 h-5 text-[#33608C]" />
                   <h3 className="text-sm font-bold">{mindMap.label}</h3>
                   {isFallback && (
                     <Badge variant="secondary" className="text-[9px]">резерв</Badge>
@@ -372,8 +372,8 @@ export function MindMapTab() {
       {!mindMap && !isGenerating && (
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center mx-auto mb-3">
-              <Map className="w-8 h-8 text-[#007AFF]" />
+            <div className="w-16 h-16 rounded-2xl bg-[#33608C]/10 flex items-center justify-center mx-auto mb-3">
+              <Map className="w-8 h-8 text-[#33608C]" />
             </div>
             <p className="text-sm font-semibold mb-1">Визуализируйте знания</p>
             <p className="text-xs text-muted-foreground">

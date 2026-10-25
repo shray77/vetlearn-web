@@ -35,7 +35,7 @@ export function XPBar({ current, max }: { current: number; max: number }) {
       <div className="h-2.5 bg-muted rounded-full overflow-hidden">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #28CD41, #1FA833)' }}
+          style={{ background: 'linear-gradient(90deg, #4C7A3F, #3D6332)' }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 1, ease: 'easeOut' }}
@@ -63,8 +63,8 @@ export function LoadingSpinner({ text = 'Генерация...' }: { text?: stri
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
       <div className="relative">
-        <Loader2 className="w-12 h-12 text-[#28CD41] animate-spin" />
-        <Sparkles className="w-5 h-5 text-[#FF9500] absolute -top-1 -right-1 animate-pulse" />
+        <Loader2 className="w-12 h-12 text-[#4C7A3F] animate-spin" />
+        <Sparkles className="w-5 h-5 text-[#B4531C] absolute -top-1 -right-1 animate-pulse" />
       </div>
       <p className="text-muted-foreground text-sm animate-pulse">{text}</p>
     </div>
