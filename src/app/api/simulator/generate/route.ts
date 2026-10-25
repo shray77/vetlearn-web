@@ -106,8 +106,8 @@ function validateAndFixScenario(data: any): SimulatorScenario | null {
     // Validate lab tests
     if (!Array.isArray(s.availableTests) || s.availableTests.length < 2) {
       s.availableTests = [
-        { id: 'cbc', name: 'ОАК', icon: '', cost: 800, category: 'blood', result: 'В пределах нормы', isRevealed: false },
-        { id: 'biochemistry', name: 'Биохимия крови', icon: '', cost: 1500, category: 'blood', result: 'В пределах нормы', isRevealed: false },
+        { id: 'cbc', name: 'ОАК', icon: 'cbc', cost: 800, category: 'blood', result: 'В пределах нормы', isRevealed: false },
+        { id: 'biochemistry', name: 'Биохимия крови', icon: 'biochemistry', cost: 1500, category: 'blood', result: 'В пределах нормы', isRevealed: false },
       ];
     } else {
       s.availableTests = s.availableTests.map((t: any, i: number) => ({

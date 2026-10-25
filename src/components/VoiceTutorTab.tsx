@@ -12,6 +12,7 @@ import {
   Mic, Volume2, Send, RotateCcw, Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DsIcon } from '@/lib/ds-icons';
 
 export function VoiceTutorTab() {
   // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
@@ -294,7 +295,7 @@ export function VoiceTutorTab() {
                 selectedTopic === t.id ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
               }`}
             >
-              {t.icon} {t.name}
+              <DsIcon name={t.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {t.name}
             </button>
           ))}
         </div>

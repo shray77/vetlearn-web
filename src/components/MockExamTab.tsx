@@ -17,6 +17,7 @@ import {
   MessageSquare, Lightbulb, ChevronDown, Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DsIcon } from '@/lib/ds-icons';
 
 // ==================== Types ====================
 
@@ -468,7 +469,7 @@ export function MockExamTab() {
                       : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-muted'
                   }`}
                 >
-                  {topic.icon} {topic.name}
+                  <DsIcon name={topic.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {topic.name}
                 </button>
               ))}
             </div>

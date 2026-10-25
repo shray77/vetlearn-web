@@ -14,6 +14,7 @@ import {
   Download, X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DsIcon } from '@/lib/ds-icons';
 
 // ===== Tree Node Component =====
 function TreeNode({
@@ -224,7 +225,7 @@ export function MindMapTab() {
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {t.icon} {t.name}
+                <DsIcon name={t.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {t.name}
               </button>
             ))}
           </div>

@@ -28,6 +28,7 @@ import {
 import { toast } from 'sonner';
 import { TRACKS, getTrackDefinition } from '@/lib/tracks';
 import type { SpecializationTrack } from '@/lib/types';
+import { DsIcon } from '@/lib/ds-icons';
 import { buildExport, parseImport, downloadExport, readFileAsText } from '@/lib/export-import';
 import type { VetLearnStore } from '@/lib/store';
 
@@ -154,7 +155,7 @@ export function Header() {
             }}
             title={`Специализация: ${track.label}`}
           >
-            <span className="text-sm">{track.icon}</span>
+            <DsIcon name={track.icon} className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{track.label}</span>
           </button>
 
@@ -318,10 +319,10 @@ export function Header() {
                 }`}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: `${t.color}15` }}
                 >
-                  {t.icon}
+                  <DsIcon name={t.icon} className="w-6 h-6" style={{ color: t.color }} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{t.label}</p>
@@ -350,7 +351,10 @@ export function Header() {
                     const t = TRACKS.find((tr) => tr.id === h.track);
                     return (
                       <div key={i} className="flex items-center justify-between text-[11px] p-1.5 rounded bg-muted/30">
-                        <span>{t?.icon} {t?.label || h.track}</span>
+                        <span className="flex items-center gap-1.5">
+                          <DsIcon name={t?.icon} className="w-3.5 h-3.5" style={t ? { color: t.color } : undefined} />
+                          {t?.label || h.track}
+                        </span>
                         <span className="text-muted-foreground">{h.date}</span>
                       </div>
                     );

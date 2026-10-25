@@ -18,6 +18,7 @@ import {
   Shield, Zap, Target, BookOpen, Lock, Unlock, AlertTriangle, Play, Layers,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DsIcon } from '@/lib/ds-icons';
 
 // ===== PHASE ENUM =====
 type Phase = 'placement_intro' | 'placement_quiz' | 'placement_results' | 'adaptive_select' | 'adaptive_quiz' | 'adaptive_results';
@@ -1332,7 +1333,7 @@ export function AdaptiveLearningTab() {
                           : 'hover:bg-muted/50 border-2 border-transparent'
                       }`}
                     >
-                      <span className="text-xl">{topic.icon}</span>
+                      <DsIcon name={topic.icon} className="w-5 h-5 shrink-0" />
                       <div className="flex-1 text-left">
                         <p className="text-sm font-medium">{topic.name}</p>
                         <p className="text-[10px] text-muted-foreground">{topic.subtopics.length} подтем</p>

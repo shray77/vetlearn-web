@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { OSCE_TYPE_LABELS } from '@/lib/osce-bank';
+import { DsIcon } from '@/lib/ds-icons';
 import type { OSCEStation, OSCEResult } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,6 +31,8 @@ export function OSCEStationRunner({ station, onExit }: Props) {
   const [answers, setAnswers] = useState<string[]>(station.questions.map(() => ''));
   const [timeLeft, setTimeLeft] = useState(station.timeLimitSec);
   const [result, setResult] = useState<OSCEResult | null>(null);
+  // Плейсхолдер вместо DOM-инъекции при битой картинке
+  const [imgFailed, setImgFailed] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
   const info = OSCE_TYPE_LABELS[station.type];
 
@@ -137,7 +140,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
               className="px-2 py-0.5 rounded text-[10px] font-medium"
               style={{ backgroundColor: `${info.color}15`, color: info.color }}
             >
-              {info.icon} {info.label}
+              <DsIcon name={info.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {info.label}
             </span>
             <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">
               {station.species}
@@ -156,26 +159,21 @@ export function OSCEStationRunner({ station, onExit }: Props) {
       {/* Image */}
       <Card className="border-0 shadow-sm overflow-hidden">
         <CardContent className="p-0">
-          <img
-            src={station.imageUrl}
-            alt={station.imageCaption}
-            className="w-full aspect-video object-cover bg-muted"
-            onError={(e) => {
-              // Fallback: show icon placeholder if image missing
-              (e.target as HTMLImageElement).style.display = 'none';
-              const parent = (e.target as HTMLImageElement).parentElement;
-              if (parent) {
-                parent.classList.add('flex', 'items-center', 'justify-center');
-                parent.style.backgroundColor = `${info.color}10`;
-                // Без innerHTML: строим узел через DOM API (React владеет этим контейнером,
-                // а textContent не исполняет разметку)
-                const fallback = document.createElement('div');
-                fallback.className = 'text-6xl';
-                fallback.textContent = info.icon;
-                parent.replaceChildren(fallback);
-              }
-            }}
-          />
+          {imgFailed ? (
+            <div
+              className="w-full aspect-video flex items-center justify-center"
+              style={{ backgroundColor: `${info.color}10` }}
+            >
+              <DsIcon name={info.icon} className="w-16 h-16" style={{ color: info.color }} />
+            </div>
+          ) : (
+            <img
+              src={station.imageUrl}
+              alt={station.imageCaption}
+              className="w-full aspect-video object-cover bg-muted"
+              onError={() => setImgFailed(true)}
+            />
+          )}
           <p className="text-[10px] text-muted-foreground text-center py-1.5 border-t">
             {station.attribution && <>© {station.attribution}</>}
           </p>

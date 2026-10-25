@@ -40,6 +40,7 @@ import {
 import { Coins, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { VET_TOOLS, BODY_REGION_LABELS } from '@/lib/simulator-types';
+import { DsIcon } from '@/lib/ds-icons';
 
 // ===== Session persistence across tab switches (sessionStorage) =====
 const SIM_STORAGE_KEY = 'vetlearn_simulator_session_v1';
@@ -555,7 +556,7 @@ export function SimulatorTab() {
           <CardContent className="p-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-[#33608C]/10 flex items-center justify-center text-2xl">
-                {SPECIES_EMOJIS[scenario.species] || ''}
+                <DsIcon name={SPECIES_EMOJIS[scenario.species]} className="w-7 h-7 text-[#33608C]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{scenario.breed}, {scenario.age}</p>

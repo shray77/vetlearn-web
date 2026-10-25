@@ -4,7 +4,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'pharmacology',
     name: 'Фармакология',
-    icon: '',
+    icon: 'pharmacology',
     color: '#E87963',
     description: 'Антибиотики, НПВС, анестезия, антипаразитарные препараты',
     subtopics: [
@@ -17,7 +17,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'surgery',
     name: 'Хирургия',
-    icon: '',
+    icon: 'surgery',
     color: '#4ECDC4',
     description: 'Стерилизация, швы, ампутация, лапаротомия',
     subtopics: [
@@ -30,7 +30,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'diagnostics',
     name: 'Диагностика',
-    icon: '',
+    icon: 'diagnostics',
     color: '#45B7D1',
     description: 'Лабораторная, инструментальная, рентген, УЗИ',
     subtopics: [
@@ -43,7 +43,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'therapy',
     name: 'Терапия',
-    icon: '',
+    icon: 'therapy',
     color: '#96CEB4',
     description: 'Внутренние болезни: ЖКТ, дыхательная, мочевыделительная',
     subtopics: [
@@ -56,7 +56,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'parasitology',
     name: 'Паразитология',
-    icon: '',
+    icon: 'parasitology',
     color: '#F3EAD3',
     description: 'Гельминтозы, арахнозы, энтомозы, протозоозы',
     subtopics: [
@@ -69,7 +69,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'epizootology',
     name: 'Эпизоотология',
-    icon: '',
+    icon: 'epizootology',
     color: '#B9A5E3',
     description: 'Инфекционные болезни, карантин, вакцинация',
     subtopics: [
@@ -81,7 +81,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'obstetrics',
     name: 'Акушерство и гинекология',
-    icon: '',
+    icon: 'obstetrics',
     color: '#FFB6C1',
     description: 'Беременность, роды, послеродовой период',
     subtopics: [
@@ -93,7 +93,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'hematology',
     name: 'Анемия и болезни крови',
-    icon: '',
+    icon: 'hematology',
     color: '#B3261E',
     description: 'Анемии, лейкозы, коагулопатии',
     subtopics: [
@@ -105,7 +105,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'anatomy',
     name: 'Анатомия и физиология',
-    icon: '',
+    icon: 'anatomy',
     color: '#8A5A14',
     description: 'Опорно-двигательная, сердечно-сосудистая, пищеварительная, нервная системы',
     subtopics: [
@@ -118,7 +118,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'pathophysiology',
     name: 'Патологическая физиология',
-    icon: '',
+    icon: 'pathophysiology',
     color: '#6D4FC4',
     description: 'Воспаление, гипоксия, шок, опухолевый рост',
     subtopics: [
@@ -131,7 +131,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'microbiology',
     name: 'Микробиология',
-    icon: '',
+    icon: 'microbiology',
     color: '#2C3E50',
     description: 'Бактерии, вирусы, грибы, иммунитет',
     subtopics: [
@@ -144,7 +144,7 @@ export const VET_TOPICS: VetTopic[] = [
   {
     id: 'zoohygiene',
     name: 'Зоогигиена и кормление',
-    icon: '',
+    icon: 'zoohygiene',
     color: '#4C7A3F',
     description: 'Гигиена содержания, кормление, санитарные требования',
     subtopics: [
@@ -157,13 +157,13 @@ export const VET_TOPICS: VetTopic[] = [
 ];
 
 export const SPECIES_OPTIONS: { value: SpeciesType; label: string; icon: string }[] = [
-  { value: 'КРС', label: 'КРС', icon: '' },
-  { value: 'МРС', label: 'МРС', icon: '' },
-  { value: 'свиньи', label: 'Свиньи', icon: '' },
-  { value: 'птица', label: 'Птица', icon: '' },
-  { value: 'собаки', label: 'Собаки', icon: '' },
-  { value: 'кошки', label: 'Кошки', icon: '' },
-  { value: 'лошади', label: 'Лошади', icon: '' },
+  { value: 'КРС', label: 'КРС', icon: 'cattle' },
+  { value: 'МРС', label: 'МРС', icon: 'sheep' },
+  { value: 'свиньи', label: 'Свиньи', icon: 'pig' },
+  { value: 'птица', label: 'Птица', icon: 'bird' },
+  { value: 'собаки', label: 'Собаки', icon: 'dog' },
+  { value: 'кошки', label: 'Кошки', icon: 'cat' },
+  { value: 'лошади', label: 'Лошади', icon: 'horse' },
 ];
 
 export const DIFFICULTY_OPTIONS: { value: DifficultyType; label: string; color: string }[] = [

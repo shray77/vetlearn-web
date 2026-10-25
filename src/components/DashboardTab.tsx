@@ -21,6 +21,7 @@ import type { SpecializationTrack } from '@/lib/types';
 import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { AchievementsPanel } from '@/components/AchievementsPanel';
 import { AiDiagnosticsCard } from '@/components/AiDiagnosticsCard';
+import { DsIcon } from '@/lib/ds-icons';
 
 export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
   // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
@@ -254,7 +255,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
               )}
             </div>
             <div className="flex items-start gap-3">
-              <div className="text-3xl shrink-0">{todayChallenge.icon}</div>
+              <div className="shrink-0"><DsIcon name={todayChallenge.icon} className="w-7 h-7 text-[#B4531C]" /></div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-bold leading-tight">{todayChallenge.title}</h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">{todayChallenge.description}</p>
@@ -300,7 +301,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     } ${isToday ? 'ring-2 ring-[#B4531C]' : ''}`}
                     title={`${c.date}: ${c.title}`}
                   >
-                    <div className="text-base">{done ? '✓' : c.icon}</div>
+                    <div className="text-base">{done ? '✓' : <DsIcon name={c.icon} className="w-4 h-4 mx-auto" />}</div>
                     <div className="text-[9px] mt-0.5">
                       {new Date(c.date).toLocaleDateString('ru-RU', { weekday: 'short' })}
                     </div>

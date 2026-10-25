@@ -15,6 +15,7 @@ import {
   Loader2, X, ArrowRight, Sparkles, AlertTriangle, BarChart3, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DsIcon } from '@/lib/ds-icons';
 
 export function ClinicalCasesTab() {
   // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
@@ -169,7 +170,7 @@ export function ClinicalCasesTab() {
                       : 'bg-muted/50 hover:bg-muted border-2 border-transparent'
                   }`}
                 >
-                  <span className="text-2xl">{sp.icon}</span>
+                  <DsIcon name={sp.icon} className="w-6 h-6" />
                   <span className="text-[10px] font-medium">{sp.label}</span>
                 </button>
               ))}
@@ -219,7 +220,7 @@ export function ClinicalCasesTab() {
                     selectedTopic === t.id ? 'bg-[#4C7A3F] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
-                  {t.icon} {t.name}
+                  <DsIcon name={t.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {t.name}
                 </button>
               ))}
             </div>

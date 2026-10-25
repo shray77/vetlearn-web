@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import {
   Trophy, Lock, Star, TrendingUp,
 } from 'lucide-react';
+import { DsIcon } from '@/lib/ds-icons';
 
 /**
  * D.7 — Achievements + Weekly League panel shown on Dashboard.
@@ -68,17 +69,17 @@ export function AchievementsPanel() {
 
             <div className="flex items-center gap-3">
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shrink-0"
+                className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
                 style={{ backgroundColor: `${currentLeague.color}20` }}
               >
-                {currentLeague.icon}
+                <DsIcon name={currentLeague.icon} className="w-8 h-8" style={{ color: currentLeague.color }} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between mb-1">
                   <span className="text-sm font-bold">{currentLeague.name}</span>
                   {nextLeague && (
                     <span className="text-[11px] text-muted-foreground">
-                      до {nextLeague.name} {nextLeague.icon}: {xpToNext} XP
+                      до {nextLeague.name} <DsIcon name={nextLeague.icon} className="w-3 h-3 inline-block align-[-2px]" style={{ color: nextLeague.color }} />: {xpToNext} XP
                     </span>
                   )}
                 </div>
@@ -104,7 +105,9 @@ export function AchievementsPanel() {
                     }`}
                     title={`${l.name}: ${l.minXpThisWeek}+ XP`}
                   >
-                    <div className={isPassed ? '' : 'grayscale'}>{l.icon}</div>
+                    <div className={isPassed ? '' : 'grayscale'}>
+                      <DsIcon name={l.icon} className="w-[18px] h-[18px] mx-auto" style={{ color: l.color }} />
+                    </div>
                     <div className="text-[9px] mt-0.5" style={{ color: isCurrent ? l.color : undefined }}>
                       {l.name}
                     </div>
@@ -142,7 +145,7 @@ export function AchievementsPanel() {
                   title={`${a.title} — ${a.description}`}
                 >
                   <div className="text-2xl mb-1" style={{ filter: a.unlocked ? 'none' : 'grayscale(1)' }}>
-                    {a.unlocked ? a.icon : <Lock className="w-5 h-5 mx-auto text-muted-foreground" />}
+                    {a.unlocked ? <DsIcon name={a.icon} className="w-6 h-6 mx-auto" /> : <Lock className="w-5 h-5 mx-auto text-muted-foreground" />}
                   </div>
                   <div className="text-[10px] font-semibold leading-tight line-clamp-2">
                     {a.title}

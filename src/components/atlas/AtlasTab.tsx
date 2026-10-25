@@ -13,6 +13,7 @@ import {
   ClipboardList, Heart, Activity,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DsIcon } from '@/lib/ds-icons';
 
 const VIEWED_KEY = 'vetlearn_atlas_viewed_v1';
 
@@ -105,7 +106,7 @@ export function AtlasTab() {
               }`}
               style={filterModality === mod ? { backgroundColor: info.color } : {}}
             >
-              {info.icon} {info.label} ({count})
+              <DsIcon name={info.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {info.label} ({count})
             </button>
           );
         })}
@@ -127,10 +128,10 @@ export function AtlasTab() {
                 <CardContent className="p-3">
                   <div className="flex gap-3">
                     <div
-                      className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0 text-3xl"
+                      className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0"
                       style={{ backgroundColor: `${info.color}15` }}
                     >
-                      {info.icon}
+                      <DsIcon name={info.icon} className="w-8 h-8" style={{ color: info.color }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">

@@ -7,6 +7,7 @@ import type { SimulatorScenario } from '@/lib/simulator-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Beaker, ArrowLeft, ChevronRight, Coins } from 'lucide-react';
+import { DsIcon } from '@/lib/ds-icons';
 
 interface LaboratoryPanelProps {
   scenario: SimulatorScenario;
@@ -48,7 +49,7 @@ export function LaboratoryPanel({ scenario, remainingBudget, onOrderTest, onBack
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{test.icon}</span>
+                    <DsIcon name={test.icon} className="w-5 h-5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-medium truncate">{test.name}</p>

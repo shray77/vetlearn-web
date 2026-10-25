@@ -7,6 +7,7 @@ import { OSCE_BANK, OSCE_TYPE_LABELS, getOSCEStationsByType } from '@/lib/osce-b
 import { getTrackDefinition, getTrackSpecies } from '@/lib/tracks';
 import type { OSCEStation, OSCEStationType } from '@/lib/types';
 import { OSCEStationRunner } from './OSCEStationRunner';
+import { DsIcon } from '@/lib/ds-icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,8 @@ export function OSCEListTab() {
   const [filterType, setFilterType] = useState<OSCEStationType | 'all'>('all');
   const [trackFilter, setTrackFilter] = useState(true);
   const [activeStation, setActiveStation] = useState<OSCEStation | null>(null);
+  // Референс-плейсхолдеры вместо innerHTML-инъекции при битых картинках
+  const [failedThumbs, setFailedThumbs] = useState<Set<string>>(new Set());
 
   const trackSpecies = getTrackSpecies(profile.specializationTrack);
 
@@ -108,7 +111,9 @@ export function OSCEListTab() {
                   style={{ backgroundColor: `${info.color}10` }}
                   title={`${info.label}: ${skill}/10`}
                 >
-                  <div className="text-lg">{info.icon}</div>
+                  <div>
+                    <DsIcon name={info.icon} className="w-5 h-5 mx-auto" style={{ color: info.color }} />
+                  </div>
                   <div className="text-[10px] font-semibold mt-0.5" style={{ color: info.color }}>
                     {skill || '—'}
                   </div>
@@ -155,7 +160,7 @@ export function OSCEListTab() {
             }`}
             style={filterType === type ? { backgroundColor: info.color } : {}}
           >
-            {info.icon} {info.label}
+            <DsIcon name={info.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {info.label}
           </button>
         ))}
       </div>
@@ -186,21 +191,26 @@ export function OSCEListTab() {
                 <CardContent className="p-3">
                   <div className="flex gap-3">
                     {/* Thumbnail */}
-                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-muted relative">
-                      <img
-                        src={station.imageUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          const parent = (e.target as HTMLImageElement).parentElement;
-                          if (parent) {
-                            parent.classList.add('flex', 'items-center', 'justify-center');
-                            parent.style.backgroundColor = `${info.color}15`;
-                            parent.innerHTML = `<span class="text-2xl">${info.icon}</span>`;
-                          }
-                        }}
-                      />
+                    <div
+                      className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-muted relative flex items-center justify-center"
+                      style={failedThumbs.has(station.id) ? { backgroundColor: `${info.color}15` } : undefined}
+                    >
+                      {failedThumbs.has(station.id) ? (
+                        <DsIcon name={info.icon} className="w-7 h-7" style={{ color: info.color }} />
+                      ) : (
+                        <img
+                          src={station.imageUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={() => {
+                            setFailedThumbs((prev) => {
+                              const next = new Set(prev);
+                              next.add(station.id);
+                              return next;
+                            });
+                          }}
+                        />
+                      )}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -222,7 +232,7 @@ export function OSCEListTab() {
                           className="px-1.5 py-0.5 rounded text-[9px] font-medium"
                           style={{ backgroundColor: `${info.color}15`, color: info.color }}
                         >
-                          {info.icon} {info.label}
+                          <DsIcon name={info.icon} className="w-3 h-3 inline-block align-[-2px] mr-0.5" /> {info.label}
                         </span>
                         <span className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
                           {station.species}

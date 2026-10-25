@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import type { BodyRegion } from '@/lib/simulator-types';
 import { BODY_REGION_LABELS, BODY_REGION_ICONS } from '@/lib/simulator-types';
+import { DsIcon } from '@/lib/ds-icons';
 
 interface AnimalSVGProps {
   species: string;
@@ -174,7 +175,7 @@ function HoverLabel({
       }}
     >
       <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-black/80 shadow-lg backdrop-blur-sm">
-        <span className="text-sm">{BODY_REGION_ICONS[zone.region]}</span>
+        <DsIcon name={BODY_REGION_ICONS[zone.region]} className="w-3.5 h-3.5 text-white" />
         <span className="text-[11px] font-semibold text-white">{BODY_REGION_LABELS[zone.region]}</span>
       </div>
     </div>

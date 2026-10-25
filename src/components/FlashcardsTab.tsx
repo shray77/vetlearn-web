@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImportDialog } from '@/components/import/ImportDialog';
+import { DsIcon } from '@/lib/ds-icons';
 
 type StudyMode = 'learn' | 'quiz' | 'sr'; // sr = spaced repetition review
 
@@ -503,7 +504,7 @@ export function FlashcardsTab() {
                       : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
-                  {t.icon} {t.name}
+                  <DsIcon name={t.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {t.name}
                 </button>
               ))}
             </div>
@@ -782,7 +783,7 @@ export function FlashcardsTab() {
           </Badge>
           {selectedTopicData && mode !== 'sr' && (
             <Badge variant="outline" className="text-[10px]">
-              {selectedTopicData.icon} {selectedTopicData.name}
+              <DsIcon name={selectedTopicData.icon} className="w-3 h-3 inline-block align-[-2px] mr-0.5" /> {selectedTopicData.name}
             </Badge>
           )}
           {mode === 'sr' && srLabel && (

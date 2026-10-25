@@ -9,6 +9,7 @@ import { LoadingSpinner } from '@/components/ui/utility';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Activity, Loader2, Stethoscope, Star } from 'lucide-react';
+import { DsIcon } from '@/lib/ds-icons';
 
 interface SimulatorSetupProps {
   selectedSpecies: SpeciesType;
@@ -85,7 +86,7 @@ export function SimulatorSetup({
                     : 'bg-muted/50 hover:bg-muted border-2 border-transparent'
                 }`}
               >
-                <span className="text-2xl">{sp.icon}</span>
+                <DsIcon name={sp.icon} className="w-6 h-6" />
                 <span className="text-[10px] font-medium">{sp.label}</span>
               </button>
             ))}
@@ -135,7 +136,7 @@ export function SimulatorSetup({
                   selectedTopic === t.id ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {t.icon} {t.name}
+                <DsIcon name={t.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {t.name}
               </button>
             ))}
           </div>

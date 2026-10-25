@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, ChevronRight, FlaskConical } from 'lucide-react';
+import { DsIcon } from '@/lib/ds-icons';
 
 interface ExaminationPanelProps {
   scenario: SimulatorScenario;
@@ -69,7 +70,7 @@ export function ExaminationPanel({
                     : 'border-transparent bg-muted/50 hover:bg-muted'
                 }`}
               >
-                <span className="text-xl">{tool.icon}</span>
+                <DsIcon name={tool.icon} className="w-5 h-5" />
                 <span className="text-[10px] font-medium text-center leading-tight">{tool.name}</span>
               </button>
             ))}
@@ -103,7 +104,7 @@ export function ExaminationPanel({
                     <div key={`${f.region}-${f.toolId}-${i}`} className={`finding-slide pl-3 border-l-2 ${borderColor}`}>
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <span className="text-[10px] text-muted-foreground">
-                          {BODY_REGION_LABELS[f.region as BodyRegion]} • {VET_TOOLS.find(t => t.id === f.toolId)?.icon} {VET_TOOLS.find(t => t.id === f.toolId)?.name}
+                          {BODY_REGION_LABELS[f.region as BodyRegion]} • <DsIcon name={VET_TOOLS.find(t => t.id === f.toolId)?.icon} className="w-3 h-3 inline-block align-[-2px]" /> {VET_TOOLS.find(t => t.id === f.toolId)?.name}
                         </span>
                         {f.isNormal ? (
                           <Badge className="text-[9px] px-1.5 py-0 bg-[#4C7A3F]/10 text-[#4C7A3F]">норма</Badge>

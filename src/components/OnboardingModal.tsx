@@ -7,6 +7,7 @@ import { TRACKS } from '@/lib/tracks';
 import type { SpecializationTrack } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
+import { DsIcon } from '@/lib/ds-icons';
 import { toast } from 'sonner';
 
 export function OnboardingModal() {
@@ -73,10 +74,10 @@ export function OnboardingModal() {
                   }`}
                 >
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: `${t.color}15` }}
                   >
-                    {t.icon}
+                    <DsIcon name={t.icon} className="w-7 h-7" style={{ color: t.color }} />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold">{t.label}</p>

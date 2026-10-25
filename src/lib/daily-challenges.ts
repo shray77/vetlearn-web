@@ -34,7 +34,7 @@ export interface DailyChallenge {
 
 const TYPE_INFO: Record<ChallengeType, { icon: string; title: (t: string) => string; desc: (t: string, n: number) => string; tab: string; xp: number; target: number }> = {
   flashcards: {
-    icon: '',
+    icon: 'flashcards',
     title: (t) => `Повтори ${t ? `карточки по теме «${t}»` : 'карточки'}`,
     desc: (_, n) => `Изучи ${n} карточек с интервальным повторением`,
     tab: 'flashcards',
@@ -42,7 +42,7 @@ const TYPE_INFO: Record<ChallengeType, { icon: string; title: (t: string) => str
     target: 10,
   },
   case: {
-    icon: '',
+    icon: 'case',
     title: (t) => `Разбери клинический кейс${t ? ` по теме «${t}»` : ''}`,
     desc: () => `Заверши 1 клинический случай до конца`,
     tab: 'cases',
@@ -50,7 +50,7 @@ const TYPE_INFO: Record<ChallengeType, { icon: string; title: (t: string) => str
     target: 1,
   },
   simulator: {
-    icon: '',
+    icon: 'simulator',
     title: (t) => `Проведи приём в симуляторе${t ? `: ${t}` : ''}`,
     desc: () => `Заверши 1 сессию в симуляторе пациента`,
     tab: 'simulator',
@@ -58,7 +58,7 @@ const TYPE_INFO: Record<ChallengeType, { icon: string; title: (t: string) => str
     target: 1,
   },
   assessment: {
-    icon: '',
+    icon: 'assessment',
     title: (t) => `Пройди мини-тест${t ? ` по теме «${t}»` : ''}`,
     desc: (_, n) => `Ответь на ${n} тестовых вопросов`,
     tab: 'learning',
@@ -66,7 +66,7 @@ const TYPE_INFO: Record<ChallengeType, { icon: string; title: (t: string) => str
     target: 5,
   },
   tutor: {
-    icon: '',
+    icon: 'tutor',
     title: (t) => `Поговори с AI-репетитором${t ? ` о теме «${t}»` : ''}`,
     desc: (_, n) => `Задай ${n} вопроса репетитору`,
     tab: 'tutor',
@@ -74,7 +74,7 @@ const TYPE_INFO: Record<ChallengeType, { icon: string; title: (t: string) => str
     target: 3,
   },
   osce: {
-    icon: '',
+    icon: 'osce',
     title: () => `Пройди OSCE-станцию`,
     desc: () => `Заверши 1 станцию визуальной диагностики`,
     tab: 'osce',

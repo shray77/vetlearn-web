@@ -23,7 +23,7 @@ export const TRACKS: TrackDefinition[] = [
   {
     id: 'small_animal',
     label: 'Мелкие животные',
-    icon: '',
+    icon: 'small-animal',
     description: 'Собаки и кошки — частная практика, хирургия, терапия МР',
     species: ['собаки', 'кошки'],
     emphasizedTopics: ['surgery', 'therapy', 'pharmacology', 'diagnostics', 'parasitology', 'anatomy'],
@@ -33,7 +33,7 @@ export const TRACKS: TrackDefinition[] = [
   {
     id: 'large_animal',
     label: 'Крупные животные',
-    icon: '',
+    icon: 'large-animal',
     description: 'КРС, МРС, свиньи — животноводство, внутренние болезни, акушерство',
     species: ['КРС', 'МРС', 'свиньи'],
     emphasizedTopics: ['obstetrics', 'therapy', 'epizootology', 'zoohygiene', 'pharmacology', 'diagnostics'],
@@ -43,7 +43,7 @@ export const TRACKS: TrackDefinition[] = [
   {
     id: 'equine',
     label: 'Лошади',
-    icon: '',
+    icon: 'equine',
     description: 'Спортивная и рабочая лошадь — хирургия, ортопедия, спортивная медицина',
     species: ['лошади'],
     emphasizedTopics: ['surgery', 'anatomy', 'therapy', 'diagnostics', 'pharmacology', 'pathophysiology'],
@@ -53,7 +53,7 @@ export const TRACKS: TrackDefinition[] = [
   {
     id: 'exotic',
     label: 'Экзотические животные',
-    icon: '',
+    icon: 'exotic',
     description: 'Птицы, рептилии, грызуны, кролики — специфика нестандартных пациентов',
     species: ['птица'],
     emphasizedTopics: ['therapy', 'pharmacology', 'diagnostics', 'anatomy', 'parasitology', 'microbiology'],
@@ -63,7 +63,7 @@ export const TRACKS: TrackDefinition[] = [
   {
     id: 'mixed',
     label: 'Смешанная практика',
-    icon: '',
+    icon: 'mixed',
     description: 'Все виды животных — универсальный ветеринарный врач',
     species: ['КРС', 'МРС', 'свиньи', 'птица', 'собаки', 'кошки', 'лошади'],
     emphasizedTopics: [
