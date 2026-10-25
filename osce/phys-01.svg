@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <rect width="640" height="360" fill="#EDF3EA"/>
+  <rect width="640" height="360" fill="#DCFCE7"/>
   <!-- Horse silhouette -->
   <g fill="#166534" opacity="0.7">
     <ellipse cx="320" cy="200" rx="180" ry="80"/>

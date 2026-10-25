@@ -5,10 +5,13 @@
   "start_url": "/vetlearn-web/",
   "scope": "/vetlearn-web/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#28CD41",
+  "background_color": "#FAF9F5",
+  "theme_color": "#4C7A3F",
   "orientation": "portrait",
-  "categories": ["education", "medical"],
+  "categories": [
+    "education",
+    "medical"
+  ],
   "prefer_related_applications": false,
   "screenshots": [],
   "icons": [
@@ -23,11 +26,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
     }
   ]
 }

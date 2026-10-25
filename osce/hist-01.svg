@@ -29,7 +29,7 @@
     <circle cx="402" cy="240" r="7" fill="#581C87"/>
 
     <!-- Lymphocyte -->
-    <circle cx="320" cy="240" r="8" fill="#6D4FC4"/>
+    <circle cx="320" cy="240" r="8" fill="#7C3AED"/>
     <circle cx="320" cy="240" r="4" fill="#4C1D95"/>
 
     <!-- Macrophage (larger, foamy) -->
