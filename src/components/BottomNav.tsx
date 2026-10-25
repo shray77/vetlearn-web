@@ -240,9 +240,10 @@ export function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTab
         </div>
       </nav>
 
-      {/* "Ещё" bottom sheet */}
+      {/* "Ещё" bottom sheet: скролл обязателен — 8 плиток выше 75vh на телефоне
+          (Task 160: без overflow контент 808px упирался в 558px и не крутился) */}
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-t-[20px] max-h-[75vh] px-4 pb-12">
+        <SheetContent side="bottom" className="rounded-t-[20px] max-h-[75vh] overflow-y-auto overscroll-contain px-4 pb-12">
           <SheetHeader className="text-left mb-3">
             <SheetTitle className="text-title-md">Разделы</SheetTitle>
             <SheetDescription className="text-caption">

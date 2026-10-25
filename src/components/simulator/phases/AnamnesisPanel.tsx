@@ -7,7 +7,7 @@ import type { AnamnesisQA } from '@/lib/simulator-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ChevronRight, MessageCircle } from 'lucide-react';
+import { ChevronRight, MessageCircle, User } from 'lucide-react';
 
 export const MAX_ANAMNESIS_QUESTIONS = 6;
 
@@ -27,8 +27,9 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
       <Card className="squircle-sm border-0 shadow-sm">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#33608C]/10 flex items-center justify-center shrink-0 text-lg">
-              
+            {/* Аватар владельца: пустой бокс после эмодзи-зачистки Task 158 (Task 160) */}
+            <div className="w-10 h-10 rounded-full bg-[#33608C]/10 flex items-center justify-center shrink-0">
+              <User className="w-5 h-5 text-[#33608C]" />
             </div>
             <div>
               <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 relative">

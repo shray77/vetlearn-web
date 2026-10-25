@@ -6,7 +6,6 @@ import { ThemeProvider } from "next-themes";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { OfflineApiBridge } from "@/components/OfflineApiBridge";
-import { DsThemeToggle } from "@/components/DsThemeToggle";
 
 // vet-ds v2.2 «Научная периодика»: Inter (текст, +кириллица),
 // IBM Plex Mono (моно), Instrument Serif (латиница заголовков;
@@ -83,7 +82,9 @@ export default function RootLayout({
             {children}
           </ErrorBoundary>
           <Toaster />
-          <DsThemeToggle />
+          {/* Плавающий DsThemeToggle убран (Task 160): fixed-тумблер справа снизу
+              перекрывал ~70% кнопки «Ещё» в нижней нав (z-80 над z-50) и дублировал
+              тумблер в шестерёнке. Управление темой — в настройках (Header). */}
         </ThemeProvider>
       </body>
     </html>

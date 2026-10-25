@@ -170,7 +170,8 @@ export function Header() {
                 <Settings className="h-[18px] w-[18px]" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-sm">
+            {/* max-h + скролл: на низких экранах блоки настроек не влезают (Task 160) */}
+            <DialogContent className="max-w-sm max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-title-md">Настройки</DialogTitle>
                 <DialogDescription className="text-body">Управление приложением и данными</DialogDescription>

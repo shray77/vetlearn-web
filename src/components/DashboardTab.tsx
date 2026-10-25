@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Flame, Star, Target, Award, TrendingUp, TrendingDown, Minus, Stethoscope, Mic,
   ArrowRight, Clock, Sparkles, BarChart3, Copy, FileText, Brain, Lightbulb,
-  Timer, ChevronRight, Calendar, CheckCircle2,
+  Timer, ChevronRight, Calendar, CheckCircle2, PawPrint,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getTodayChallenge, getPastChallenges } from '@/lib/daily-challenges';
@@ -197,8 +197,10 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         <Card className="squircle overflow-hidden border-0 shadow-lg bg-gradient-to-br from-[#4C7A3F] to-[#3D6332]">
           <CardContent className="p-5 text-white">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl">
-                
+              {/* Аватар профиля: пустой бокс после эмодзи-зачистки Task 158 —
+                  лапка как в логотипе хедера (Task 160) */}
+              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+                <PawPrint className="w-8 h-8 text-white" />
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-bold">{profile.name}</h2>
