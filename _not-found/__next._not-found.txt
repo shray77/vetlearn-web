@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
-2:I[39756,["/vetlearn-web/_next/static/chunks/0cyk8lktt5ht6.js","/vetlearn-web/_next/static/chunks/121_yzfpfqh2a.js","/vetlearn-web/_next/static/chunks/07bs1wb88w634.js","/vetlearn-web/_next/static/chunks/0kmg-0ajf5fz-.js"],"default"]
-3:I[37457,["/vetlearn-web/_next/static/chunks/0cyk8lktt5ht6.js","/vetlearn-web/_next/static/chunks/121_yzfpfqh2a.js","/vetlearn-web/_next/static/chunks/07bs1wb88w634.js","/vetlearn-web/_next/static/chunks/0kmg-0ajf5fz-.js"],"default"]
+2:I[39756,["/vetlearn-web/_next/static/chunks/0tar.x.lap478.js","/vetlearn-web/_next/static/chunks/121_yzfpfqh2a.js","/vetlearn-web/_next/static/chunks/10g3b15dp928j.js","/vetlearn-web/_next/static/chunks/0kmg-0ajf5fz-.js"],"default"]
+3:I[37457,["/vetlearn-web/_next/static/chunks/0tar.x.lap478.js","/vetlearn-web/_next/static/chunks/121_yzfpfqh2a.js","/vetlearn-web/_next/static/chunks/10g3b15dp928j.js","/vetlearn-web/_next/static/chunks/0kmg-0ajf5fz-.js"],"default"]
 4:[]
-0:{"rsc":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"isPartial":false,"staleTime":300,"varyParams":"$W4","buildId":"OPxWsWqbGwjOm6NSgkmeM"}
+0:{"rsc":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"isPartial":false,"staleTime":300,"varyParams":"$W4","buildId":"Fr4hNwmtZpEl120H8TSh4"}
