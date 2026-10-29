@@ -3,9 +3,10 @@
 > AI-платформа персонализированного обучения ветеринарной медицине.
 > Next.js 16 + React 19 + z-ai-web-dev-sdk + zustand (client-side persist).
 
-[![Version](https://img.shields.io/badge/version-0.3.0-28CD41.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.2-28CD41.svg)]()
 [![Stack](https://img.shields.io/badge/Next.js-16-000000.svg)](https://nextjs.org/)
 [![AI](https://img.shields.io/badge/AI-z--ai--web--dev--sdk-AF52DE.svg)](https://www.npmjs.com/package/z-ai-web-dev-sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-28CD41.svg)](LICENSE)
 
 ## Возможности
 
@@ -70,9 +71,12 @@ JSON-бэкап всего состояния — перенос между ус
 - **Tailwind CSS 4** + shadcn/ui (Radix primitives)
 - **zustand 5** (persist → localStorage, schema version 6)
 - **z-ai-web-dev-sdk 0.0.17** (LLM + VLM + ASR + TTS)
-- **framer-motion**, **recharts**, **react-markdown**
+- **framer-motion**, **recharts**
 - **pdf-parse** для PDF-импорта
-- **Caddy** reverse proxy (port 81 → 3000)
+
+Демо-версия работает на GitHub Pages (статический экспорт с
+офлайн-мостом API): `scripts/vl201_build_pages.sh` собирает и
+публикует её в ветку `gh-pages`.
 
 ## Архитектура
 
@@ -87,7 +91,7 @@ JSON-бэкап всего состояния — перенос между ус
 ┌─────────────────────────────────────────────────────────────┐
 │ Next.js standalone server (port 3000)                       │
 │  • src/proxy.ts — rate-limit (10 req/min per IP on AI)      │
-│  • src/app/api/* — 22 роута                                 │
+│  • src/app/api/* — 21 роут                                    │
 │  • Singleton ZAI client (src/lib/zai.ts)                    │
 └─────────────────────────────────────────────────────────────┘
                           ↕
@@ -123,7 +127,7 @@ bunx tsc --noEmit
 ```
 src/
 ├── app/
-│   ├── api/           # 22 API routes (AI routes rate-limited via src/proxy.ts)
+│   ├── api/           # 21 API routes (AI routes rate-limited via src/proxy.ts)
 │   └── page.tsx       # Main app shell + tab router
 ├── components/
 │   ├── ui/            # shadcn/ui primitives
@@ -156,7 +160,6 @@ src/
 
 ## Безопасность
 
-- `Caddyfile` — SSRF-уязвимый `@transform_port_query` удалён
 - `/api/stt` — 10MB cap, base64-валидация, 30s timeout
 - `src/proxy.ts` — in-memory token bucket rate-limit (10 req/min per IP)
 - `next.config.ts` — security headers (X-Frame-Options, HSTS, CSP-Report-Only)
@@ -166,4 +169,5 @@ src/
 
 ## Лицензия
 
-Приватный проект. Все права защищены.
+[MIT](LICENSE) — код распространяется под лицензией MIT.
+Юридические условия использования: [`public/terms.html`](public/terms.html).

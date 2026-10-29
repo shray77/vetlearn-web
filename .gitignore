@@ -1,0 +1,16 @@
+# зависимости и сборка
+node_modules/
+.next/
+out/
+next-env.d.ts.bak
+
+# локальные env и логи (bun run dev/start пишут dev.log / server.log)
+.env
+.env.local
+dev.log
+server.log
+
+# системный мусор
+.DS_Store
+*.log
+tsconfig.tsbuildinfo
