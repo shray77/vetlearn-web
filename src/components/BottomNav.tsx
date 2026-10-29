@@ -150,6 +150,17 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
             <p className="text-xs text-center text-muted-foreground">
               Создано для конкурса «Центр-инвест»
             </p>
+            {/* Юр-слой экосистемы (Task 201): относительная ссылка — работает
+                и в экспорте Pages (/vetlearn-web/terms.html), и у серверной
+                версии (/terms.html из public/). */}
+            <p className="text-[11px] text-center mt-2">
+              <a
+                href="terms.html"
+                className="underline underline-offset-2 decoration-border hover:decoration-foreground text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Условия использования и дисклеймер
+              </a>
+            </p>
           </div>
         </div>
       </DialogContent>
