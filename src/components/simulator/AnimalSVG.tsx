@@ -26,6 +26,18 @@ const SPECIES_IMAGES: Record<string, string> = {
   'птица': '/simulator-animals/bird.jpg',
 };
 
+// Task 204 (fix 204-b#12): фолбэк при битой картинке — DsIcon-морда вместо
+// пустого text-6xl (хвост эмодзи-зачистки Task 158)
+const SPECIES_DICONS: Record<string, string> = {
+  'собаки': 'dog',
+  'кошки': 'cat',
+  'КРС': 'cattle',
+  'свиньи': 'pig',
+  'МРС': 'sheep',
+  'лошади': 'horse',
+  'птица': 'bird',
+};
+
 // Синонимы видов (AI/клиент могут прислать варианты) → канонические ключи SPECIES_IMAGES
 const SPECIES_ALIASES: Record<string, string> = {
   'собака': 'собаки', 'собак': 'собаки', 'пес': 'собаки', 'пёс': 'собаки', 'псовые': 'собаки', 'dog': 'собаки',
@@ -95,20 +107,23 @@ function getRegionStyle(
 ): React.CSSProperties {
   // skin zone всегда самый низкий z-index чтобы не перекрывать клики по другим зонам
   const zoneZ = zone.region === 'skin' ? 1 : 10;
+  // Task 204 (fix 204-b#11): iOS-системные rgba(0,122,255)/rgba(255,59,48)/
+  // rgba(40,205,65) → палитра ДС: акцент #4C7A3F, патология #B3261E,
+  // норма #34D399 (тёмная тема читается поверх фото и в обоих темах)
   if (isSelected) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.22)', borderColor: 'rgba(0,122,255,0.7)', borderStyle: 'solid', zIndex: zoneZ };
+    return { ...baseRect(zone), backgroundColor: 'rgba(76,122,63,0.22)', borderColor: 'rgba(76,122,63,0.7)', borderStyle: 'solid', zIndex: zoneZ };
   }
   if (isHovered) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(0,122,255,0.14)', borderColor: 'rgba(0,122,255,0.55)', borderStyle: 'solid', zIndex: zoneZ };
+    return { ...baseRect(zone), backgroundColor: 'rgba(76,122,63,0.14)', borderColor: 'rgba(76,122,63,0.55)', borderStyle: 'solid', zIndex: zoneZ };
   }
   if (isExamined && isAbnormal) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(255,59,48,0.10)', borderColor: 'rgba(255,59,48,0.4)', borderStyle: 'solid', zIndex: zoneZ };
+    return { ...baseRect(zone), backgroundColor: 'rgba(179,38,30,0.10)', borderColor: 'rgba(179,38,30,0.4)', borderStyle: 'solid', zIndex: zoneZ };
   }
   if (isExamined) {
-    return { ...baseRect(zone), backgroundColor: 'rgba(40,205,65,0.06)', borderColor: 'rgba(40,205,65,0.35)', borderStyle: 'solid', zIndex: zoneZ };
+    return { ...baseRect(zone), backgroundColor: 'rgba(52,211,153,0.06)', borderColor: 'rgba(52,211,153,0.35)', borderStyle: 'solid', zIndex: zoneZ };
   }
   // Default: subtle dashed border
-  return { ...baseRect(zone), backgroundColor: 'transparent', borderColor: 'rgba(0,122,255,0.18)', borderStyle: 'dashed', zIndex: zoneZ };
+  return { ...baseRect(zone), backgroundColor: 'transparent', borderColor: 'rgba(76,122,63,0.18)', borderStyle: 'dashed', zIndex: zoneZ };
 }
 
 function baseRect(zone: ZoneDef) {
@@ -146,11 +161,11 @@ function IndicatorBadge({
       }}
     >
       {isAbnormal ? (
-        <div className="w-5 h-5 rounded-full bg-red-500/80 flex items-center justify-center shadow-lg sim-pulse">
+        <div className="w-5 h-5 rounded-full bg-[#B3261E]/90 flex items-center justify-center shadow-lg sim-pulse">
           <span className="text-white text-[10px] font-bold leading-none">!</span>
         </div>
       ) : (
-        <div className="w-5 h-5 rounded-full bg-green-500/80 flex items-center justify-center shadow-sm">
+        <div className="w-5 h-5 rounded-full bg-[#4C7A3F]/90 flex items-center justify-center shadow-sm">
           <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
@@ -229,9 +244,11 @@ export const AnimalSVG = React.memo(function AnimalSVG({
         {imgError && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-6xl mb-2 opacity-40">
-                {normalizedSpecies === 'собаки' ? '' : normalizedSpecies === 'кошки' ? '' : normalizedSpecies === 'КРС' ? '' : normalizedSpecies === 'свиньи' ? '' : normalizedSpecies === 'МРС' ? '' : normalizedSpecies === 'лошади' ? '' : ''}
-              </div>
+              {/* Task 204 (fix 204-b#12): DsIcon-морда вместо пустого узла */}
+              <DsIcon
+                name={SPECIES_DICONS[normalizedSpecies] || 'dog'}
+                className="w-16 h-16 mb-2 text-muted-foreground/40 mx-auto"
+              />
               <p className="text-xs text-muted-foreground">{species}</p>
             </div>
           </div>
@@ -266,7 +283,7 @@ export const AnimalSVG = React.memo(function AnimalSVG({
                       handleClick(zone.region);
                     }
                   }}
-                  className="group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#33608C]"
+                  className="group focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                 >
                   {/* Hover label */}
                   {isHov && <HoverLabel zone={zone} />}
@@ -291,15 +308,15 @@ export const AnimalSVG = React.memo(function AnimalSVG({
       {imgLoaded && examinedRegions.size > 0 && (
         <div className="flex items-center justify-center gap-4 mt-2 px-2">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-green-500/80" />
+            <div className="w-3 h-3 rounded-full bg-[#4C7A3F]/80" />
             <span className="text-[10px] text-muted-foreground">Норма</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500/80" />
+            <div className="w-3 h-3 rounded-full bg-[#B3261E]/80" />
             <span className="text-[10px] text-muted-foreground">Патология</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border-2 border-dashed border-blue-400/40" />
+            <div className="w-3 h-3 rounded border-2 border-dashed border-[#4C7A3F]/40" />
             <span className="text-[10px] text-muted-foreground">Не исследовано</span>
           </div>
         </div>

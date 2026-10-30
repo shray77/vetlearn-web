@@ -228,7 +228,7 @@ function MilestoneNode({
       {/* Step number */}
       <div
         className={`
-          w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold
+          w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold
           ${isCompleted ? 'bg-[#4C7A3F] text-white' : 'bg-muted text-muted-foreground'}
         `}
       >

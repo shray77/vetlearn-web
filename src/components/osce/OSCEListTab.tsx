@@ -229,15 +229,15 @@ export function OSCEListTab() {
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <span
-                          className="px-1.5 py-0.5 rounded text-[9px] font-medium"
+                          className="px-1.5 py-0.5 rounded text-[11px] font-medium"
                           style={{ backgroundColor: `${info.color}15`, color: info.color }}
                         >
                           <DsIcon name={info.icon} className="w-3 h-3 inline-block align-[-2px] mr-0.5" /> {info.label}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-muted text-muted-foreground">
                           {station.species}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-muted text-muted-foreground">
                           {station.difficulty}
                         </span>
                         <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">

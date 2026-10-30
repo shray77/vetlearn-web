@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS } from '@/lib/vet-topics';
@@ -36,9 +36,21 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
   const markChallengeCompleted = useStore((s) => s.markChallengeCompleted);
 
   // Daily challenge
+  // Task 204 (fix 204-a#4): дата — часть состояния: раньше useMemo с новым
+  // Date() пересчитывался только при смене трека, и живой через локальную
+  // полночь таб показывал вчерашний челлендж, а «Отметить» писал completion
+  // в прошлую дату. Теперь ключ дня тикает и входит в deps.
+  const [todayKey, setTodayKey] = useState(() => new Date().toDateString());
+  useEffect(() => {
+    const id = setInterval(() => {
+      const k = new Date().toDateString();
+      setTodayKey((prev) => (prev === k ? prev : k));
+    }, 30_000);
+    return () => clearInterval(id);
+  }, []);
   const todayChallenge = useMemo(
     () => getTodayChallenge(new Date(), profile.specializationTrack as SpecializationTrack | undefined),
-    [profile.specializationTrack]
+    [profile.specializationTrack, todayKey]
   );
   const isTodayDone = !!(completedChallenges && completedChallenges[todayChallenge.date]);
 
@@ -55,7 +67,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
 
   const pastChallenges = useMemo(
     () => getPastChallenges(7, profile.specializationTrack as SpecializationTrack | undefined),
-    [profile.specializationTrack]
+    [profile.specializationTrack, todayKey]
   );
 
   // SR due cards count
@@ -236,14 +248,14 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
       {/* Version Badge */}
       <div className="flex justify-center">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-muted/80 text-muted-foreground border border-border/50">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#4C7A3F] animate-pulse" />
-          VetLearn AI v0.3.0
+          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          VetLearn AI v0.4.2
         </span>
       </div>
 
       {/* Daily Challenge — D.6 */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className={`border-0 shadow-md ${isTodayDone ? 'bg-gradient-to-br from-[#4C7A3F]/15 to-[#4C7A3F]/5' : 'bg-gradient-to-br from-[#B4531C]/15 to-[#6D4FC4]/5'}`}>
+        <Card className={`border-0 shadow-md ${isTodayDone ? 'bg-gradient-to-br from-[#4C7A3F]/15 to-[#4C7A3F]/5' : 'bg-gradient-to-br from-[#B4531C]/15 to-transparent'}`}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="w-4 h-4 text-[#B4531C]" />
@@ -268,7 +280,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   {!isTodayDone ? (
                     <Button
                       size="sm"
-                      className="h-7 text-[11px] bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
+                      className="h-8 text-[11px] bg-primary hover:bg-primary/90 text-primary-foreground"
                       onClick={handleStartChallenge}
                     >
                       Начать <ArrowRight className="w-3 h-3 ml-1" />
@@ -278,7 +290,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-7 text-[11px] text-muted-foreground"
+                      className="h-8 text-[11px] text-muted-foreground"
                       onClick={handleMarkDone}
                     >
                       Отметить вручную
@@ -304,8 +316,11 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                     title={`${c.date}: ${c.title}`}
                   >
                     <div className="text-base">{done ? '✓' : <DsIcon name={c.icon} className="w-4 h-4 mx-auto" />}</div>
-                    <div className="text-[9px] mt-0.5">
-                      {new Date(c.date).toLocaleDateString('ru-RU', { weekday: 'short' })}
+                    <div className="text-[11px] mt-0.5">
+                      {/* Task 204 (fix 204-a#10): 'YYYY-MM-DD' парсится как
+                          UTC-полночь — weekday съезжал на день в отрицательных
+                          таймзонах; локальный парсинг через T00:00:00 */}
+                      {new Date(c.date + 'T00:00:00').toLocaleDateString('ru-RU', { weekday: 'short' })}
                     </div>
                   </div>
                 );
@@ -326,7 +341,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
           { icon: Flame, label: 'Серия', value: profile.streak, color: 'text-[#B4531C]', bg: 'bg-[#F3EAD3] dark:bg-[#33290F]' },
           { icon: Star, label: 'Кейсы', value: profile.completedCases, color: 'text-[#B4531C]', bg: 'bg-[#F3EAD3] dark:bg-[#33290F]' },
           { icon: Target, label: 'Точность', value: `${accuracy}%`, color: 'text-[#4C7A3F]', bg: 'bg-[#EDF3EA] dark:bg-[#203528]' },
-          { icon: Award, label: 'Уровень', value: profile.level, color: 'text-[#6D4FC4]', bg: 'bg-[#EDE9F6] dark:bg-[#34302A]' },
+          { icon: Award, label: 'Уровень', value: profile.level, color: 'text-[#33608C]', bg: 'bg-[#EDF2F7] dark:bg-[#26333F]' },
         ].map((stat, i) => (
           <Card key={i} className="squircle-sm border-0 shadow-sm p-3 text-center">
             <div className={`w-8 h-8 rounded-xl ${stat.bg} flex items-center justify-center mx-auto mb-1.5`}>
@@ -469,7 +484,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                             initial={{ opacity: 0, scale: 0 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.1, duration: 0.3 }}
-                            className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold"
+                            className="w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-bold"
                             style={{
                               backgroundColor: a.score >= 75 ? '#EDF3EA' : a.score >= 50 ? '#F3EAD3' : '#F5E3E1',
                               color: a.score >= 75 ? '#4C7A3F' : a.score >= 50 ? '#B4531C' : '#B3261E',
@@ -588,9 +603,17 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         transition={{ duration: 0.5, delay: 0.3 }}
         className="grid grid-cols-2 gap-3"
       >
+        {/* Task 204 (fix 204-b#4): карточки-навигации — button-семантика
+            вместо div onClick (Tab-порядок, Enter/Space, VoiceControl) */}
         <Card
-          className="squircle-sm border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow group"
+          className="squircle-sm border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow group text-left"
+          role="button"
+          tabIndex={0}
+          aria-label="Открыть AI-кейсы"
           onClick={() => onNavigate('cases')}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('cases'); }
+          }}
         >
           <CardContent className="p-4">
             <div className="w-10 h-10 rounded-xl bg-[#33608C]/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -602,12 +625,18 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         </Card>
 
         <Card
-          className="squircle-sm border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow group"
+          className="squircle-sm border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow group text-left"
+          role="button"
+          tabIndex={0}
+          aria-label="Открыть голосового репетитора"
           onClick={() => onNavigate('tutor')}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('tutor'); }
+          }}
         >
           <CardContent className="p-4">
-            <div className="w-10 h-10 rounded-xl bg-[#6D4FC4]/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-              <Mic className="w-5 h-5 text-[#6D4FC4]" />
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Mic className="w-5 h-5 text-primary" />
             </div>
             <h3 className="font-semibold text-sm">Репетитор</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Голосовой AI-помощник</p>
@@ -649,7 +678,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   Пройдите первичное тестирование,<br />чтобы увидеть карту знаний
                 </p>
                 <Button
-                  className="mt-3 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
+                  className="mt-3 bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="sm"
                   onClick={() => onNavigate('learning')}
                 >

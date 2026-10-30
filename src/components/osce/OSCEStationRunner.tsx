@@ -153,6 +153,10 @@ export function OSCEStationRunner({ station, onExit }: Props) {
           <p className="text-xs text-muted-foreground leading-relaxed">
             {station.presenterText}
           </p>
+          {/* Task 204 (fix 204-b#7): учебный дисклеймер в шапке станции */}
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            Учебная станция — не ветеринарная консультация.
+          </p>
         </CardContent>
       </Card>
 
@@ -170,7 +174,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
             <img
               src={station.imageUrl}
               alt={station.imageCaption}
-              className="w-full aspect-video object-cover bg-muted"
+              className="w-full aspect-video object-cover bg-muted dark:brightness-90 dark:contrast-[0.97]"
               onError={() => setImgFailed(true)}
             />
           )}

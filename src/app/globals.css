@@ -334,13 +334,26 @@
   background-color: #3F3A32;
 }
 
-/* ===== Touch target minimum (Apple HIG: 44x44pt) ===== */
+/* ===== Touch target minimum (Apple HIG: 44x44pt) =====
+   Task 204: расширен до боксов с отрицательными маргинами (кнопки-иконки
+   рядом с текстом: -m-1 + touch-target = зона 44px без визуального роста) */
 .touch-target {
   min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+/* Тач-таргет без изменения лэйаута: невидимая зона вокруг иконки
+   (клик по ::after диспатчится хозяину-кнопке; применять только там,
+   где соседи по периметру не интерактивны) */
+.touch-area {
+  position: relative;
+}
+.touch-area::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
 }
 
 /* ===== Card press feedback (Apple HIG: tactile interaction) ===== */
@@ -367,14 +380,17 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.06);
 }
 
-/* ===== Focus ring (ДС: акцент характера) ===== */
+/* ===== Focus ring (ДС: акцент характера) =====
+   Task 204 (fix 204-b#14): раньше .focus-ring красил ринг синим #33608C,
+   а глобальный :focus-visible — зелёным var(--primary): элементы с классом
+   и без получали ринг разного цвета. Единственный цвет ринга — акцент ДС. */
 .focus-ring:focus-visible {
-  outline: 2px solid #33608C;
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: inherit;
 }
 .dark .focus-ring:focus-visible {
-  outline-color: #82A9CC;
+  outline-color: var(--primary);
 }
 
 /* ===== Separator (Apple-style thin divider) ===== */

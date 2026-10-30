@@ -10,10 +10,17 @@ export function ConfettiCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Task 204 (fix 204-b#10): prefers-reduced-motion — конфетти не запускаем
+    // вовсе (3с непрерывного rAF-шума для людей с вестибулярной чувств.)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ['#4C7A3F', '#B4531C', '#33608C', '#6D4FC4', '#B3261E', '#D9A24A', '#34D399'];
+    // Task 204 (fix 204-b#11): фиолетовый #6D4FC4 выведен из конфетти —
+    // палитра ДС (зелёный/охра/синий/красный акценты)
+    const colors = ['#4C7A3F', '#B4531C', '#33608C', '#B3261E', '#D9A24A', '#34D399'];
     const pieces: { x: number; y: number; vx: number; vy: number; color: string; size: number; rotation: number; rotationSpeed: number }[] = [];
 
     for (let i = 0; i < 200; i++) {

@@ -147,18 +147,20 @@ export function AtlasTab() {
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <span
-                          className="px-1.5 py-0.5 rounded text-[9px] font-medium"
+                          className="px-1.5 py-0.5 rounded text-[11px] font-medium inline-flex items-center gap-1"
                           style={{ backgroundColor: `${info.color}15`, color: info.color }}
                         >
-                          {info.icon} {info.label}
+                          {/* Task 204 (fix 204-b#2): сырой ключ иконки текстом
+                              («radiology Рентген») → DsIcon, как в остальных чипах */}
+                          <DsIcon name={info.icon} className="w-3 h-3" /> {info.label}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-muted text-muted-foreground">
                           {entry.species}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-muted text-muted-foreground">
                           {entry.bodyRegion}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-muted text-muted-foreground">
                           {entry.difficulty === 'beginner' ? 'базовый' : entry.difficulty === 'intermediate' ? 'средний' : 'продвинутый'}
                         </span>
                       </div>
@@ -179,6 +181,8 @@ export function AtlasTab() {
  */
 function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void }) {
   const info = ATLAS_MODALITY_LABELS[entry.modality];
+  // Task 204 (fix 204-b#2): React-state фолбэк вместо innerHTML-мутаций
+  const [imgError, setImgError] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -198,10 +202,11 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span
-              className="px-2 py-0.5 rounded text-[10px] font-medium"
+              className="px-2 py-0.5 rounded text-[10px] font-medium inline-flex items-center gap-1"
               style={{ backgroundColor: `${info.color}15`, color: info.color }}
             >
-              {info.icon} {info.label}
+              {/* Task 204 (fix 204-b#2): ключ иконки текстом → DsIcon */}
+              <DsIcon name={info.icon} className="w-3 h-3" /> {info.label}
             </span>
             <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">{entry.species}</span>
             <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">{entry.bodyRegion}</span>
@@ -215,20 +220,25 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       {/* Image */}
       <Card className="border-0 shadow-sm overflow-hidden">
         <CardContent className="p-0">
-          <img
-            src={entry.imageUrl}
-            alt={entry.caption}
-            className="w-full aspect-video object-cover bg-muted"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-              const parent = (e.target as HTMLImageElement).parentElement;
-              if (parent) {
-                parent.classList.add('flex', 'items-center', 'justify-center');
-                parent.style.backgroundColor = `${info.color}10`;
-                parent.innerHTML = `<div class="text-6xl">${info.icon}</div>`;
-              }
-            }}
-          />
+          {/* Task 204 (fix 204-b#2/#11): фолбэк битой картинки — раньше
+              innerHTML с гигантским ТЕКСТОМ-ключом («histopathology» на весь
+              экран); теперь React-state + DsIcon. Тёмная тема: лёгкое
+              затемнение медицинских тайлов, чтобы не «фонарили». */}
+          {imgError ? (
+            <div
+              className="w-full aspect-video flex items-center justify-center"
+              style={{ backgroundColor: `${info.color}10` }}
+            >
+              <DsIcon name={info.icon} className="w-16 h-16" style={{ color: info.color }} />
+            </div>
+          ) : (
+            <img
+              src={entry.imageUrl}
+              alt={entry.caption}
+              className="w-full aspect-video object-cover bg-muted dark:brightness-90 dark:contrast-[0.97]"
+              onError={() => setImgError(true)}
+            />
+          )}
           <p className="text-[10px] text-muted-foreground text-center py-1.5 border-t">
             {entry.caption}
           </p>
@@ -254,10 +264,10 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
       </Card>
 
       {/* Interpretation */}
-      <Card className="border-0 shadow-sm bg-[#6D4FC4]/5">
+      <Card className="border-0 shadow-sm bg-primary/5">
         <CardContent className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Lightbulb className="w-4 h-4 text-[#6D4FC4]" />
+            <Lightbulb className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold">Интерпретация</h3>
           </div>
           <p className="text-xs leading-relaxed">{entry.interpretation}</p>
@@ -278,7 +288,7 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
                 variant="secondary"
                 className={`text-[11px] ${i === 0 ? 'bg-[#B4531C]/15 text-[#B4531C]' : ''}`}
               >
-                {i === 0 && ' '}{d}
+                {d}
               </Badge>
             ))}
           </div>

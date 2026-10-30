@@ -77,7 +77,7 @@ function TreeNode({
         </div>
 
         {hasChildren && (
-          <Badge variant="secondary" className="text-[9px] px-1.5 py-0 shrink-0">
+          <Badge variant="secondary" className="text-[11px] px-1.5 py-0 shrink-0">
             {node.children.length}
           </Badge>
         )}
@@ -297,7 +297,7 @@ export function MindMapTab() {
                   <Map className="w-5 h-5 text-[#33608C]" />
                   <h3 className="text-sm font-bold">{mindMap.label}</h3>
                   {isFallback && (
-                    <Badge variant="secondary" className="text-[9px]">резерв</Badge>
+                    <Badge variant="secondary" className="text-[11px]">резерв</Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-2">

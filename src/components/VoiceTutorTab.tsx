@@ -67,6 +67,12 @@ export function VoiceTutorTab() {
         sttAbortRef.current.abort();
         sttAbortRef.current = null;
       }
+      // Task 204 (fix 204-a#5): отменяем и незавершённый TTS-запрос —
+      // иначе поздний ответ озвучивал бы сообщение после ухода с таба.
+      if (speakAbortRef.current) {
+        speakAbortRef.current.abort();
+        speakAbortRef.current = null;
+      }
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
@@ -127,6 +133,10 @@ export function VoiceTutorTab() {
   };
 
   // FIX #3: Proper audio cleanup — stop previous, revoke URL on end/error
+  // Task 204 (fix 204-a#5): fetch с AbortController + отмена после unmount —
+  // раньше поздний ответ играл звук на размонтированном компоненте без
+  // возможности остановить.
+  const speakAbortRef = useRef<AbortController | null>(null);
   const handleSpeak = useCallback(async (text: string, messageId: string) => {
     // If same message is playing — stop it
     if (isPlayingAudio === messageId) {
@@ -152,13 +162,17 @@ export function VoiceTutorTab() {
       audioUrlRef.current = null;
     }
 
+    const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/immutability -- ref-хендл TTS-запроса, модификация в колбэке, не в render
+    speakAbortRef.current = controller;
     try {
       const res = await fetch('/api/tutor/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: text.slice(0, 500) }),
+        signal: controller.signal,
       });
-      if (res.ok) {
+      if (res.ok && !controller.signal.aborted) {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         audioUrlRef.current = url;
@@ -177,10 +191,17 @@ export function VoiceTutorTab() {
           audioRef.current = null;
           setIsPlayingAudio(null);
         };
-        audio.play();
+        audio.play().catch(() => {
+          URL.revokeObjectURL(url);
+          audioUrlRef.current = null;
+          audioRef.current = null;
+          setIsPlayingAudio(null);
+        });
       }
-    } catch {
-      toast.error('Ошибка озвучки');
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') toast.error('Ошибка озвучки');
+    } finally {
+      if (speakAbortRef.current === controller) speakAbortRef.current = null;
     }
   }, [isPlayingAudio]);
 
@@ -202,6 +223,12 @@ export function VoiceTutorTab() {
       };
 
       mediaRecorder.onstop = async () => {
+        // Task 204 (fix 204-a#1): единая точка истины isRecording — снимается
+        // здесь, а не только в handleStopRecording. Иначе после 60s auto-stop
+        // кнопка «залипает»: stop() на inactive рекордере кидает
+        // InvalidStateError, а guard `isStarting || isRecording` блокирует
+        // повторный старт до перезагрузки страницы.
+        setIsRecording(false);
         stream.getTracks().forEach(t => t.stop());
         streamRef.current = null;
         if (maxRecTimeoutRef.current) {
@@ -270,7 +297,7 @@ export function VoiceTutorTab() {
     }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
+      // setIsRecording(false) — в mediaRecorder.onstop (единая точка истины)
     }
   };
 
@@ -282,7 +309,7 @@ export function VoiceTutorTab() {
           <button
             onClick={() => setSelectedTopic('')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-              !selectedTopic ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
+              !selectedTopic ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
             }`}
           >
              Общий чат
@@ -292,7 +319,7 @@ export function VoiceTutorTab() {
               key={t.id}
               onClick={() => setSelectedTopic(t.id === selectedTopic ? '' : t.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                selectedTopic === t.id ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
+                selectedTopic === t.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
               <DsIcon name={t.icon} className="w-3.5 h-3.5 inline-block align-[-3px] mr-1" /> {t.name}
@@ -305,8 +332,8 @@ export function VoiceTutorTab() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar space-y-3 px-1">
         {tutorMessages.length === 0 && (
           <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-2xl bg-[#6D4FC4]/10 flex items-center justify-center mx-auto mb-3 animate-float">
-              <Mic className="w-8 h-8 text-[#6D4FC4]" />
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 animate-float">
+              <Mic className="w-8 h-8 text-primary" />
             </div>
             <h3 className="text-base font-semibold mb-1">Голосовой репетитор</h3>
             <p className="text-sm text-muted-foreground px-8">
@@ -356,11 +383,12 @@ export function VoiceTutorTab() {
                 {msg.role === 'assistant' && (
                   <button
                     onClick={() => handleSpeak(msg.content, msg.id)}
-                    className={`ml-1 p-0.5 rounded transition-all ${
-                      isPlayingAudio === msg.id ? 'text-[#6D4FC4]' : 'text-muted-foreground hover:text-[#6D4FC4]'
+                    aria-label={isPlayingAudio === msg.id ? 'Остановить озвучку' : 'Озвучить сообщение'}
+                    className={`ml-1 -m-1 p-1.5 rounded-md transition-colors touch-area ${
+                      isPlayingAudio === msg.id ? 'text-primary' : 'text-muted-foreground hover:text-primary'
                     }`}
                   >
-                    <Volume2 className="w-3 h-3" />
+                    <Volume2 className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -386,10 +414,11 @@ export function VoiceTutorTab() {
         <div className="flex items-center gap-2">
           <button
             onClick={isRecording ? handleStopRecording : handleStartRecording}
+            aria-label={isRecording ? 'Остановить запись' : 'Начать запись голосом'}
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
               isRecording
-                ? 'bg-[#B3261E] text-white animate-pulse-ring'
-                : 'bg-[#6D4FC4]/10 text-[#6D4FC4] hover:bg-[#6D4FC4]/20'
+                ? 'bg-destructive text-white animate-pulse-ring'
+                : 'bg-primary/10 text-primary hover:bg-primary/20'
             }`}
           >
             <Mic className="w-5 h-5" />
@@ -412,7 +441,7 @@ export function VoiceTutorTab() {
           <Button
             onClick={handleSend}
             disabled={!inputText.trim() || isLoading}
-            className="w-10 h-10 rounded-xl p-0 shrink-0 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
+            className="w-10 h-10 rounded-xl p-0 shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Send className="w-4 h-4" />
           </Button>

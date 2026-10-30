@@ -288,10 +288,13 @@ export const ATLAS_BANK: AtlasEntry[] = [
 ];
 
 export const ATLAS_MODALITY_LABELS: Record<AtlasEntry['modality'], { label: string; icon: string; color: string }> = {
+  // Task 204 (fix 204-b#11): модалити-цвета приведены к палитре ДС
+  // (UI-розовый #EC4899 и фиолетовый #6D4FC4 — вне системы),
+  // каждая модальность различима цветом
   radiology:      { label: 'Рентген',     icon: 'radiology', color: '#33608C' },
-  ultrasound:     { label: 'УЗИ',         icon: 'ultrasound', color: '#6D4FC4' },
-  cytology:       { label: 'Цитология',   icon: 'cytology', color: '#B4531C' },
-  histopathology: { label: 'Гистология',  icon: 'histopathology', color: '#EC4899' },
+  ultrasound:     { label: 'УЗИ',         icon: 'ultrasound', color: '#4C7A3F' },
+  cytology:       { label: 'Цитология',   icon: 'cytology', color: '#B3261E' },
+  histopathology: { label: 'Гистология',  icon: 'histopathology', color: '#B4531C' },
 };
 
 export function getAtlasEntries(filter?: { modality?: string; species?: string; difficulty?: string }): AtlasEntry[] {

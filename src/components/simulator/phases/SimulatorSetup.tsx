@@ -44,9 +44,15 @@ export function SimulatorSetup({
         <p className="text-sm text-muted-foreground">
           Практикуйтесь в диагностике: осматривайте пациента, назначайте анализы, ставьте диагноз и выбирайте лечение.
         </p>
+        {/* Task 204 (fix 204-b#7): учебный дисклеймер прямо в модуле — раньше
+            «не консультация» была только на terms.html, до которой из
+            симулятора никто не доходил */}
+        <p className="text-[11px] text-muted-foreground mt-1">
+          Учебный сценарий — не ветеринарная консультация; оценки не подтверждают квалификацию.
+        </p>
       </motion.div>
 
-      <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
+      <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#33608C]/10">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#33608C]/10 flex items-center justify-center shrink-0">

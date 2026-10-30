@@ -17,6 +17,7 @@ import {
   OSCEStationType,
 } from './types';
 import { createSRCard, reviewSRCard } from './sm2';
+import { deleteDocumentText } from './indexeddb';
 import type { SimulatorSession } from './simulator-types';
 
 /** Slim entry stored in history to avoid localStorage bloat */
@@ -37,14 +38,16 @@ const DEFAULT_PROFILE: StudentProfile = {
   xp: 0,
   xpToNext: 100,
   streak: 0,
-  streakLastDate: new Date().toISOString().split('T')[0],
+  // Task 204 (fix 204-a#9): локальные даты вместо UTC-ISOString — в UTC+3
+  // после 21:00 дефолтный streakLastDate оказывался «завтра» локально
+  streakLastDate: getLocalDateString(),
   skillMap: {},
   completedCases: 0,
   totalAnswers: 0,
   correctAnswers: 0,
   learningPath: [],
   assessmentsCompleted: 0,
-  joinedDate: new Date().toISOString().split('T')[0],
+  joinedDate: getLocalDateString(),
 };
 
 // FIX #1: UTC timezone bug — use local date instead of toISOString
@@ -459,13 +462,25 @@ export const useStore = create<VetLearnStore>()(
       // ===== D.2 Imported Documents =====
       importedDocuments: [],
       addImportedDocument: (doc) =>
-        set((state) => ({
-          importedDocuments: [doc, ...state.importedDocuments].slice(0, 50),
-        })),
-      deleteImportedDocument: (id) =>
+        set((state) => {
+          // Task 204 (fix 204-a#7): выселяемые за кап 50 документы раньше
+          // оставляли полные тексты в IndexedDB навсегда (write-only рост
+          // квоты) — теперь текст выселяемого чистится сразу.
+          const next = [doc, ...state.importedDocuments].slice(0, 50);
+          for (const d of state.importedDocuments) {
+            if (!next.some((n) => n.id === d.id)) {
+              void deleteDocumentText(d.id);
+            }
+          }
+          return { importedDocuments: next };
+        }),
+      deleteImportedDocument: (id) => {
+        // Task 204 (fix 204-a#7): симметричная чистка IDB-текста
+        void deleteDocumentText(id);
         set((state) => ({
           importedDocuments: state.importedDocuments.filter((d) => d.id !== id),
-        })),
+        }));
+      },
       updateImportedDocument: (id, updates) =>
         set((state) => ({
           importedDocuments: state.importedDocuments.map((d) =>

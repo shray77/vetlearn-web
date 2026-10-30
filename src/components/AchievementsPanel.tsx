@@ -108,7 +108,7 @@ export function AchievementsPanel() {
                     <div className={isPassed ? '' : 'grayscale'}>
                       <DsIcon name={l.icon} className="w-[18px] h-[18px] mx-auto" style={{ color: l.color }} />
                     </div>
-                    <div className="text-[9px] mt-0.5" style={{ color: isCurrent ? l.color : undefined }}>
+                    <div className="text-[11px] mt-0.5" style={{ color: isCurrent ? l.color : undefined }}>
                       {l.name}
                     </div>
                   </div>
@@ -151,7 +151,7 @@ export function AchievementsPanel() {
                     {a.title}
                   </div>
                   {!a.unlocked && a.progressText && (
-                    <div className="text-[9px] text-muted-foreground mt-0.5">
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
                       {a.progressText}
                     </div>
                   )}

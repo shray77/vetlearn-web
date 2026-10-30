@@ -125,15 +125,21 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#2A2620]/80 backdrop-blur-xl border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 touch-target" onClick={handleLogoTap}>
+          {/* Task 204 (fix 204-b#4): лого — button-семантика (это скрытый вход в
+              админ-панель по 7 тапам, для VoiceControl/Tab-порядка нужна кнопка) */}
+          <button
+            className="flex items-center gap-2.5 touch-target rounded-lg"
+            onClick={handleLogoTap}
+            aria-label="VetLearn AI — на главную"
+          >
             <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] dark:from-[#34D399] dark:to-[#4C7A3F] flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
               <PawPrint size={16} className="text-white" fill="currentColor" />
             </div>
-            <div>
+            <div className="text-left">
               <h1 className="text-[15px] font-bold leading-tight tracking-tight">VetLearn AI</h1>
               <p className="text-[11px] text-muted-foreground leading-tight hidden sm:block">Персонализированное обучение</p>
             </div>
-          </div>
+          </button>
 
         <div className="flex items-center gap-1.5">
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F3EAD3] dark:bg-[#33290F] text-[#8A5A14] dark:text-[#D9A24A] text-[11px] font-semibold tabular-nums">
@@ -146,13 +152,16 @@ export function Header() {
           </div>
 
           {/* Track badge — tap to open track switcher */}
+          {/* Task 204 (fix 204-b#3): тач-таргет + aria-label — на мобиле текст
+              скрыт и оставался ~30×19px бейдж без доступного имени */}
           <button
             onClick={() => setTrackSheetOpen(true)}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold transition-all hover:scale-105 active:scale-95"
+            className="flex items-center gap-1 px-2 min-h-[32px] rounded-full text-[11px] font-semibold transition-all hover:scale-105 active:scale-95 touch-area"
             style={{
               backgroundColor: `${track.color}15`,
               color: track.color,
             }}
+            aria-label={`Специализация: ${track.label} — сменить`}
             title={`Специализация: ${track.label}`}
           >
             <DsIcon name={track.icon} className="w-3.5 h-3.5" />

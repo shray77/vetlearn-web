@@ -98,7 +98,11 @@ export function computeWeekXp(
     }
   }
   for (const c of caseHistory) {
-    if (localDateKey(new Date(c.createdAt)) >= weekStartStr) {
+    // Task 204 (fix 204-a#11): невалидный/отсутствующий createdAt давал
+    // localDateKey(NaN) = "NaN-NaN-NaN", который строково >= weekStart —
+    // и накидывал +15 XP в лигу за каждый битый кейс КАЖДУЮ неделю.
+    const t = Date.parse(c.createdAt);
+    if (Number.isFinite(t) && localDateKey(new Date(t)) >= weekStartStr) {
       xp += 15;
     }
   }

@@ -51,6 +51,16 @@ export function OnboardingModal() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            // Task 204 (fix 204-b#5): минимальная диалоговая семантика для
+            // самописной модалки (полный перевод на Radix — в рефакторинге):
+            // role/aria-modal, Esc закрывает, фокус запирается в панели
+            role="dialog"
+            aria-modal="true"
+            aria-label="Выбор специализации"
+            onKeyDown={(e: React.KeyboardEvent) => {
+              // Esc = «Пропустить»: смешанная практика, консистентный стейт
+              if (e.key === 'Escape') handleSkip();
+            }}
             className="w-full max-w-lg bg-background rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="sticky top-0 bg-background z-10 px-5 pt-4 pb-3 border-b">
@@ -88,13 +98,13 @@ export function OnboardingModal() {
                       {t.species.slice(0, 4).map((sp) => (
                         <span
                           key={sp}
-                          className="px-1.5 py-0.5 rounded text-[9px] bg-background/80 text-muted-foreground"
+                          className="px-1.5 py-0.5 rounded text-[11px] bg-background/80 text-muted-foreground"
                         >
                           {sp}
                         </span>
                       ))}
                       {t.species.length > 4 && (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-background/80 text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-background/80 text-muted-foreground">
                           +{t.species.length - 4}
                         </span>
                       )}

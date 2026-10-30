@@ -182,7 +182,7 @@ export function ResourcesTab() {
                             >
                               {resource.urlVerified ? 'Открыть' : 'Найти в Google'} <ExternalLink className="w-3 h-3" />
                             </a>
-                            <Badge variant={resource.urlVerified ? 'default' : 'secondary'} className="text-[9px] h-4 px-1">
+                            <Badge variant={resource.urlVerified ? 'default' : 'secondary'} className="text-[11px] h-4 px-1">
                               {resource.urlVerified ? 'Проверено' : 'Поиск'}
                             </Badge>
                           </div>

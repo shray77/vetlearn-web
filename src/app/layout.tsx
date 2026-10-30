@@ -62,11 +62,17 @@ export default function RootLayout({
       className={`${inter.variable} ${plexMono.variable} ${instrumentSerif.variable}`}
     >
       <head>
-        <meta name="theme-color" content="#4C7A3F" />
+        {/* Task 204 (fix 204-b#15): theme-color — пара светлая/тёмная:
+            в тёмной теме статус-бар PWA оставался зелёным на графите */}
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#4C7A3F" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#211E19" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="VetLearn AI" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        {/* Task 204 (fix 204-b#6): pinch-zoom возвращён (WCAG 1.4.4) —
+            maximum-scale=1/user-scalable=no не давали слабовидящим
+            увеличить AI-тексты на Android */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="antialiased">

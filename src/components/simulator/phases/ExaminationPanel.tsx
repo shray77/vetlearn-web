@@ -107,9 +107,9 @@ export function ExaminationPanel({
                           {BODY_REGION_LABELS[f.region as BodyRegion]} • <DsIcon name={VET_TOOLS.find(t => t.id === f.toolId)?.icon} className="w-3 h-3 inline-block align-[-2px]" /> {VET_TOOLS.find(t => t.id === f.toolId)?.name}
                         </span>
                         {f.isNormal ? (
-                          <Badge className="text-[9px] px-1.5 py-0 bg-[#4C7A3F]/10 text-[#4C7A3F]">норма</Badge>
+                          <Badge className="text-[11px] px-1.5 py-0 bg-[#4C7A3F]/10 text-[#4C7A3F]">норма</Badge>
                         ) : (
-                          <Badge className="text-[9px] px-1.5 py-0 bg-[#B3261E]/10 text-[#B3261E]">
+                          <Badge className="text-[11px] px-1.5 py-0 bg-[#B3261E]/10 text-[#B3261E]">
                             {f.relevance === 'critical' ? 'критично' : 'патология'}
                           </Badge>
                         )}

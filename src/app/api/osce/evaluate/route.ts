@@ -129,6 +129,24 @@ Verdict должен быть конкретным, что студент упу
 
     const scores = parsed.scores.map((s) => Math.max(0, Math.min(10, Math.round(Number(s) || 0))));
     const feedback = parsed.feedback.map((f) => String(f).slice(0, 500));
+
+    // Task 204 (fix 204-a#12): LLM может вернуть укороченные массивы — хвостовые
+    // вопросы показывались со скором 0 (клиентский ?? 0), а totalScore делился на
+    // чужую длину и расходился с показанным. Мисматч длины → честный fallback.
+    if (scores.length !== station.questions.length || feedback.length !== station.questions.length) {
+      const fbScores = station.questions.map((q, i) => {
+        const a = (answers[i] || '').toLowerCase();
+        const denom = q.keywords.length > 0 ? q.keywords.length : 1;
+        const hits = q.keywords.filter((k) => a.includes(k.toLowerCase())).length;
+        return Math.min(10, Math.round((hits / denom) * 10));
+      });
+      const fbFeedback = station.questions.map((_, i) =>
+        `Автоматическая оценка: ${fbScores[i]}/10 (на основе совпадения ключевых слов).`
+      );
+      const fbTotal = Math.round(fbScores.reduce((a, b) => a + b, 0) / fbScores.length);
+      return NextResponse.json({ success: true, scores: fbScores, feedback: fbFeedback, totalScore: fbTotal, referenceAnswers, fallback: true });
+    }
+
     const totalScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 
     return NextResponse.json({

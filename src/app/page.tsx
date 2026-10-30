@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useCallback, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useStore } from '@/lib/store';
 import { Header } from '@/components/Header';
@@ -123,6 +123,50 @@ export default function Home() {
     setActiveTab(tab);
   }, [setActiveTab]);
 
+  // ===== Task 204 (fix 204-b#8): история браузера для табов =====
+  // Табы жили только в zustand: кнопка «назад» на Android/десктопе выпрыгивала
+  // из приложения. Теперь активный таб синхронизирован с location.hash,
+  // pushState создаёт запись истории — back возвращает на предыдущий таб.
+  const VALID_TABS = new Set([
+    'dashboard', 'learning', 'cases', 'tutor', 'flashcards',
+    'exam', 'resources', 'mindmap', 'simulator', 'osce', 'atlas',
+  ]);
+
+  // Первичная инициализация из hash (глубокая ссылка #tab)
+  useEffect(() => {
+    if (!hydrated) return;
+    const fromHash = window.location.hash.replace(/^#/, '');
+    if (fromHash && VALID_TABS.has(fromHash) && fromHash !== activeTab) {
+      setActiveTab(fromHash);
+    }
+  }, [hydrated]);
+
+  // Каждая смена таба — запись в историю (кроме попстейтов, чтобы не циклить)
+  const isPopNavRef = useRef(false);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (isPopNavRef.current) {
+      isPopNavRef.current = false;
+      return;
+    }
+    if (window.location.hash !== `#${activeTab}`) {
+      window.history.pushState({ tab: activeTab }, '', `#${activeTab}`);
+    }
+  }, [activeTab, hydrated]);
+
+  // Back/forward — возврат на таб из истории
+  useEffect(() => {
+    const onPop = () => {
+      const fromHash = window.location.hash.replace(/^#/, '');
+      if (fromHash && VALID_TABS.has(fromHash)) {
+        isPopNavRef.current = true;
+        setActiveTab(fromHash);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   // Show nothing until hydrated to avoid SSR/client mismatch
   if (!hydrated) {
     return (
@@ -145,6 +189,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Task 204 (fix 204-b#10): prefers-reduced-motion — фронт-механика
+          framer-motion раньше не уважала системную настройку (CSS-правило
+          покрывало только CSS-анимации) */}
+      <MotionConfig reducedMotion="user">
       <Header />
 
       <main ref={mainRef} className="flex-1 max-w-4xl mx-auto w-full px-4 pt-4 pb-24">
@@ -173,6 +221,7 @@ export default function Home() {
 
       <BottomNav activeTab={activeTab} onTabChange={handleNavigate} />
       <OnboardingModal />
+      </MotionConfig>
     </div>
   );
 }

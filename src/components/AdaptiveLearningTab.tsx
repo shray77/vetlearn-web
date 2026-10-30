@@ -389,11 +389,11 @@ export function AdaptiveLearningTab() {
         {/* Phase indicator */}
         <div className="flex items-center gap-2 mb-1">
           {isPlacementPhase ? (
-            <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border-0 text-[10px]">
+            <Badge className="bg-[#EDF2F7] text-[#33608C] dark:bg-[#26333F] dark:text-[#82A9CC] border-0 text-[10px]">
               <GraduationCap className="w-3 h-3 mr-1" /> Входное тестирование
             </Badge>
           ) : (
-            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border-0 text-[10px]">
+            <Badge className="bg-[#EDF3EA] text-[#4C7A3F] dark:bg-[#203528] dark:text-[#34D399] border-0 text-[10px]">
               <Zap className="w-3 h-3 mr-1" /> AI генерация
             </Badge>
           )}
@@ -694,29 +694,35 @@ export function AdaptiveLearningTab() {
       advanced: 'Продвинутый',
       expert: 'Экспертный',
     };
+    const level = assessmentResult.level;
     const levelColors: Record<string, string> = {
       beginner: '#4C7A3F',
       intermediate: '#B4531C',
       advanced: '#B3261E',
-      expert: '#6D4FC4',
+      // Task 204 (fix 204-b#11): эксперт был фиолетовым #6D4FC4 — вне ДС
+      expert: '#33608C',
     };
-    const levelIcons: Record<string, string> = {
-      beginner: '',
-      intermediate: '',
-      advanced: '',
-      expert: '',
+    // Task 204 (fix 204-b#12): пустые эмодзи-остатки levelIcons → lucide
+    const LEVEL_LUCIDE: Record<string, typeof Brain> = {
+      beginner: BookOpen,
+      intermediate: TrendingUp,
+      advanced: Target,
+      expert: Brain,
     };
-
-    const level = assessmentResult.level;
+    const LevelIcon = LEVEL_LUCIDE[level] || Brain;
     return (
       <div className="space-y-4 pb-4 relative">
         {assessmentResult.score >= 80 && <ConfettiCanvas />}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           {/* Header */}
-          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30">
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#EDF2F7] to-[#EDF3EA] dark:from-[#26333F] dark:to-[#203528]">
             <CardContent className="p-5 text-center">
-              <div className="text-5xl mb-2">{levelIcons[level]}</div>
+              <div className="flex justify-center mb-2">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: `${levelColors[level]}15` }}>
+                  <LevelIcon className="w-7 h-7" style={{ color: levelColors[level] }} />
+                </div>
+              </div>
               <h2 className="text-sm text-muted-foreground mb-1">Ваш уровень подготовки</h2>
               <h1 className="text-2xl font-bold mb-3" style={{ color: levelColors[level] }}>
                 {levelLabels[level]}
@@ -734,7 +740,7 @@ export function AdaptiveLearningTab() {
           <Card className="squircle-sm border-0 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Target className="w-4 h-4 text-purple-500" /> Результаты по уровням
+                <Target className="w-4 h-4 text-[#33608C]" /> Результаты по уровням
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -816,7 +822,7 @@ export function AdaptiveLearningTab() {
 
           {/* CTA: Go to adaptive */}
           <Button
-            className="w-full squircle-sm bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white h-14 text-sm font-bold shadow-lg"
+            className="w-full squircle-sm bg-gradient-to-r from-[#4C7A3F] to-[#3D6332] hover:from-[#3D6332] hover:to-[#2E4E26] dark:from-[#34D399] dark:to-[#4C7A3F] dark:hover:from-[#4C7A3F] dark:hover:to-[#34D399] text-white dark:text-[#06251B] h-14 text-sm font-bold shadow-lg"
             onClick={() => {
               setAssessmentQuestions([]);
               setAnswers([]);
@@ -1074,10 +1080,11 @@ export function AdaptiveLearningTab() {
     return (
       <div className="space-y-4 pb-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/30 dark:via-indigo-950/30 dark:to-blue-950/30">
+          {/* Task 204 (fix 204-b#11): фиолетово-индиго градиент — мимо ДС */}
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#EDF2F7] to-[#EDF3EA] dark:from-[#26333F] dark:to-[#203528]">
             <CardContent className="p-5 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <GraduationCap className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] dark:from-[#34D399] dark:to-[#4C7A3F] flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <GraduationCap className="w-8 h-8 text-white dark:text-[#06251B]" />
               </div>
               <h2 className="text-xl font-bold mb-2 gradient-text">Входное тестирование</h2>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
@@ -1087,8 +1094,8 @@ export function AdaptiveLearningTab() {
 
               <div className="space-y-3 text-left mb-4">
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <div className="w-8 h-8 rounded-lg bg-[#EDF2F7] dark:bg-[#26333F] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Shield className="w-4 h-4 text-[#33608C] dark:text-[#82A9CC]" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold">Фаза 1: Входной тест</p>
@@ -1099,8 +1106,8 @@ export function AdaptiveLearningTab() {
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <div className="w-8 h-8 rounded-lg bg-[#EDF2F7] dark:bg-[#26333F] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Zap className="w-4 h-4 text-[#33608C] dark:text-[#82A9CC]" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold">Фаза 2: ИИ-обучение</p>
@@ -1111,8 +1118,8 @@ export function AdaptiveLearningTab() {
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5">
-                  <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Target className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  <div className="w-8 h-8 rounded-lg bg-[#EDF3EA] dark:bg-[#203528] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Target className="w-4 h-4 text-[#4C7A3F] dark:text-[#34D399]" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold">Адаптивная сложность</p>
@@ -1126,7 +1133,7 @@ export function AdaptiveLearningTab() {
           </Card>
 
           <Button
-            className="w-full squircle-sm bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white h-14 text-sm font-bold shadow-lg"
+            className="w-full squircle-sm bg-gradient-to-r from-[#4C7A3F] to-[#3D6332] hover:from-[#3D6332] hover:to-[#2E4E26] dark:from-[#34D399] dark:to-[#4C7A3F] dark:hover:from-[#4C7A3F] dark:hover:to-[#34D399] text-white dark:text-[#06251B] h-14 text-sm font-bold shadow-lg"
             onClick={handleStartPlacement}
             disabled={isGenerating}
           >
@@ -1159,7 +1166,7 @@ export function AdaptiveLearningTab() {
               <p className="text-sm text-muted-foreground">ИИ генерирует уникальные вопросы</p>
             </div>
             {profile.placementCompleted && (
-              <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border-0 text-[10px]">
+              <Badge className="bg-[#EDF2F7] text-[#33608C] dark:bg-[#26333F] dark:text-[#82A9CC] border-0 text-[10px]">
                 <Shield className="w-3 h-3 mr-1" /> {levelLabel}
               </Badge>
             )}
@@ -1168,12 +1175,12 @@ export function AdaptiveLearningTab() {
 
         {/* Level info card */}
         {profile.placementCompleted && (
-          <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
+          <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-r from-[#EDF2F7] to-[#EDF3EA] dark:from-[#26333F] dark:to-[#203528]">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] dark:from-[#34D399] dark:to-[#4C7A3F] flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white dark:text-[#06251B]" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold">ИИ адаптирован под вас</p>
@@ -1216,7 +1223,7 @@ export function AdaptiveLearningTab() {
                 >
                   {opt.label}
                   {userLevel === opt.value && profile.placementCompleted && (
-                    <div className="text-[9px] mt-0.5 opacity-80">авто</div>
+                    <div className="text-[11px] mt-0.5 opacity-80">авто</div>
                   )}
                 </div>
               ))}

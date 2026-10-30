@@ -142,7 +142,7 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
           <div className="p-3 rounded-xl bg-[#4C7A3F]/5 border border-[#4C7A3F]/20">
             <div className="flex items-center justify-center gap-2 mb-1">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#4C7A3F]/15 text-[#4C7A3F] border border-[#4C7A3F]/25">
-                v0.3.0
+                v0.4.2
               </span>
               <span className="text-[10px] text-muted-foreground">·</span>
               <span className="text-[10px] text-muted-foreground">Версия в разработке</span>

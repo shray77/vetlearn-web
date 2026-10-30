@@ -28,6 +28,10 @@ const EXPORTED_KEYS: Array<keyof VetLearnStore> = [
   'osceHistory',
   'osceSkillMap',
   'bookmarkedResources',
+  // Task 204 (fix 204-a#6): история челленджей персистится в store, но
+  // в экспорт не входила — экспорт→импорт молча обнулял её: ачивка
+  // challenges-7 откатывалась, недельная лига теряла ~20 XP/день.
+  'completedChallenges',
 ];
 
 export interface ExportPayload {
@@ -49,7 +53,7 @@ export function buildExport(state: VetLearnStore): ExportPayload {
   return {
     formatVersion: EXPORT_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
-    appVersion: '0.3.0',
+    appVersion: '0.4.2',
     state: exported,
   };
 }

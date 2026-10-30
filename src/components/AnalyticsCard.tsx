@@ -104,11 +104,11 @@ export function AnalyticsCard() {
                   <div key={t.topicId} className="flex items-center gap-2 text-[11px]">
                     {trendIcon(t.trend)}
                     <span className="flex-1 truncate">{t.topicName}</span>
-                    <Badge variant="secondary" className="text-[9px]">
+                    <Badge variant="secondary" className="text-[11px]">
                       {t.currentLevel}%
                     </Badge>
                     {t.trend !== 'insufficient_data' && (
-                      <span className={`text-[9px] tabular-nums w-8 text-right ${
+                      <span className={`text-[11px] tabular-nums w-8 text-right ${
                         t.delta > 0 ? 'text-[#4C7A3F]' : t.delta < 0 ? 'text-[#B3261E]' : 'text-muted-foreground'
                       }`}>
                         {t.delta > 0 ? '+' : ''}{t.delta}

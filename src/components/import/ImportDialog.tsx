@@ -247,7 +247,7 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                   {stage === 'saving' && 'Сохраняем...'}
                 </p>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleClose} className="h-8 w-8">
+              <Button variant="ghost" size="icon" onClick={handleClose} className="h-8 w-8" aria-label="Закрыть окно импорта">
                 <X className="w-4 h-4" />
               </Button>
             </div>

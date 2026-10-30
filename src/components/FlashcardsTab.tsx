@@ -64,6 +64,10 @@ export function FlashcardsTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // P2: отложенный переход следующей карточки — с очисткой при unmount
   const nextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Task 204 (fix 204-a#2a): лок на окно авто-перехода — двойной тап
+  // «Знаю/Не знаю» в течение 300ms применял reviewCard дважды
+  // (reps 0→2, интервал 1→6, пропущен learning-step)
+  const ratingLockRef = useRef(false);
   useEffect(() => () => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
   }, []);
@@ -111,6 +115,22 @@ export function FlashcardsTab() {
     setView('main');
     setSrReviewCards([]);
     setSrReviewedToday(0);
+  }, [setFlashcards, resetQuiz]);
+
+  // Task 204 (fix 204-a#3): переоткрытие колоды из истории
+  const reopenDeck = useCallback((deck: FlashcardDeck) => {
+    if (!deck.cards?.length) {
+      toast.info('В колоде нет карточек');
+      return;
+    }
+    setFlashcards(deck.cards);
+    setMode('learn');
+    resetQuiz();
+    setSrReviewCards([]);
+    setSrReviewedToday(0);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setView('deck');
   }, [setFlashcards, resetQuiz]);
 
   // ===== Generation =====
@@ -251,8 +271,19 @@ export function FlashcardsTab() {
   };
 
   // ===== Navigation =====
+  // Task 204 (fix 204-a#2b): чистим отложенный handleRate-переход — иначе
+  // «Далее»/свайп/ArrowRight в течение 300ms выполняли переход дважды
+  // (карточка пропускалась, квиз завершался досрочно)
+  const clearNextTimer = () => {
+    if (nextTimerRef.current) {
+      clearTimeout(nextTimerRef.current);
+      nextTimerRef.current = null;
+    }
+  };
+
   const handleNext = () => {
     if (mode === 'sr') return; // SR uses handleSRRate for navigation
+    clearNextTimer();
 
     if (currentIndex < flashcards.length - 1) {
       setCurrentIndex(prev => prev + 1);
@@ -275,6 +306,7 @@ export function FlashcardsTab() {
   };
 
   const handlePrev = () => {
+    clearNextTimer();
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
       setIsFlipped(false);
@@ -283,8 +315,11 @@ export function FlashcardsTab() {
   };
 
   const handleRate = (knew: boolean) => {
+    // Task 204 (fix 204-a#2a): второй тап в окно авто-перехода — игнор
+    if (ratingLockRef.current) return;
     const card = flashcards[currentIndex];
     if (!card) return;
+    ratingLockRef.current = true;
 
     if (knew) {
       setKnownCards(prev => new Set(prev).add(card.id));
@@ -295,8 +330,11 @@ export function FlashcardsTab() {
     }
 
     // P2: таймер с cleanup — без него setState после unmount (React warning)
-    if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
-    nextTimerRef.current = setTimeout(() => handleNext(), 300);
+    clearNextTimer();
+    nextTimerRef.current = setTimeout(() => {
+      ratingLockRef.current = false;
+      handleNext();
+    }, 300);
   };
 
   const finishQuiz = () => {
@@ -420,8 +458,8 @@ export function FlashcardsTab() {
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#6D4FC4]/10 flex items-center justify-center shrink-0">
-                <Camera className="w-5 h-5 text-[#6D4FC4]" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Camera className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold">Сканировать конспект</h3>
@@ -429,7 +467,7 @@ export function FlashcardsTab() {
               </div>
               <Button
                 size="sm"
-                className="squircle-sm bg-[#6D4FC4] hover:bg-[#6D4FC4] text-white h-9 text-xs font-semibold"
+                className="squircle-sm bg-primary hover:bg-primary/90 text-primary-foreground h-9 text-xs font-semibold"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isOCRProcessing}
               >
@@ -604,19 +642,19 @@ export function FlashcardsTab() {
               <div className="grid grid-cols-4 gap-2">
                 <div className="text-center p-2 rounded-lg bg-muted/50">
                   <div className="text-lg font-bold">{srStats.total}</div>
-                  <div className="text-[9px] text-muted-foreground">Всего</div>
+                  <div className="text-[11px] text-muted-foreground">Всего</div>
                 </div>
                 <div className="text-center p-2 rounded-lg bg-[#B4531C]/10">
                   <div className="text-lg font-bold text-[#B4531C]">{srStats.due}</div>
-                  <div className="text-[9px] text-muted-foreground">К повторению</div>
+                  <div className="text-[11px] text-muted-foreground">К повторению</div>
                 </div>
                 <div className="text-center p-2 rounded-lg bg-[#33608C]/10">
                   <div className="text-lg font-bold text-[#33608C]">{srStats.learning}</div>
-                  <div className="text-[9px] text-muted-foreground">Изучаются</div>
+                  <div className="text-[11px] text-muted-foreground">Изучаются</div>
                 </div>
                 <div className="text-center p-2 rounded-lg bg-[#4C7A3F]/10">
                   <div className="text-lg font-bold text-[#4C7A3F]">{srStats.mature}</div>
-                  <div className="text-[9px] text-muted-foreground">Усвоены</div>
+                  <div className="text-[11px] text-muted-foreground">Усвоены</div>
                 </div>
               </div>
             </CardContent>
@@ -633,9 +671,14 @@ export function FlashcardsTab() {
               </h3>
               <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                 {flashcardHistory.slice(0, 5).map(deck => (
-                  <div
+                  <button
                     key={deck.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-muted/50"
+                    // Task 204 (fix 204-a#3): «Недавние колоды» были чистым
+                    // display — карточки прошлых колод (и их SM-2 расписания)
+                    // становились недостижимыми. Теперь клик переоткрывает
+                    // колоду, due-баннер и SR-сессия работают снова.
+                    onClick={() => reopenDeck(deck)}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-muted/50 hover:bg-muted text-left transition-colors"
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{deck.topic}</p>
@@ -648,7 +691,7 @@ export function FlashcardsTab() {
                       <span className="text-[10px] text-muted-foreground">/</span>
                       <span className="text-[10px] text-[#B3261E] font-medium">✗ {deck.unknown}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </CardContent>
@@ -677,8 +720,26 @@ export function FlashcardsTab() {
               animate={{ scale: 1 }}
               transition={{ type: 'spring', duration: 0.5 }}
             >
-              <div className="text-5xl mb-3">
-                {isSRMode ? '' : pct >= 80 ? '' : pct >= 50 ? '' : ''}
+              {/* Task 204 (fix 204-b#12): пустой text-5xl — хвост эмодзи-зачистки
+                  Task 158; результатам возвращена иконка (Trophy/BookOpen/Brain) */}
+              <div className="flex justify-center mb-3">
+                {isSRMode ? (
+                  <div className="w-14 h-14 rounded-2xl bg-[#33608C]/10 flex items-center justify-center">
+                    <RefreshCw className="w-7 h-7 text-[#33608C]" />
+                  </div>
+                ) : pct >= 80 ? (
+                  <div className="w-14 h-14 rounded-2xl bg-[#4C7A3F]/10 flex items-center justify-center">
+                    <Trophy className="w-7 h-7 text-[#4C7A3F]" />
+                  </div>
+                ) : pct >= 50 ? (
+                  <div className="w-14 h-14 rounded-2xl bg-[#B4531C]/10 flex items-center justify-center">
+                    <BookOpen className="w-7 h-7 text-[#B4531C]" />
+                  </div>
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
+                    <Brain className="w-7 h-7 text-muted-foreground" />
+                  </div>
+                )}
               </div>
               <h2 className="text-2xl font-bold gradient-text mb-1">
                 {isSRMode ? `${srReviewedToday} карт.` : `${pct}%`}
@@ -895,7 +956,7 @@ export function FlashcardsTab() {
                       Определение
                     </Badge>
                     {currentSRData && mode === 'sr' && (
-                      <Badge variant="outline" className="text-[9px]">
+                      <Badge variant="outline" className="text-[11px]">
                         интервал: {currentSRData.interval} дн. • EF: {currentSRData.easeFactor.toFixed(2)}
                       </Badge>
                     )}
@@ -939,7 +1000,7 @@ export function FlashcardsTab() {
               </Button>
             ))}
           </div>
-          <p className="text-[9px] text-center text-muted-foreground mt-2">
+          <p className="text-[11px] text-center text-muted-foreground mt-2">
             Клавиши 1-4 для быстрой оценки
           </p>
         </motion.div>

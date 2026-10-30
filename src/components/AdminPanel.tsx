@@ -107,7 +107,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
               <Crown className="w-5 h-5 text-[#B4531C]" />
               <h2 className="text-lg font-bold">Админ-панель</h2>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label="Закрыть админ-панель">
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -137,13 +137,13 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-2">Уровень (сейчас: {profile.level})</h3>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLevel(Math.max(1, level - 1))}><Minus className="w-3 h-3" /></Button>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLevel(Math.max(1, level - 1))} aria-label="Уменьшить уровень"><Minus className="w-3 h-3" /></Button>
                 <input
                   type="number" min="1" max="99" value={level}
                   onChange={(e) => setLevel(parseInt(e.target.value) || 1)}
                   className="flex-1 h-8 text-center rounded-lg border bg-background text-sm"
                 />
-                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLevel(Math.min(99, level + 1))}><Plus className="w-3 h-3" /></Button>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setLevel(Math.min(99, level + 1))} aria-label="Увеличить уровень"><Plus className="w-3 h-3" /></Button>
                 <Button size="sm" className="h-8" onClick={handleSetLevel}>ОК</Button>
               </div>
             </CardContent>
