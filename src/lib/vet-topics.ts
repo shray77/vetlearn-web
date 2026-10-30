@@ -170,7 +170,7 @@ export const DIFFICULTY_OPTIONS: { value: DifficultyType; label: string; color: 
   { value: 'beginner', label: 'Начинающий', color: '#4C7A3F' },
   { value: 'intermediate', label: 'Средний', color: '#B4531C' },
   { value: 'advanced', label: 'Продвинутый', color: '#B3261E' },
-  { value: 'expert', label: 'Экспертный', color: '#6D4FC4' },
+  { value: 'expert', label: 'Экспертный', color: '#33608C' },
 ];
 
 export function getTopicById(id: string): VetTopic | undefined {

@@ -117,7 +117,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
           <p className="text-xs text-muted-foreground">Секретная панель управления. 7 тапов по логотипу.</p>
 
           {/* God Mode */}
-          <Card className="border-0 shadow-sm bg-gradient-to-r from-[#B4531C]/10 to-[#6D4FC4]/10">
+          <Card className="border-0 shadow-sm bg-gradient-to-r from-[#B4531C]/10 to-[#33608C]/10">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#B4531C]/20 flex items-center justify-center">

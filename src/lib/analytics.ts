@@ -1,5 +1,5 @@
 /**
- * D.5 — Deep analytics: pattern detection on user's answer history.
+ * Deep analytics: pattern detection on user's answer history.
  *
  * Computes:
  *   - Per-topic trends over time (last 14 days)

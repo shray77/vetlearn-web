@@ -84,7 +84,7 @@ export function OSCEListTab() {
       </div>
 
       {/* Progress summary */}
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#B4531C]/5">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">

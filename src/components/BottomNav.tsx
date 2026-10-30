@@ -44,9 +44,9 @@ const EXTRA_TABS = [
   { id: 'mindmap', label: 'Карта знаний', icon: BarChart3, color: '#33608C', desc: 'AI интеллект-карты по темам' },
   { id: 'exam', label: 'Экзамен', icon: GraduationCap, color: '#B3261E', desc: 'Устный ИИ-экзамен' },
   { id: 'resources', label: 'Ресурсы', icon: Lightbulb, color: '#B4531C', desc: 'Учебные материалы' },
-  { id: 'simulator', label: 'Симулятор', icon: Activity, color: '#6D4FC4', desc: 'Практика: осмотр, диагноз, лечение' },
+  { id: 'simulator', label: 'Симулятор', icon: Activity, color: '#33608C', desc: 'Практика: осмотр, диагноз, лечение' },
   { id: 'osce', label: 'OSCE-станции', icon: ScanLine, color: '#33608C', desc: 'Визуальная диагностика: рентген, УЗИ, цитология' },
-  { id: 'atlas', label: 'Атлас', icon: Microscope, color: '#6D4FC4', desc: 'Библиотека изображений с разборами (обучение)' },
+  { id: 'atlas', label: 'Атлас', icon: Microscope, color: '#B4531C', desc: 'Библиотека изображений с разборами (обучение)' },
 ];
 
 // ===== ABOUT MODAL =====
@@ -88,7 +88,7 @@ function AboutModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open
                 </div>
               </div>
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-muted/50">
-                <Mic className="w-4 h-4 text-[#6D4FC4] mt-0.5 shrink-0" />
+                <Mic className="w-4 h-4 text-[#33608C] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-xs">Репетитор</p>
                   <p className="text-[11px] text-muted-foreground">Голосовой AI-помощник для объяснения сложных ветеринарных концепций</p>

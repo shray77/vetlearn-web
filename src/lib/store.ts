@@ -155,21 +155,21 @@ export interface VetLearnStore {
     detailedStats: Record<string, { correct: number; total: number; topicName: string }>;
   }) => void;
 
-  // ===== D.1 Specialization Tracks =====
+  // ===== Specialization Tracks =====
   setSpecializationTrack: (track: SpecializationTrack) => void;
 
-  // ===== D.2 Imported Documents =====
+  // ===== Imported Documents =====
   importedDocuments: ImportedDocument[];
   addImportedDocument: (doc: ImportedDocument) => void;
   deleteImportedDocument: (id: string) => void;
   updateImportedDocument: (id: string, updates: Partial<ImportedDocument>) => void;
 
-  // ===== D.3 OSCE =====
+  // ===== OSCE =====
   osceHistory: OSCEResult[];
   osceSkillMap: Partial<Record<OSCEStationType, number>>;
   addOSCEResult: (result: OSCEResult) => void;
 
-  // ===== D.6 Daily Challenges =====
+  // ===== Daily Challenges =====
   completedChallenges: Record<string, string>; // date -> challenge type completed
   markChallengeCompleted: (date: string, type: string) => void;
 
@@ -441,7 +441,7 @@ export const useStore = create<VetLearnStore>()(
           completedChallenges: {},
         }),
 
-      // ===== D.1 Specialization Tracks =====
+      // ===== Specialization Tracks =====
       setSpecializationTrack: (track) =>
         set((state) => {
           const today = getLocalDateString();
@@ -459,7 +459,7 @@ export const useStore = create<VetLearnStore>()(
           };
         }),
 
-      // ===== D.2 Imported Documents =====
+      // ===== Imported Documents =====
       importedDocuments: [],
       addImportedDocument: (doc) =>
         set((state) => {
@@ -488,7 +488,7 @@ export const useStore = create<VetLearnStore>()(
           ),
         })),
 
-      // ===== D.3 OSCE =====
+      // ===== OSCE =====
       osceHistory: [],
       osceSkillMap: {},
       addOSCEResult: (result) =>
@@ -504,7 +504,7 @@ export const useStore = create<VetLearnStore>()(
           };
         }),
 
-      // ===== D.6 Daily Challenges =====
+      // ===== Daily Challenges =====
       completedChallenges: {},
       markChallengeCompleted: (date, type) =>
         set((state) => ({

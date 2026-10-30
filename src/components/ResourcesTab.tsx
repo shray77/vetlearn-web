@@ -65,7 +65,7 @@ export function ResourcesTab() {
     book: { icon: BookOpen, label: 'Учебники', color: 'text-[#4C7A3F]' },
     video: { icon: Video, label: 'Видео', color: 'text-[#B3261E]' },
     article: { icon: FileText, label: 'Статьи', color: 'text-[#33608C]' },
-    course: { icon: GraduationCap, label: 'Курсы', color: 'text-[#6D4FC4]' },
+    course: { icon: GraduationCap, label: 'Курсы', color: 'text-[#B4531C]' },
   };
 
   return (

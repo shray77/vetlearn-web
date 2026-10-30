@@ -501,7 +501,7 @@ export function FlashcardsTab() {
           </CardContent>
         </Card>
 
-        {/* Import from notes/file — D.2 */}
+        {/* Import from notes/file */}
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -909,7 +909,7 @@ export function FlashcardsTab() {
           >
             <Card className={`squircle border-0 shadow-md w-full h-full flex flex-col justify-between ${
               mode === 'sr'
-                ? 'bg-gradient-to-br from-[#33608C]/5 via-background to-[#6D4FC4]/5'
+                ? 'bg-gradient-to-br from-[#33608C]/5 via-background to-[#4C7A3F]/5'
                 : 'bg-gradient-to-br from-[#4C7A3F]/5 via-background to-[#4C7A3F]/10'
             }`}>
               <CardContent className="p-5 flex flex-col h-full justify-between">
@@ -948,7 +948,7 @@ export function FlashcardsTab() {
               zIndex: isFlipped ? 1 : 0,
             }}
           >
-            <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#33608C]/5 via-background to-[#6D4FC4]/5 w-full h-full flex flex-col justify-between">
+            <Card className="squircle border-0 shadow-md bg-gradient-to-br from-[#33608C]/5 via-background to-[#4C7A3F]/5 w-full h-full flex flex-col justify-between">
               <CardContent className="p-5 flex flex-col h-full justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-3">

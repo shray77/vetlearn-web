@@ -36,7 +36,7 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
       <AnimatePresence mode="wait">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
           {/* Score card */}
-          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#B4531C]/5">
             <CardContent className="p-6 text-center">
               <motion.div
                 initial={{ scale: 0 }}

@@ -175,7 +175,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
       beginner: { label: 'Начинающий', color: 'text-[#4C7A3F]', bg: 'bg-[#EDF3EA] dark:bg-[#203528]', borderColor: 'border-[#4C7A3F]/30' },
       intermediate: { label: 'Средний', color: 'text-[#B4531C]', bg: 'bg-[#F3EAD3] dark:bg-[#33290F]', borderColor: 'border-[#B4531C]/30' },
       advanced: { label: 'Продвинутый', color: 'text-[#B3261E]', bg: 'bg-[#F5E3E1] dark:bg-[#3A2622]', borderColor: 'border-[#B3261E]/30' },
-      expert: { label: 'Экспертный', color: 'text-[#6D4FC4]', bg: 'bg-[#EDE9F6] dark:bg-[#34302A]', borderColor: 'border-[#6D4FC4]/30' },
+      expert: { label: 'Экспертный', color: 'text-[#33608C]', bg: 'bg-[#E3EAF2] dark:bg-[#1F2A36]', borderColor: 'border-[#33608C]/30' },
     };
     return configs[profile.determinedLevel] || null;
   }, [profile.determinedLevel]);
@@ -253,7 +253,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         </span>
       </div>
 
-      {/* Daily Challenge — D.6 */}
+      {/* Daily Challenge */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <Card className={`border-0 shadow-md ${isTodayDone ? 'bg-gradient-to-br from-[#4C7A3F]/15 to-[#4C7A3F]/5' : 'bg-gradient-to-br from-[#B4531C]/15 to-transparent'}`}>
           <CardContent className="p-4">
@@ -353,10 +353,10 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         ))}
       </motion.div>
 
-      {/* D.5 Deep analytics card */}
+      {/* Deep analytics card */}
       <AnalyticsCard />
 
-      {/* D.7 Achievements + Leagues */}
+      {/* Achievements + Leagues */}
       <AchievementsPanel />
 
       {/* AI Insights Panel */}
@@ -374,8 +374,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                 : aiInsight.type === 'weak_areas'
                   ? 'linear-gradient(90deg, #B4531C, #B3261E)'
                   : aiInsight.type === 'no_placement'
-                    ? 'linear-gradient(90deg, #6D4FC4, #33608C)'
-                    : 'linear-gradient(90deg, #33608C, #6D4FC4)',
+                    ? 'linear-gradient(90deg, #33608C, #B4531C)'
+                    : 'linear-gradient(90deg, #33608C, #4C7A3F)',
             }}
           />
           <CardContent className="p-4">
@@ -389,13 +389,13 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                       ? 'linear-gradient(135deg, #4C7A3F, #33608C)'
                       : aiInsight.type === 'weak_areas'
                         ? 'linear-gradient(135deg, #B4531C, #B3261E)'
-                        : 'linear-gradient(135deg, #33608C, #6D4FC4)',
+                        : 'linear-gradient(135deg, #33608C, #4C7A3F)',
                   }}
                   animate={{
                     boxShadow: [
-                      '0 0 0 0 rgba(0, 122, 255, 0.4)',
-                      '0 0 0 8px rgba(0, 122, 255, 0)',
-                      '0 0 0 0 rgba(0, 122, 255, 0)',
+                      '0 0 0 0 rgba(51, 96, 140, 0.4)',
+                      '0 0 0 8px rgba(51, 96, 140, 0)',
+                      '0 0 0 0 rgba(51, 96, 140, 0)',
                     ],
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}

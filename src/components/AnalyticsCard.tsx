@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 /**
- * D.5 — Deep analytics card shown on the Dashboard.
+ * Deep analytics card shown on the Dashboard.
  * Pure client-side computation via computeAnalytics().
  */
 export function AnalyticsCard() {
@@ -33,7 +33,7 @@ export function AnalyticsCard() {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1">
-            <Target className="w-4 h-4 text-[#6D4FC4]" />
+            <Target className="w-4 h-4 text-[#B4531C]" />
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Глубокая аналитика
             </span>
@@ -55,10 +55,10 @@ export function AnalyticsCard() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#6D4FC4]/5 to-[#33608C]/5">
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#B4531C]/5 to-[#33608C]/5">
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-[#6D4FC4]" />
+            <Target className="w-4 h-4 text-[#B4531C]" />
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Глубокая аналитика
             </span>

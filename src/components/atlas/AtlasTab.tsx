@@ -65,7 +65,7 @@ export function AtlasTab() {
     <div className="space-y-4 pb-4">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-[#6D4FC4]" />
+          <BookOpen className="w-6 h-6 text-[#33608C]" />
           Атлас
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -73,7 +73,7 @@ export function AtlasTab() {
         </p>
       </div>
 
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#6D4FC4]/5 to-[#33608C]/5">
+      <Card className="border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#B4531C]/5">
         <CardContent className="p-3 flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Изучено</p>
@@ -81,7 +81,7 @@ export function AtlasTab() {
               {viewed.size} / {ATLAS_BANK.length}
             </p>
           </div>
-          <Microscope className="w-8 h-8 text-[#6D4FC4] opacity-30" />
+          <Microscope className="w-8 h-8 text-[#33608C] opacity-30" />
         </CardContent>
       </Card>
 
@@ -90,7 +90,7 @@ export function AtlasTab() {
         <button
           onClick={() => setFilterModality('all')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-            filterModality === 'all' ? 'bg-[#6D4FC4] text-white' : 'bg-muted text-muted-foreground'
+            filterModality === 'all' ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
           }`}
         >
           Все ({ATLAS_BANK.length})

@@ -1,11 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { TRACKS } from '@/lib/tracks';
 import type { SpecializationTrack } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Check } from 'lucide-react';
 import { DsIcon } from '@/lib/ds-icons';
 import { toast } from 'sonner';
@@ -32,109 +37,95 @@ export function OnboardingModal() {
     setOpen(false);
   };
 
-  const handleSkip = () => {
+  // Task 205 (Radix-перевод): любой путь закрытия (Esc, «Позже», оверлей) =
+  // смешанная практика, консистентный стейт — модалка не вернётся до сброса профиля
+  const handleDismiss = () => {
     setSpecializationTrack('mixed');
     setOpen(false);
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
-        >
-          <motion.div
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            // Task 204 (fix 204-b#5): минимальная диалоговая семантика для
-            // самописной модалки (полный перевод на Radix — в рефакторинге):
-            // role/aria-modal, Esc закрывает, фокус запирается в панели
-            role="dialog"
-            aria-modal="true"
-            aria-label="Выбор специализации"
-            onKeyDown={(e: React.KeyboardEvent) => {
-              // Esc = «Пропустить»: смешанная практика, консистентный стейт
-              if (e.key === 'Escape') handleSkip();
-            }}
-            className="w-full max-w-lg bg-background rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="sticky top-0 bg-background z-10 px-5 pt-4 pb-3 border-b">
-              <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-3 sm:hidden" />
-              <h2 className="text-lg font-bold">Выберите специализацию</h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                Это настроит контент, кейсы и AI-рекомендации под ваш учебный трек.
-                Можно сменить позже в настройках.
-              </p>
-            </div>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) handleDismiss();
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        // bottom-sheet на мобиле, центрированная карта на десктопе — как было
+        className="top-auto bottom-0 left-0 right-0 translate-x-0 translate-y-0 sm:top-[50%] sm:bottom-auto sm:left-[50%] sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto border-0 shadow-2xl p-0 gap-0"
+      >
+        <div className="sticky top-0 bg-background z-10 px-5 pt-4 pb-3 border-b">
+          <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-3 sm:hidden" />
+          <DialogTitle className="text-lg font-bold">Выберите специализацию</DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground mt-1">
+            Это настроит контент, кейсы и AI-рекомендации под ваш учебный трек.
+            Можно сменить позже в настройках.
+          </DialogDescription>
+        </div>
 
-            <div className="p-4 space-y-2">
-              {TRACKS.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => handleSelect(t.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${
-                    selected === t.id
-                      ? 'border-[#4C7A3F] bg-[#4C7A3F]/5'
-                      : 'border-transparent bg-muted/50 hover:bg-muted'
-                  }`}
-                >
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: `${t.color}15` }}
-                  >
-                    <DsIcon name={t.icon} className="w-7 h-7" style={{ color: t.color }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold">{t.label}</p>
-                    <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
-                      {t.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {t.species.slice(0, 4).map((sp) => (
-                        <span
-                          key={sp}
-                          className="px-1.5 py-0.5 rounded text-[11px] bg-background/80 text-muted-foreground"
-                        >
-                          {sp}
-                        </span>
-                      ))}
-                      {t.species.length > 4 && (
-                        <span className="px-1.5 py-0.5 rounded text-[11px] bg-background/80 text-muted-foreground">
-                          +{t.species.length - 4}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {selected === t.id && (
-                    <div className="w-6 h-6 rounded-full bg-[#4C7A3F] flex items-center justify-center shrink-0">
-                      <Check className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <div className="sticky bottom-0 bg-background px-4 py-3 border-t flex gap-2">
-              <Button variant="ghost" size="sm" onClick={handleSkip} className="flex-1">
-                Позже
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleConfirm}
-                disabled={!selected}
-                className="flex-1 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
+        <div className="p-4 space-y-2">
+          {TRACKS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => handleSelect(t.id)}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${
+                selected === t.id
+                  ? 'border-[#4C7A3F] bg-[#4C7A3F]/5'
+                  : 'border-transparent bg-muted/50 hover:bg-muted'
+              }`}
+            >
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${t.color}15` }}
               >
-                Подтвердить
-              </Button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+                <DsIcon name={t.icon} className="w-7 h-7" style={{ color: t.color }} />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">{t.label}</p>
+                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
+                  {t.description}
+                </p>
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {t.species.slice(0, 4).map((sp) => (
+                    <span
+                      key={sp}
+                      className="px-1.5 py-0.5 rounded text-[11px] bg-background/80 text-muted-foreground"
+                    >
+                      {sp}
+                    </span>
+                  ))}
+                  {t.species.length > 4 && (
+                    <span className="px-1.5 py-0.5 rounded text-[11px] bg-background/80 text-muted-foreground">
+                      +{t.species.length - 4}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {selected === t.id && (
+                <div className="w-6 h-6 rounded-full bg-[#4C7A3F] flex items-center justify-center shrink-0">
+                  <Check className="w-4 h-4 text-white" />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="sticky bottom-0 bg-background px-4 py-3 border-t flex gap-2">
+          <Button variant="ghost" size="sm" onClick={handleDismiss} className="flex-1">
+            Позже
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleConfirm}
+            disabled={!selected}
+            className="flex-1 bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
+          >
+            Подтвердить
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

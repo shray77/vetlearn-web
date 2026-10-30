@@ -19,7 +19,7 @@ import {
 import { DsIcon } from '@/lib/ds-icons';
 
 /**
- * D.7 — Achievements + Weekly League panel shown on Dashboard.
+ * Achievements + Weekly League panel shown on Dashboard.
  */
 export function AchievementsPanel() {
   // Селекторы: подписка только на нужные поля (без ре-рендера от чужого стейта)
@@ -55,7 +55,7 @@ export function AchievementsPanel() {
     <div className="space-y-3">
       {/* Weekly League Card */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="border-0 shadow-sm bg-gradient-to-br from-[#B4531C]/10 to-[#6D4FC4]/10">
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-[#B4531C]/10 to-[#33608C]/10">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <Trophy className="w-4 h-4 text-[#B4531C]" />

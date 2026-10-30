@@ -1,5 +1,5 @@
 /**
- * D.7 — Achievements + Weekly Leagues.
+ * Achievements + Weekly Leagues.
  *
  * Achievements: badge-style milestones unlocked by user actions. Pure
  * compute from the persisted state — no server, no LLM.

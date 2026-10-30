@@ -31,7 +31,7 @@ export interface StudentProfile {
     weakTopics: string[];
     strongTopics: string[];
   };
-  // Specialization track (D.1) — defaults to 'mixed' for existing profiles via migration
+  // Specialization track — defaults to 'mixed' for existing profiles via migration
   specializationTrack?: SpecializationTrack;
   trackStartDate?: string;
   trackSwitchHistory?: Array<{ track: SpecializationTrack; date: string }>;
@@ -205,7 +205,7 @@ export interface MindMapNode {
   children: MindMapNode[];
 }
 
-// ===== Imported Documents (D.2) =====
+// ===== Imported Documents =====
 
 export interface ImportedDocument {
   id: string;
@@ -219,7 +219,7 @@ export interface ImportedDocument {
   generatedQuestions?: AssessmentQuestion[];
 }
 
-// ===== OSCE Stations (D.3) =====
+// ===== OSCE Stations =====
 
 export type OSCEStationType = 'radiology' | 'ultrasound' | 'cytology' | 'histopathology' | 'physical_exam';
 

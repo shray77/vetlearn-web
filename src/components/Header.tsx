@@ -228,7 +228,7 @@ export function Header() {
                   </button>
                 </div>
 
-                {/* Export/Import — D.4 cross-device backup */}
+                {/* Export/Import — cross-device backup */}
                 <div className="p-3.5 rounded-2xl bg-[#33608C]/5 border border-[#33608C]/20">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 rounded-lg bg-[#33608C]/10 flex items-center justify-center">
@@ -344,7 +344,7 @@ export function Header() {
               </button>
             ))}
 
-            {/* D.1 V3 — Track switch history */}
+            {/* Track switch history */}
             {profile.trackSwitchHistory && profile.trackSwitchHistory.length > 0 && (
               <div className="mt-4 pt-3 border-t border-border/30">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">

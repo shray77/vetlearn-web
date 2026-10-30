@@ -1,5 +1,5 @@
 /**
- * D.9 — Radiology / Imaging Atlas.
+ * Radiology / Imaging Atlas.
  *
  * Curated library of veterinary medical images with detailed case
  * discussions. Unlike OSCE (timed exam), the Atlas is a learning mode —

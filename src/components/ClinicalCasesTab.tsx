@@ -379,7 +379,7 @@ export function ClinicalCasesTab() {
       {/* Case description (shown only for first question) */}
       {currentQuestionIndex === 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#6D4FC4]/5">
+          <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#B4531C]/5">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Badge className="text-xs">{currentCase.species}</Badge>
@@ -417,8 +417,8 @@ export function ClinicalCasesTab() {
                 </div>
                 {currentCase.labResults && (
                   <div className="flex gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#6D4FC4]/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <BarChart3 className="w-3.5 h-3.5 text-[#6D4FC4]" />
+                    <div className="w-7 h-7 rounded-lg bg-[#B4531C]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <BarChart3 className="w-3.5 h-3.5 text-[#B4531C]" />
                     </div>
                     <div>
                       <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">Лаборатория</span>

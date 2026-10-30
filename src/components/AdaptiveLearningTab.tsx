@@ -100,7 +100,7 @@ export function AdaptiveLearningTab() {
         };
       default:
         return {
-          gradient: 'from-[#33608C] to-[#6D4FC4]',
+          gradient: 'from-[#33608C] to-[#4C7A3F]',
           bgLight: 'bg-[#E9EEF2] dark:bg-[#1A2E44]',
           textColor: 'text-[#33608C]',
           icon: Brain,
@@ -419,7 +419,7 @@ export function AdaptiveLearningTab() {
                         ? 'linear-gradient(135deg, #B4531C, #B3261E)'
                         : runningDifficulty === 'decreasing'
                           ? 'linear-gradient(135deg, #4C7A3F, #3D6332)'
-                          : 'linear-gradient(135deg, #33608C, #6D4FC4)',
+                          : 'linear-gradient(135deg, #33608C, #4C7A3F)',
                     }}
                   >
                     <motion.div
@@ -478,7 +478,7 @@ export function AdaptiveLearningTab() {
                         ? 'linear-gradient(90deg, #B4531C, #B3261E)'
                         : runningDifficulty === 'decreasing'
                           ? 'linear-gradient(90deg, #4C7A3F, #3D6332)'
-                          : 'linear-gradient(90deg, #33608C, #6D4FC4)',
+                          : 'linear-gradient(90deg, #33608C, #4C7A3F)',
                     }}
                     animate={{ x: ['-100%', '100%'] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
