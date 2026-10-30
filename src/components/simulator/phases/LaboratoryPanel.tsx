@@ -70,10 +70,10 @@ export function LaboratoryPanel({ scenario, remainingBudget, onOrderTest, onBack
                         )}
                       </AnimatePresence>
                       {!test.isRevealed && canAfford && (
-                        <p className="text-[10px] text-[#33608C] mt-0.5">Нажмите, чтобы назначить →</p>
+                        <p className="text-[11px] text-[#33608C] mt-0.5">Нажмите, чтобы назначить →</p>
                       )}
                       {!canAfford && !test.isRevealed && (
-                        <p className="text-[10px] text-[#B3261E] mt-0.5">Недостаточно средств</p>
+                        <p className="text-[11px] text-[#B3261E] mt-0.5">Недостаточно средств</p>
                       )}
                     </div>
                   </div>

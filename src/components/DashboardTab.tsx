@@ -225,7 +225,7 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
                   </span>
                 </div>
                 <div className="mt-2">
-                  <div className="flex justify-between text-xs text-white/70 mb-1">
+                  <div className="flex justify-between text-xs text-white/90 mb-1">
                     <span>Опыт</span>
                     <span>{xpInLevel} / 100 XP</span>
                   </div>
@@ -348,7 +348,8 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
               <stat.icon className={`w-4 h-4 ${stat.color}`} />
             </div>
             <div className="text-lg font-bold">{stat.value}</div>
-            <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+            {/* 206-b: 10px → 11px: подписи Quick Stats — читаемый текст */}
+            <div className="text-[11px] text-muted-foreground">{stat.label}</div>
           </Card>
         ))}
       </motion.div>
@@ -512,7 +513,13 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         {hasData ? (
           <Card
             className="squircle border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+            role="button"
+            tabIndex={0}
+            aria-label="Продолжить обучение"
             onClick={() => onNavigate('learning')}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('learning'); }
+            }}
           >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -536,7 +543,13 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         ) : (
           <Card
             className="squircle border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow bg-gradient-to-r from-[#4C7A3F]/10 to-[#33608C]/10"
+            role="button"
+            tabIndex={0}
+            aria-label="Начать обучение"
             onClick={() => onNavigate('learning')}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('learning'); }
+            }}
           >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -574,7 +587,13 @@ export function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void
         >
           <Card
             className="squircle border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+            role="button"
+            tabIndex={0}
+            aria-label="Открыть повторение"
             onClick={() => onNavigate('flashcards')}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('flashcards'); }
+            }}
           >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">

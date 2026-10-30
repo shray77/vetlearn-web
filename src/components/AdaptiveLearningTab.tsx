@@ -245,6 +245,12 @@ export function AdaptiveLearningTab() {
       if (!res.ok) { toast.error('Ошибка сервера'); return; }
       const data = await res.json();
       if (data.success) {
+        // 206-a#4: пустой банк вопросов (офлайн-мост для тем вне QUESTION_BANK) —
+        // не заходим в квиз с 0 вопросов, иначе рендер-гарды дают пустой экран
+        if (!Array.isArray(data.questions) || data.questions.length === 0) {
+          toast.error('Вопросы по выбранным темам не найдены. Попробуйте другие темы.');
+          return;
+        }
         setAssessmentQuestions(data.questions);
         setAnswers(new Array(data.questions.length).fill(null));
         setCurrentQuestionIndex(0);
@@ -265,6 +271,8 @@ export function AdaptiveLearningTab() {
   };
 
   const handleAdaptiveSubmit = async (force = false) => {
+    // 206-a#5: двойной клик по «Завершить тест» — второй сабмит дублирует XP и историю
+    if (isAnalyzing) return;
     setSprintMode(false);
     setSprintTimeLeft(120);
     if (!force && answers.some(a => a === null)) {
@@ -455,7 +463,9 @@ export function AdaptiveLearningTab() {
                             key={dot}
                             className={`w-1.5 h-1.5 rounded-full transition-colors duration-500`}
                             style={{
-                              backgroundColor: isActive ? difficultyIndicator.pulseColor : 'hsl(var(--muted))',
+                              // 206-b#4: в Tailwind v4 токены уже hex — hsl(var(--muted))
+                              // давал невалидный цвет (неактивные точки были прозрачны)
+                              backgroundColor: isActive ? difficultyIndicator.pulseColor : 'var(--muted)',
                             }}
                             animate={isActive ? { scale: [1, 1.3, 1] } : { scale: 1 }}
                             transition={{ duration: 2, repeat: Infinity, delay: dot * 0.15 }}
@@ -587,7 +597,8 @@ export function AdaptiveLearningTab() {
                       animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
                       transition={{ duration: 0.3, ease: 'easeOut' }}
                     >
-                      <div className="rounded-xl p-3.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-800/30">
+                      {/* 206-b#6: Tailwind-синие → ДС-синий #33608C (иначе в UI-хроме живёт чужой #3B82F6) */}
+                      <div className="rounded-xl p-3.5 bg-[#EDF2F7] dark:bg-[#26333F] border border-[#33608C]/20 dark:border-[#33608C]/30">
                         <div className="flex items-center gap-2 mb-2">
                           {answers[currentQuestionIndex] === q.correctIndex ? (
                             <CheckCircle2 className="w-4 h-4 text-[#4C7A3F]" />
@@ -626,8 +637,11 @@ export function AdaptiveLearningTab() {
                                 definition: q.options[q.correctIndex],
                                 example: q.explanation || undefined,
                               };
-                              const { flashcards, setFlashcards } = useStore.getState();
+                              const { flashcards, setFlashcards, registerSRCards } = useStore.getState();
                               setFlashcards([...flashcards, card]);
+                              // 206-a#3: без регистрации в SM-2 карточка не попадала
+                              // ни в due-очередь, ни в UI карточек — фича была декоративной
+                              registerSRCards([card.id]);
                               toast.success('Карточка создана! Откройте вкладку "Карточки" для изучения.');
                             }}
                             className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-[#B4531C]/10 hover:bg-[#B4531C]/20 border border-[#B4531C]/30 text-[#B4531C] text-xs font-semibold transition-colors"
@@ -652,7 +666,7 @@ export function AdaptiveLearningTab() {
               : 'bg-[#4C7A3F] hover:bg-[#3D6332] text-white'
           }`}
           onClick={handleNextQuestion}
-          disabled={answers[currentQuestionIndex] === null}
+          disabled={answers[currentQuestionIndex] === null || isAnalyzing}
         >
           {/* Adaptive quiz: two-step flow (check → continue) */}
           {phase === 'adaptive_quiz' ? (
@@ -724,9 +738,9 @@ export function AdaptiveLearningTab() {
                 </div>
               </div>
               <h2 className="text-sm text-muted-foreground mb-1">Ваш уровень подготовки</h2>
-              <h1 className="text-2xl font-bold mb-3" style={{ color: levelColors[level] }}>
+              <h2 className="text-2xl font-bold mb-3" style={{ color: levelColors[level] }}>
                 {levelLabels[level]}
-              </h1>
+              </h2>
               <div className="text-3xl font-bold gradient-text mb-1">
                 <AnimatedNumber value={assessmentResult.score} />%
               </div>
@@ -801,9 +815,10 @@ export function AdaptiveLearningTab() {
           </div>
 
           {/* Explanation of the two-phase system */}
-          <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+          <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-br from-[#EDF2F7] to-[#EDF3EA] dark:from-[#26333F] dark:to-[#203528]">
             <CardContent className="p-4">
-              <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+              {/* 206-b#6: text-blue-600 → ДС-синий */}
+              <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-[#33608C] dark:text-[#82A9CC]">
                 <BookOpen className="w-3.5 h-3.5" /> Как работает система обучения
               </h3>
               <div className="space-y-2 text-[11px] text-muted-foreground leading-relaxed">
@@ -863,7 +878,7 @@ export function AdaptiveLearningTab() {
         </Button>
 
         <div className="flex items-center gap-2 mb-1">
-          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border-0 text-[10px]">
+          <Badge className="bg-[#EDF2F7] dark:bg-[#26333F] text-[#33608C] dark:text-[#82A9CC] border-0 text-[10px]">
             <Sparkles className="w-3 h-3 mr-1" /> ИИ-генерация
           </Badge>
           <Badge variant="secondary" className="text-[10px]">
@@ -873,9 +888,7 @@ export function AdaptiveLearningTab() {
 
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-5 text-center">
-            <div className="text-5xl mb-2">
-              {assessmentResult.score >= 80 ? '' : assessmentResult.score >= 60 ? '' : ''}
-            </div>
+            {/* 206-b#8: пустой text-5xl контейнер (хвост эмодзи-зачистки) снесён */}
             <h2 className="text-2xl font-bold gradient-text mb-1">
               <AnimatedNumber value={assessmentResult.score} />%
             </h2>
@@ -1013,7 +1026,8 @@ export function AdaptiveLearningTab() {
                               <X className="w-4 h-4 text-[#B3261E] mt-0.5 flex-shrink-0" />
                             )}
                             <div className="flex-1 min-w-0">
-                              <p className="text-[10px] text-muted-foreground mb-0.5">
+                              {/* 206-b: 10px → 11px: прогресс «Вопрос N из M» — читаемый текст */}
+                              <p className="text-[11px] text-muted-foreground mb-0.5">
                                 Вопрос {i + 1} из {assessmentResult.questions.length}
                               </p>
                               <p className="text-sm font-medium leading-relaxed">{q.question}</p>
@@ -1204,10 +1218,13 @@ export function AdaptiveLearningTab() {
         <Card className="squircle-sm border-0 shadow-sm">
           <CardContent className="p-4">
             <h3 className="text-sm font-semibold mb-3">Уровень сложности</h3>
+            {/* 206-b#16: div onClick → настоящая кнопка (фокус, Enter/Space, aria-pressed) */}
             <div className="flex gap-2">
               {DIFFICULTY_OPTIONS.map(opt => (
-                <div
+                <button
+                  type="button"
                   key={opt.value}
+                  aria-pressed={userLevel === opt.value}
                   className={`flex-1 py-2.5 rounded-xl text-xs font-medium text-center transition-all ${
                     userLevel === opt.value
                       ? 'bg-[#4C7A3F] text-white shadow-md scale-105'
@@ -1225,7 +1242,7 @@ export function AdaptiveLearningTab() {
                   {userLevel === opt.value && profile.placementCompleted && (
                     <div className="text-[11px] mt-0.5 opacity-80">авто</div>
                   )}
-                </div>
+                </button>
               ))}
             </div>
             {profile.placementCompleted && (
@@ -1273,8 +1290,13 @@ export function AdaptiveLearningTab() {
                 size="sm"
                 className="bg-[#B4531C] hover:bg-[#8A5A14] text-white squircle-sm font-semibold"
                 onClick={async () => {
-                  setSprintMode(true);
-                  setSprintTimeLeft(120);
+                  // 206-a#1: спринт-таймер взводился ДО fetch и не сбрасывался при
+                  // ошибке — вооружённый 120с таймер потом форс-сабмитил чужой тест.
+                  // Теперь взвод только при подтверждённом старте, сброс при любом отказе.
+                  const disarmSprint = () => {
+                    setSprintMode(false);
+                    setSprintTimeLeft(120);
+                  };
                   // Pick 3 random topics
                   const shuffled = [...VET_TOPICS].sort(() => Math.random() - 0.5);
                   const randomTopics = shuffled.slice(0, 3).map(t => ({ id: t.id, name: t.name }));
@@ -1288,7 +1310,7 @@ export function AdaptiveLearningTab() {
                       body: JSON.stringify({ topics: randomTopics, difficulty: effectiveDifficulty, count: 5 }),
                     });
                     const data = await res.json();
-                    if (data.success) {
+                    if (data.success && Array.isArray(data.questions) && data.questions.length > 0) {
                       setAssessmentQuestions(data.questions);
                       setAnswers(new Array(data.questions.length).fill(null));
                       setCurrentQuestionIndex(0);
@@ -1296,12 +1318,16 @@ export function AdaptiveLearningTab() {
                       setQuizStartTime(Date.now());
                       setElapsedSeconds(0);
                       setCheckedAnswer(false);
+                      setSprintMode(true);
+                      setSprintTimeLeft(120);
                       addXP(5);
                       toast.success('Спринт начат! 2 минуты на 5 вопросов');
                     } else {
-                      toast.error(data.error || 'Ошибка генерации');
+                      disarmSprint();
+                      toast.error(data.error || 'Вопросы для спринта не найдены, попробуйте ещё раз');
                     }
                   } catch {
+                    disarmSprint();
                     toast.error('Ошибка соединения');
                   } finally {
                     setIsGenerating(false);
@@ -1320,7 +1346,7 @@ export function AdaptiveLearningTab() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold">Темы ({selectedTopics.length} выбрано)</h3>
-              <Button variant="ghost" size="sm" className="text-xs h-7"
+              <Button variant="ghost" size="sm" className="text-xs h-11 touch-area"
                 onClick={() => setSelectedTopics(selectedTopics.length === VET_TOPICS.length ? [] : VET_TOPICS.map(t => t.id))}>
                 {selectedTopics.length === VET_TOPICS.length ? 'Снять все' : 'Выбрать все'}
               </Button>

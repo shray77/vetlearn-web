@@ -90,6 +90,8 @@ export function MockExamTab() {
 
   // View state
   const [view, setView] = useState<'setup' | 'exam' | 'results'>('setup');
+  // 206-b#13: подтверждение досрочного завершения (необратимо фиксирует результат)
+  const [confirmEnd, setConfirmEnd] = useState(false);
 
   // Setup state
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -463,6 +465,7 @@ export function MockExamTab() {
                 <button
                   key={topic.id}
                   onClick={() => toggleTopic(topic.id)}
+                  aria-pressed={selectedTopics.includes(topic.id)}
                   className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border ${
                     selectedTopics.includes(topic.id)
                       ? 'bg-[#4C7A3F]/10 border-[#4C7A3F]/40 text-[#4C7A3F]'
@@ -582,7 +585,7 @@ export function MockExamTab() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="relative flex items-center gap-3">
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="w-3.5 h-3.5" />
                 <span className="font-mono">{formatTime(timer)}</span>
@@ -590,18 +593,37 @@ export function MockExamTab() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleEndExam}
-                className="h-8 px-2 text-xs text-[#B3261E] hover:text-[#B3261E] hover:bg-[#B3261E]/10"
+                onClick={() => {
+                  if (questionRecords.length === 0) {
+                    handleEndExam();
+                    return;
+                  }
+                  setConfirmEnd(prev => !prev);
+                }}
+                className="h-11 px-3 text-xs text-[#B3261E] hover:text-[#B3261E] hover:bg-[#B3261E]/10"
               >
                 <Square className="w-3.5 h-3.5 mr-1" />
-                Закончить
+                {confirmEnd ? 'Не заканчивать' : 'Закончить'}
               </Button>
+              {confirmEnd && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-20 bg-background border border-[#B3261E]/30 rounded-xl shadow-lg p-3 w-64 text-center">
+                  <p className="text-xs text-muted-foreground mb-2">Завершить досрочно? Ответы на оставшиеся вопросы не будут оценены.</p>
+                  <div className="flex gap-2 justify-center">
+                    <Button size="sm" variant="outline" className="h-9 text-xs" onClick={() => setConfirmEnd(false)}>
+                      Отмена
+                    </Button>
+                    <Button size="sm" className="h-9 text-xs bg-[#B3261E] hover:bg-[#8F1D16] text-white" onClick={() => { setConfirmEnd(false); handleEndExam(); }}>
+                      Завершить
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="space-y-1">
             <Progress value={progressPct} className="h-2" />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-[11px] text-muted-foreground">
               <span>Прогресс</span>
               <span>{progressPct}%</span>
             </div>

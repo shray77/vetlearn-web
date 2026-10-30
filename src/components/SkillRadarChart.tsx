@@ -34,8 +34,10 @@ export function SkillRadarChart({ skillMap }: { skillMap: Record<string, number>
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: 'hsl(var(--background))',
-            border: '1px solid hsl(var(--border))',
+            // 206-b#5: токены Tailwind v4 уже hex — hsl(var()) давал невалидный
+            // цвет, тултип падал в дефолт recharts вне ДС
+            backgroundColor: 'var(--background)',
+            border: '1px solid var(--border)',
             borderRadius: '8px',
             fontSize: '12px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',

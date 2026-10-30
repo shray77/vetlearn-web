@@ -22,6 +22,8 @@ export function VoiceTutorTab() {
   const addXP = useStore((s) => s.addXP);
   const profile = useStore((s) => s.profile);
   const [inputText, setInputText] = useState('');
+  // 206-b#14: двухшаговое подтверждение очистки чата
+  const [chatWipeArmed, setChatWipeArmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
@@ -415,7 +417,7 @@ export function VoiceTutorTab() {
           <button
             onClick={isRecording ? handleStopRecording : handleStartRecording}
             aria-label={isRecording ? 'Остановить запись' : 'Начать запись голосом'}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
+            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all shrink-0 ${
               isRecording
                 ? 'bg-destructive text-white animate-pulse-ring'
                 : 'bg-primary/10 text-primary hover:bg-primary/20'
@@ -441,7 +443,8 @@ export function VoiceTutorTab() {
           <Button
             onClick={handleSend}
             disabled={!inputText.trim() || isLoading}
-            className="w-10 h-10 rounded-xl p-0 shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
+            aria-label="Отправить сообщение"
+            className="w-11 h-11 rounded-xl p-0 shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Send className="w-4 h-4" />
           </Button>
@@ -451,10 +454,18 @@ export function VoiceTutorTab() {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full mt-2 text-xs text-muted-foreground h-8"
-            onClick={clearTutorMessages}
+            className="w-full mt-2 text-xs text-muted-foreground h-9"
+            onClick={() => {
+              // 206-b#14: очистка истории чата — деструктив, требуем подтверждение
+              if (chatWipeArmed) {
+                clearTutorMessages();
+                setChatWipeArmed(false);
+              } else {
+                setChatWipeArmed(true);
+              }
+            }}
           >
-            <RotateCcw className="w-3 h-3 mr-1" /> Очистить чат
+            <RotateCcw className="w-3 h-3 mr-1" /> {chatWipeArmed ? 'Точно очистить весь чат?' : 'Очистить чат'}
           </Button>
         )}
       </div>

@@ -70,7 +70,7 @@ function TreeNode({
             {node.label}
           </span>
           {node.description && (expanded || depth < 1) && (
-            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
               {node.description}
             </p>
           )}
@@ -215,6 +215,7 @@ export function MindMapTab() {
             {VET_TOPICS.map(t => (
               <button
                 key={t.id}
+                aria-pressed={selectedTopic === t.id}
                 onClick={() => {
                   setSelectedTopic(t.id === selectedTopic ? '' : t.id);
                   setSelectedSubtopic('');

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { VET_TOPICS } from '@/lib/vet-topics';
@@ -55,6 +55,17 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
     reset();
     onClose();
   };
+
+  // 206-b#21: Esc-закрытие для кастомной модалки (иначе только тап по оверлею)
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleFile = (file: File) => {
     setFilename(file.name);
@@ -232,6 +243,9 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={mode === 'flashcards' ? 'Импорт карточек' : 'Импорт вопросов'}
             className="w-full max-w-2xl bg-background rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
@@ -325,9 +339,10 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                           setRawText('');
                           setFileType('txt');
                         }}
-                        className="text-muted-foreground hover:text-foreground"
+                        aria-label="Убрать файл"
+                        className="-m-1 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted touch-area"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
@@ -430,19 +445,20 @@ export function ImportDialog({ open, onClose, mode }: ImportDialogProps) {
                                 )}
                               </div>
                               <div className="flex flex-col gap-1 shrink-0">
+                                {/* 206-b#17/#22: тачи ≥44px + aria-label для иконок-кнопок */}
                                 <button
                                   onClick={() => startEdit(item)}
-                                  className="p-1 rounded hover:bg-muted text-muted-foreground"
-                                  title="Редактировать"
+                                  className="p-2.5 -m-1 rounded-lg hover:bg-muted text-muted-foreground touch-area"
+                                  aria-label="Редактировать элемент"
                                 >
-                                  <Edit2 className="w-3 h-3" />
+                                  <Edit2 className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => deleteItem(item.id)}
-                                  className="p-1 rounded hover:bg-[#B3261E]/10 text-[#B3261E]"
-                                  title="Удалить"
+                                  className="p-2.5 -m-1 rounded-lg hover:bg-[#B3261E]/10 text-[#B3261E] touch-area"
+                                  aria-label="Удалить элемент"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
                             </div>

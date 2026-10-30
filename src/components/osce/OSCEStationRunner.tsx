@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { OSCE_TYPE_LABELS } from '@/lib/osce-bank';
 import { DsIcon } from '@/lib/ds-icons';
+import { DIFFICULTY_LABELS } from '@/components/ui/utility';
 import type { OSCEStation, OSCEResult } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -42,7 +43,10 @@ export function OSCEStationRunner({ station, onExit }: Props) {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const allAnswered = answers.every((a) => a.trim().length >= 30);
+  // 206-a#2: гейт был захардкожен на 30 символов — сервер валидирует по q.minLength
+  // (в банке 40-80), клиент пропускал короткие ответы и ловил 400 после отправки
+  const allAnswered = answers.every((a, i) => a.trim().length >= (station.questions[i]?.minLength ?? 30));
+  const minRequired = Math.max(...station.questions.map(q => q.minLength), 30);
   const timeWarning = timeLeft < 60;
 
   const handleSubmit = useCallback(async () => {
@@ -94,6 +98,11 @@ export function OSCEStationRunner({ station, onExit }: Props) {
   const handleSubmitRef = useRef(handleSubmit);
   useEffect(() => { handleSubmitRef.current = handleSubmit; }, [handleSubmit]);
 
+  // 206-a#2: автосабмит по таймеру срабатывает ОДИН раз. Раньше при провале
+  // запроса (400 «слишком коротко» / сеть) стейдж возвращался в 'answering',
+  // эффект таймера реармитился на timeLeft===0 и крутил POST-цикл ~1/сек до 429.
+  const autoSubmittedRef = useRef(false);
+
   // Timer
   useEffect(() => {
     if (stage !== 'answering') return;
@@ -101,8 +110,11 @@ export function OSCEStationRunner({ station, onExit }: Props) {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Defer to next tick to avoid calling state-setter during state-set
-          setTimeout(() => handleSubmitRef.current(), 0);
+          if (!autoSubmittedRef.current) {
+            autoSubmittedRef.current = true;
+            // Defer to next tick to avoid calling state-setter during state-set
+            setTimeout(() => handleSubmitRef.current(), 0);
+          }
           return 0;
         }
         return prev - 1;
@@ -146,7 +158,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
               {station.species}
             </span>
             <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">
-              {station.difficulty}
+              {DIFFICULTY_LABELS[station.difficulty] || station.difficulty}
             </span>
           </div>
           <h2 className="text-base font-bold mb-1">{station.imageCaption}</h2>
@@ -235,7 +247,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
             className="w-full bg-[#4C7A3F] hover:bg-[#3D6332] text-white"
           >
             <Send className="w-4 h-4 mr-2" />
-            {allAnswered ? 'Отправить ответы' : 'Ответьте на все вопросы (мин. 30 символов)'}
+            {allAnswered ? 'Отправить ответы' : `Ответьте на все вопросы (мин. ${minRequired} символов)`}
           </Button>
         </div>
       )}
@@ -305,7 +317,7 @@ export function OSCEStationRunner({ station, onExit }: Props) {
                       <p className="text-[11px] italic">
                         <span className="font-medium not-italic">AI:</span> {fb}
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-1 p-1.5 rounded bg-muted/50">
+                      <p className="text-[11px] text-muted-foreground mt-1 p-1.5 rounded bg-muted/50">
                         <span className="font-medium">Эталон:</span> {result.referenceAnswers?.[i] || station.referenceAnswers?.[i] || 'Эталон недоступен'}
                       </p>
                     </div>

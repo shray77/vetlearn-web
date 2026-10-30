@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { OSCE_BANK, OSCE_TYPE_LABELS, getOSCEStationsByType } from '@/lib/osce-bank';
 import { getTrackDefinition, getTrackSpecies } from '@/lib/tracks';
+import { DIFFICULTY_LABELS } from '@/components/ui/utility';
 import type { OSCEStation, OSCEStationType } from '@/lib/types';
 import { OSCEStationRunner } from './OSCEStationRunner';
 import { DsIcon } from '@/lib/ds-icons';
@@ -74,10 +75,11 @@ export function OSCEListTab() {
     <div className="space-y-4 pb-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        {/* 206-b#20: единственный h1 на странице — в Header; заголовки табов — h2 */}
+        <h2 className="text-2xl font-bold flex items-center gap-2">
           <ScanLine className="w-6 h-6 text-[#33608C]" />
           OSCE-станции
-        </h1>
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
           Визуальная диагностика в формате реального экзамена
         </p>
@@ -145,6 +147,7 @@ export function OSCEListTab() {
       <div className="flex gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
         <button
           onClick={() => setFilterType('all')}
+          aria-pressed={filterType === 'all'}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
             filterType === 'all' ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
           }`}
@@ -155,6 +158,7 @@ export function OSCEListTab() {
           <button
             key={type}
             onClick={() => setFilterType(type)}
+            aria-pressed={filterType === type}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               filterType === type ? 'text-white' : 'bg-muted text-muted-foreground'
             }`}
@@ -238,7 +242,7 @@ export function OSCEListTab() {
                           {station.species}
                         </span>
                         <span className="px-1.5 py-0.5 rounded text-[11px] bg-muted text-muted-foreground">
-                          {station.difficulty}
+                          {DIFFICULTY_LABELS[station.difficulty] || station.difficulty}
                         </span>
                         <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                           <Clock className="w-2.5 h-2.5" />

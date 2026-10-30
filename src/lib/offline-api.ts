@@ -19,6 +19,7 @@ import {
   determineLevel,
   getStaticQuestionsForTopic,
 } from './question-bank';
+import { getTopicById } from './vet-topics';
 import { FALLBACK_SCENARIOS } from './fallback-scenarios';
 import { getOSCEStationById } from './osce-bank';
 import { OSCE_REFERENCES } from './osce-references';
@@ -320,6 +321,11 @@ async function handleOfflineApi(pathname: string, init?: RequestInit): Promise<R
       }
     }
     const questions = shuffle(collected).slice(0, count);
+    // 206-a#4: банк покрывает не все темы — для пустой выборки отдаём ошибку,
+    // а не success с пустым массивом (клиент показывал пустой экран)
+    if (questions.length === 0) {
+      return json({ error: 'По выбранным темам нет резервных вопросов. Выберите другие темы или используйте серверную версию.' }, 400);
+    }
     return json({ success: true, questions, totalQuestions: questions.length, isFallback: true });
   }
 
@@ -378,7 +384,10 @@ async function handleOfflineApi(pathname: string, init?: RequestInit): Promise<R
     const body = await parseBody(init);
     const action = body.action;
     const topics = Array.isArray(body.topics) ? body.topics.filter((t: unknown) => typeof t === 'string') : [];
-    const mainTopic = topics[0] || 'ветеринарной медицины';
+    // 206-a#7: клиент присылает ID тем ('anatomy'), а не имена — шаблоны вопросов
+    // подставляли их сырыми («в тематике «anatomy»»). Маппим в русские названия.
+    const topicNames = topics.map(id => getTopicById(id)?.name || id);
+    const mainTopic = topicNames[0] || 'ветеринарной медицины';
 
     if (action === 'start') {
       const count = clampInt(body.questionCount, 3, 30, 10);
@@ -386,7 +395,7 @@ async function handleOfflineApi(pathname: string, init?: RequestInit): Promise<R
         success: true,
         examId: `exam_${Date.now()}`,
         firstQuestion: examQuestion(mainTopic, 0),
-        examPlan: `Экзамен по темам: ${topics.join(', ') || 'общая ветеринария'}. Количество вопросов: ${count}. (Офлайн-версия: вопросы по шаблонам, без ИИ.)`,
+        examPlan: `Экзамен по темам: ${topicNames.join(', ') || 'общая ветеринария'}. Количество вопросов: ${count}. (Офлайн-версия: вопросы по шаблонам, без ИИ.)`,
         isFallback: true,
       });
     }
@@ -427,7 +436,7 @@ async function handleOfflineApi(pathname: string, init?: RequestInit): Promise<R
       return json({
         success: true,
         feedback,
-        nextQuestion: examQuestion(topics[(index + 1) % Math.max(1, topics.length)] || mainTopic, index + 1),
+        nextQuestion: examQuestion(topicNames[(index + 1) % Math.max(1, topicNames.length)] || mainTopic, index + 1),
         examComplete: false,
         results: null,
         isFallback: true,

@@ -306,6 +306,9 @@ export function FlashcardsTab() {
   };
 
   const handlePrev = () => {
+    // 206-a#6: в SR-режиме назад идти нельзя — повторный рейтинг той же карточки
+    // ломает расписание SM-2 (reps/интервал задваиваются)
+    if (mode === 'sr') return;
     clearNextTimer();
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
@@ -532,6 +535,7 @@ export function FlashcardsTab() {
               {VET_TOPICS.map(t => (
                 <button
                   key={t.id}
+                  aria-pressed={selectedTopic === t.id}
                   onClick={() => {
                     setSelectedTopic(t.id === selectedTopic ? '' : t.id);
                     setSelectedSubtopic('');
@@ -558,6 +562,7 @@ export function FlashcardsTab() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setSelectedSubtopic('')}
+                    aria-pressed={!selectedSubtopic}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       !selectedSubtopic ? 'bg-[#4C7A3F]/10 text-[#4C7A3F] border border-[#4C7A3F]/30' : 'bg-muted text-muted-foreground'
                     }`}
@@ -567,6 +572,7 @@ export function FlashcardsTab() {
                   {subtopics.map(s => (
                     <button
                       key={s.id}
+                      aria-pressed={selectedSubtopic === s.id}
                       onClick={() => setSelectedSubtopic(s.id === selectedSubtopic ? '' : s.id)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                         selectedSubtopic === s.id
@@ -598,7 +604,7 @@ export function FlashcardsTab() {
               >
                 <BookOpen className={`w-6 h-6 ${mode === 'learn' ? 'text-[#4C7A3F]' : 'text-muted-foreground'}`} />
                 <span className={`text-xs font-semibold ${mode === 'learn' ? 'text-[#4C7A3F]' : 'text-muted-foreground'}`}>Обучение</span>
-                <span className="text-[10px] text-muted-foreground text-center">Переворачивайте карточки для изучения</span>
+                <span className="text-[11px] text-muted-foreground text-center">Переворачивайте карточки для изучения</span>
               </button>
               <button
                 onClick={() => setMode('quiz')}
@@ -610,7 +616,7 @@ export function FlashcardsTab() {
               >
                 <Brain className={`w-6 h-6 ${mode === 'quiz' ? 'text-[#B4531C]' : 'text-muted-foreground'}`} />
                 <span className={`text-xs font-semibold ${mode === 'quiz' ? 'text-[#B4531C]' : 'text-muted-foreground'}`}>Тест</span>
-                <span className="text-[10px] text-muted-foreground text-center">Оцените свои знания</span>
+                <span className="text-[11px] text-muted-foreground text-center">Оцените свои знания</span>
               </button>
             </div>
           </CardContent>
@@ -918,7 +924,7 @@ export function FlashcardsTab() {
                     <Badge variant="outline" className="text-[10px]">
                       #{currentIndex + 1}
                     </Badge>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {mode === 'sr' ? 'Нажмите для ответа' : mode === 'learn' ? 'Нажмите, чтобы перевернуть' : 'Нажмите, чтобы увидеть ответ'}
                     </span>
                   </div>

@@ -15,11 +15,11 @@ import {
   Loader2, RotateCcw, Star, XCircle,
 } from 'lucide-react';
 
-const GRADE_CONFIG: Record<string, { label: string; emoji: string; color: string }> = {
-  excellent: { label: 'Отлично', emoji: '', color: '#4C7A3F' },
-  good: { label: 'Хорошо', emoji: '', color: '#33608C' },
-  satisfactory: { label: 'Удовлетворительно', emoji: '', color: '#B4531C' },
-  unsatisfactory: { label: 'Неудовлетворительно', emoji: '', color: '#B3261E' },
+const GRADE_CONFIG: Record<string, { label: string; color: string }> = {
+  excellent: { label: 'Отлично', color: '#4C7A3F' },
+  good: { label: 'Хорошо', color: '#33608C' },
+  satisfactory: { label: 'Удовлетворительно', color: '#B4531C' },
+  unsatisfactory: { label: 'Неудовлетворительно', color: '#B3261E' },
 };
 
 interface SimulatorResultsProps {
@@ -38,14 +38,7 @@ export function SimulatorResults({ evaluation, onReset, onNewPatient, isGenerati
           {/* Score card */}
           <Card className="squircle border-0 shadow-sm bg-gradient-to-br from-[#33608C]/5 to-[#B4531C]/5">
             <CardContent className="p-6 text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                className="text-5xl mb-2"
-              >
-                {gc.emoji}
-              </motion.div>
+              {/* 206-b#8: пустой emoji-блок (хвост зачистки) снесён — оценка и так крупная */}
               <div className="text-4xl font-bold mb-1" style={{ color: gc.color }}>
                 <AnimatedNumber value={evaluation.score} />
                 <span className="text-xl">/100</span>

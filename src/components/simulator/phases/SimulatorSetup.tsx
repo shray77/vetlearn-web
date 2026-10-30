@@ -128,6 +128,7 @@ export function SimulatorSetup({
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => onSelectTopic('')}
+              aria-pressed={!selectedTopic}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 !selectedTopic ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
               }`}
@@ -138,6 +139,7 @@ export function SimulatorSetup({
               <button
                 key={t.id}
                 onClick={() => onSelectTopic(t.id === selectedTopic ? '' : t.id)}
+                aria-pressed={selectedTopic === t.id}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   selectedTopic === t.id ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}

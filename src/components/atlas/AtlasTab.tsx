@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { ATLAS_BANK, ATLAS_MODALITY_LABELS, getAtlasEntries } from '@/lib/atlas-bank';
+import { DIFFICULTY_LABELS } from '@/components/ui/utility';
 import type { AtlasEntry } from '@/lib/atlas-bank';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,10 +65,11 @@ export function AtlasTab() {
   return (
     <div className="space-y-4 pb-4">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        {/* 206-b#20: единственный h1 на странице — в Header; заголовки табов — h2 */}
+        <h2 className="text-2xl font-bold flex items-center gap-2">
           <BookOpen className="w-6 h-6 text-[#33608C]" />
           Атлас
-        </h1>
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
           Библиотека рентген/УЗИ/цитология с подробными разборами — режим обучения
         </p>
@@ -89,6 +91,7 @@ export function AtlasTab() {
       <div className="flex gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
         <button
           onClick={() => setFilterModality('all')}
+          aria-pressed={filterModality === 'all'}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
             filterModality === 'all' ? 'bg-[#33608C] text-white' : 'bg-muted text-muted-foreground'
           }`}
@@ -101,6 +104,7 @@ export function AtlasTab() {
             <button
               key={mod}
               onClick={() => setFilterModality(mod)}
+              aria-pressed={filterModality === mod}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                 filterModality === mod ? 'text-white' : 'bg-muted text-muted-foreground'
               }`}
@@ -210,7 +214,8 @@ function AtlasReader({ entry, onExit }: { entry: AtlasEntry; onExit: () => void 
             </span>
             <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">{entry.species}</span>
             <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">{entry.bodyRegion}</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">{entry.difficulty}</span>
+            {/* 206-b#9: сырой англ. difficulty → русская метка (в 164 уже переводится — двойной стандарт) */}
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground">{DIFFICULTY_LABELS[entry.difficulty] || entry.difficulty}</span>
           </div>
           <h2 className="text-base font-bold mb-1">{entry.title}</h2>
           <p className="text-xs text-muted-foreground leading-relaxed">{entry.presenterText}</p>

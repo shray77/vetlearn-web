@@ -13,20 +13,19 @@ interface LearningTrajectoryProps {
 
 interface Milestone {
   id: string;
-  emoji: string;
   title: string;
   description: string;
   color: string;
 }
 
 const MILESTONES: Milestone[] = [
-  { id: 'start', emoji: '', title: 'Начало', description: 'Первый тест пройден', color: '#4C7A3F' },
-  { id: 'diagnostic', emoji: '', title: 'Диагностика', description: 'Входное тестирование', color: '#33608C' },
-  { id: 'foundation', emoji: '', title: 'Фундамент', description: '3+ темы >50% владения', color: '#6D4FC4' },
-  { id: 'clinical', emoji: '', title: 'Клиническое мышление', description: '5+ тестов пройдено', color: '#B4531C' },
-  { id: 'cases', emoji: '', title: 'Клинические кейсы', description: '3+ кейса выполнено', color: '#33608C' },
-  { id: 'expert', emoji: '', title: 'Эксперт', description: 'Все темы >70%', color: '#B4531C' },
-  { id: 'master', emoji: '', title: 'Мастер', description: 'Все темы >90%', color: '#B3261E' },
+  { id: 'start', title: 'Начало', description: 'Первый тест пройден', color: '#4C7A3F' },
+  { id: 'diagnostic', title: 'Диагностика', description: 'Входное тестирование', color: '#33608C' },
+  { id: 'foundation', title: 'Фундамент', description: '3+ темы >50% владения', color: '#6D4FC4' },
+  { id: 'clinical', title: 'Клиническое мышление', description: '5+ тестов пройдено', color: '#B4531C' },
+  { id: 'cases', title: 'Клинические кейсы', description: '3+ кейса выполнено', color: '#33608C' },
+  { id: 'expert', title: 'Эксперт', description: 'Все темы >70%', color: '#B4531C' },
+  { id: 'master', title: 'Мастер', description: 'Все темы >90%', color: '#B3261E' },
 ];
 
 const TOTAL_TOPICS = VET_TOPICS.length;
@@ -197,12 +196,13 @@ function MilestoneNode({
             ${isLocked ? 'bg-muted border-border opacity-50' : ''}
           `}
         >
+          {/* 206-b#7: пустой emoji-спан рендерил дыру в текущей вехе — иконка вместо неё */}
           {isCompleted ? (
             <Check className="w-5 h-5" />
           ) : isLocked ? (
             <Lock className="w-4 h-4 text-muted-foreground" />
           ) : (
-            <span>{milestone.emoji}</span>
+            <Sparkles className="w-5 h-5" style={{ color: milestone.color }} />
           )}
         </div>
       </motion.div>
@@ -374,7 +374,7 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
                           ) : isLocked ? (
                             <Lock className="w-3 h-3 text-muted-foreground" />
                           ) : (
-                            <span className="text-sm">{milestone.emoji}</span>
+                            <Sparkles className="w-3.5 h-3.5" style={{ color: milestone.color }} />
                           )}
                         </div>
                       </motion.div>
@@ -391,15 +391,10 @@ export function LearningTrajectory({ profile }: LearningTrajectoryProps) {
                               : 'text-muted-foreground'
                         }`}
                       >
-                        {milestone.emoji} {milestone.title}
+                        {milestone.title}
                       </p>
-                      <p
-                        className={`text-xs mt-0.5 ${
-                          isCurrent
-                            ? 'text-muted-foreground'
-                            : 'text-muted-foreground/60'
-                        }`}
-                      >
+                      {/* 206-b#2: /60-прозрачность давала контраст 2.66:1 (ниже AA) */}
+                      <p className="text-xs mt-0.5 text-muted-foreground">
                         {milestone.description}
                       </p>
                     </div>

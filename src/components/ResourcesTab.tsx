@@ -110,6 +110,7 @@ export function ResourcesTab() {
         <div className="flex gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setActiveFilter('all')}
+            aria-pressed={activeFilter === 'all'}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               activeFilter === 'all' ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
             }`}
@@ -123,6 +124,7 @@ export function ResourcesTab() {
               <button
                 key={type}
                 onClick={() => setActiveFilter(type)}
+                aria-pressed={activeFilter === type}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                   activeFilter === type ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
                 }`}
@@ -163,7 +165,13 @@ export function ResourcesTab() {
                               <p className="text-[10px] text-muted-foreground">{resource.author}</p>
                             )}
                           </div>
-                          <button onClick={() => toggleBookmark(resource.id || `${i}`)} className="shrink-0">
+                          {/* 206-b#17/#24: bookmark-иконка → тач-таргет + aria-label */}
+                          <button
+                            onClick={() => toggleBookmark(resource.id || `${i}`)}
+                            aria-label={isBookmarked ? `Убрать «${resource.title}» из закладок` : `Добавить «${resource.title}» в закладки`}
+                            aria-pressed={isBookmarked}
+                            className="shrink-0 -m-1.5 p-2 rounded-lg hover:bg-muted touch-area"
+                          >
                             {isBookmarked ? (
                               <BookmarkCheck className="w-4 h-4 text-[#4C7A3F]" />
                             ) : (
@@ -178,7 +186,7 @@ export function ResourcesTab() {
                               href={resource.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[10px] text-[#33608C] hover:underline"
+                              className="inline-flex items-center gap-1 text-[11px] text-[#33608C] hover:underline"
                             >
                               {resource.urlVerified ? 'Открыть' : 'Найти в Google'} <ExternalLink className="w-3 h-3" />
                             </a>

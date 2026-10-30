@@ -85,7 +85,7 @@ export function AnamnesisPanel({ ownerComplaint, questions, asked, revealed, onA
                       )}
                     </AnimatePresence>
                     {!isRevealed && canAsk && (
-                      <p className="text-[10px] text-[#33608C] mt-1">Нажмите, чтобы спросить →</p>
+                      <p className="text-[11px] text-[#33608C] mt-1">Нажмите, чтобы спросить →</p>
                     )}
                   </button>
                 </div>

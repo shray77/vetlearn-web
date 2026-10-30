@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useSyncExternalStore } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useStore } from '@/lib/store';
@@ -79,6 +79,15 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
+  // 206-b#21: Esc-закрытие для кастомной модалки
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   // Render via portal to avoid z-index conflicts with parent elements
   const mounted = useHydrated();
 
@@ -97,6 +106,9 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Панель администратора"
         className="w-full max-w-lg bg-background rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >

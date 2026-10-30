@@ -147,7 +147,7 @@ export function AchievementsPanel() {
                   <div className="text-2xl mb-1" style={{ filter: a.unlocked ? 'none' : 'grayscale(1)' }}>
                     {a.unlocked ? <DsIcon name={a.icon} className="w-6 h-6 mx-auto" /> : <Lock className="w-5 h-5 mx-auto text-muted-foreground" />}
                   </div>
-                  <div className="text-[10px] font-semibold leading-tight line-clamp-2">
+                  <div className="text-[11px] font-semibold leading-tight line-clamp-2">
                     {a.title}
                   </div>
                   {!a.unlocked && a.progressText && (

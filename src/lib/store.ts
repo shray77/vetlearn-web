@@ -545,7 +545,9 @@ export const useStore = create<VetLearnStore>()(
             profile.specializationTrack = 'mixed';
           }
           if (!profile.trackStartDate) {
-            profile.trackStartDate = new Date().toISOString().split('T')[0];
+            // 206-a#8: локальная дата, не UTC — тот же класс бага, что streakLastDate (204-a#9):
+            // в UTC+3 между 00:00 и 03:00 датой старта трека писалось «вчера»
+            profile.trackStartDate = getLocalDateString();
           }
         }
 

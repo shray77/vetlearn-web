@@ -107,6 +107,8 @@ export function ClinicalCasesTab() {
 
   const handleSubmitCase = async () => {
     if (!currentCase) return;
+    // 206-a#5: защита от двойного сабмита (дубли XP/истории кейса)
+    if (isEvaluating) return;
     if (caseAnswers.some(a => a === null)) {
       toast.error('Ответьте на все вопросы');
       return;
@@ -254,9 +256,7 @@ export function ClinicalCasesTab() {
 
         <Card className="squircle border-0 shadow-sm">
           <CardContent className="p-5 text-center">
-            <div className="text-5xl mb-2">
-              {caseResult.score >= 80 ? '' : caseResult.score >= 50 ? '' : ''}
-            </div>
+            {/* 206-b#8: пустой text-5xl контейнер (хвост эмодзи-зачистки) давал лишний отступ */}
             <h2 className="text-2xl font-bold gradient-text mb-1">
               {caseResult.score}%
             </h2>
@@ -352,6 +352,8 @@ export function ClinicalCasesTab() {
 
   const handleRevealFeedback = () => {
     if (caseAnswers[currentQuestionIndex] === null) return;
+    // 206-a#5: двойной клик по «Проверить все ответы» — второй сабмит дублирует XP/историю
+    if (isEvaluating) return;
     setFeedbackCorrect(isCorrect);
     setShowFeedback(true);
   };
@@ -548,7 +550,7 @@ export function ClinicalCasesTab() {
       <Button
         className="w-full squircle-sm bg-[#33608C] hover:bg-[#264E70] text-white h-12 text-sm font-semibold"
         onClick={showFeedback ? handleFeedbackContinue : handleRevealFeedback}
-        disabled={caseAnswers[currentQuestionIndex] === null}
+        disabled={caseAnswers[currentQuestionIndex] === null || isEvaluating}
       >
         {showFeedback ? (
           currentQuestionIndex < currentCase.questions.length - 1 ? (

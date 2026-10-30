@@ -44,6 +44,8 @@ export function Header() {
   const setSpecializationTrack = useStore((s) => s.setSpecializationTrack);
   const [adminOpen, setAdminOpen] = useState(false);
   const [trackSheetOpen, setTrackSheetOpen] = useState(false);
+  // 206-b#11: подтверждение перед деструктивным сбросом всего прогресса
+  const [confirmWipe, setConfirmWipe] = useState(false);
   const importFileRef = useRef<HTMLInputElement>(null);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -132,7 +134,7 @@ export function Header() {
             onClick={handleLogoTap}
             aria-label="VetLearn AI — на главную"
           >
-            <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] dark:from-[#34D399] dark:to-[#4C7A3F] flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4C7A3F] to-[#3D6332] dark:from-[#34D399] dark:to-[#4C7A3F] flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
               <PawPrint size={16} className="text-white" fill="currentColor" />
             </div>
             <div className="text-left">
@@ -288,11 +290,16 @@ export function Header() {
                     size="sm"
                     className="h-9 rounded-xl text-xs font-semibold"
                     onClick={() => {
+                      if (!confirmWipe) {
+                        setConfirmWipe(true);
+                        return;
+                      }
                       clearAllData();
+                      setConfirmWipe(false);
                       toast.success('Все данные очищены');
                     }}
                   >
-                    Сбросить
+                    {confirmWipe ? 'Точно сбросить?' : 'Сбросить'}
                   </Button>
                 </div>
               </div>
