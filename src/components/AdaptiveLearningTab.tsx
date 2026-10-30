@@ -622,7 +622,7 @@ export function AdaptiveLearningTab() {
                           </p>
                         )}
                         {answers[currentQuestionIndex] !== q.correctIndex && (
-                          <div className="mt-2 pt-2 border-t border-blue-200/50 dark:border-blue-800/30">
+                          <div className="mt-2 pt-2 border-t border-[#33608C]/20 dark:border-[#33608C]/30">
                             <p className="text-xs text-[#4C7A3F] font-medium">
                               Правильный ответ: {['А', 'Б', 'В', 'Г'][q.correctIndex]}. {q.options[q.correctIndex]}
                             </p>
@@ -817,7 +817,7 @@ export function AdaptiveLearningTab() {
           {/* Explanation of the two-phase system */}
           <Card className="squircle-sm border-0 shadow-sm bg-gradient-to-br from-[#EDF2F7] to-[#EDF3EA] dark:from-[#26333F] dark:to-[#203528]">
             <CardContent className="p-4">
-              {/* 206-b#6: text-blue-600 → ДС-синий */}
+              {/* 206-b#6: чужой синий → ДС-синий */}
               <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-[#33608C] dark:text-[#82A9CC]">
                 <BookOpen className="w-3.5 h-3.5" /> Как работает система обучения
               </h3>
@@ -1056,7 +1056,7 @@ export function AdaptiveLearningTab() {
                                 </span>
                               </div>
                               {q.explanation && (
-                                <div className="mt-1.5 p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-800/30">
+                                <div className="mt-1.5 p-2 rounded-lg bg-[#EDF2F7] dark:bg-[#26333F] border border-[#33608C]/20 dark:border-[#33608C]/30">
                                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                                     {q.explanation}
                                   </p>
