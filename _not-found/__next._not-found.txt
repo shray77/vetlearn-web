@@ -2,4 +2,4 @@
 2:I[39756,["/vetlearn-web/_next/static/chunks/0cp5~-kb-lgla.js","/vetlearn-web/_next/static/chunks/121_yzfpfqh2a.js","/vetlearn-web/_next/static/chunks/0cfwyalgzmwiy.js","/vetlearn-web/_next/static/chunks/0kmg-0ajf5fz-.js"],"default"]
 3:I[37457,["/vetlearn-web/_next/static/chunks/0cp5~-kb-lgla.js","/vetlearn-web/_next/static/chunks/121_yzfpfqh2a.js","/vetlearn-web/_next/static/chunks/0cfwyalgzmwiy.js","/vetlearn-web/_next/static/chunks/0kmg-0ajf5fz-.js"],"default"]
 4:[]
-0:{"rsc":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"isPartial":false,"staleTime":300,"varyParams":"$W4","buildId":"pS4xL_xNLTTI28V0zBFBG"}
+0:{"rsc":["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}],"isPartial":false,"staleTime":300,"varyParams":"$W4","buildId":"U920XK_C8dLeoUObar3jI"}
