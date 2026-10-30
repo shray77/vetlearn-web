@@ -1,4 +1,4 @@
-:HL["/vetlearn-web/_next/static/chunks/149o97vr03-h8.css","style"]
+:HL["/vetlearn-web/_next/static/chunks/12_d5j4g5-y2g.css","style"]
 :HL["/vetlearn-web/_next/static/media/1a69062cfe6f77f8-s.p.07r2ragk8ph~z.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/vetlearn-web/_next/static/media/23b7a97ae3b5c134-s.p.0o14nraug8u5s.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/vetlearn-web/_next/static/media/59b15b4bcd7b1eb5-s.p.0x08jh8vondwt.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
@@ -8,4 +8,4 @@
 :HL["/vetlearn-web/_next/static/media/a7afbb44bec2bb18-s.p.0juuwbcf7uz~t.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/vetlearn-web/_next/static/media/e41d5df559864f9e-s.p.0gq7fw9.sy_5..woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/vetlearn-web/_next/static/media/effe91970fc4db64-s.p.07ig5l8azj~hy.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"26gJ7GVg501ZEdBo9BLc4"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"pS4xL_xNLTTI28V0zBFBG"}

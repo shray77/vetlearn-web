@@ -1,2 +1,2 @@
-:HL["/vetlearn-web/_next/static/chunks/149o97vr03-h8.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"26gJ7GVg501ZEdBo9BLc4"}
+:HL["/vetlearn-web/_next/static/chunks/12_d5j4g5-y2g.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"pS4xL_xNLTTI28V0zBFBG"}
