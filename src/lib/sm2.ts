@@ -11,6 +11,16 @@ const DEFAULT_EASE_FACTOR = 2.5;
 const MIN_EASE_FACTOR = 1.3;
 
 /**
+ * Maximum review interval, days — Anki deck option «Maximum Interval»
+ * (default 100 years = 36500 days; Anki Docs, Deck Options → Advanced).
+ * Без капа Easy-серия растёт экспоненциально и переполняет Date:
+ * nextReview становится «NaN-NaN-NaN», карта молча теряется навсегда
+ * (аудит SW-20, якорь 8). У потолка Hard/Good/Easy дают одинаковый интервал —
+ * так ведёт себя и Anki.
+ */
+const MAX_INTERVAL_DAYS = 36500;
+
+/**
  * Create initial SR data for a freshly generated card.
  * The card is due immediately (nextReview = today) so it appears in the review queue.
  */
@@ -72,12 +82,11 @@ export function reviewSRCard(card: SRCardData, rating: SRRating): SRCardData {
       // Раньше reps не инкрементировались: серия Hard "застревала" на reps=0,
       // и первый Good после неё сбрасывал интервал к 1.
       newReps = card.repetitions + 1;
-      if (card.repetitions === 0) {
-        newInterval = 1;
-      } else {
-        // Use 1.2× multiplier instead of full ease factor
-        newInterval = Math.max(1, Math.round(card.interval * 1.2));
-      }
+      // Anki (rslib review.rs): hard = current × 1.2, минимум current + 1 день.
+      // Без минимума +1 серия Hard застревала на 1 дне навсегда
+      // («low interval hell», SW-20 якоря 5–6). Дробный интервал округляем
+      // вверх — канон SM-2 («If interval is a fraction, round it up», Woźniak 1990).
+      newInterval = Math.max(card.interval + 1, Math.ceil(card.interval * 1.2));
       break;
     }
     case 2: {
@@ -88,7 +97,12 @@ export function reviewSRCard(card: SRCardData, rating: SRRating): SRCardData {
       } else if (newReps === 2) {
         newInterval = 6;
       } else {
-        newInterval = Math.round(card.interval * newEF);
+        // Канон SM-2: дробный интервал округляется ВВЕРХ (ceil), не Math.round
+        // (SW-20, якорь 10: I=6, EF=2.7 → 17, а не 16).
+        // Инвариант Anki (review.rs): good ≥ hard + 1 — иначе при низком EF
+        // интервал стагнирует (SW-20, якорь 5: I=1, EF=1.3 → good=3, а не 1).
+        const hardInterval = Math.max(card.interval + 1, Math.ceil(card.interval * 1.2));
+        newInterval = Math.max(hardInterval + 1, Math.ceil(card.interval * newEF));
       }
       break;
     }
@@ -100,32 +114,55 @@ export function reviewSRCard(card: SRCardData, rating: SRRating): SRCardData {
       } else if (newReps === 2) {
         newInterval = 10;
       } else {
-        newInterval = Math.round(card.interval * newEF * 1.3);
+        // Anki (rslib review.rs): интервал Easy считается по EF ДО ответа
+        // (старому ease) — раньше умножали на обновлённый EF+0.15 (SW-20, якорь 7).
+        // Округление ceil — канон SM-2; минимум good + 1 — инвариант Anki.
+        const hardInterval = Math.max(card.interval + 1, Math.ceil(card.interval * 1.2));
+        const goodInterval = Math.max(hardInterval + 1, Math.ceil(card.interval * card.easeFactor));
+        newInterval = Math.max(
+          goodInterval + 1,
+          Math.ceil(card.interval * card.easeFactor * 1.3)
+        );
       }
       newInterval = Math.max(newInterval, 4);
       break;
     }
   }
 
-  // Safety: interval should never be negative or zero after review
-  newInterval = Math.max(1, newInterval);
+  // Safety: интервал — конечное положительное число с верхним потолком.
+  // Кап лечит переполнение Date («NaN-NaN-NaN», SW-20 якорь 8);
+  // isFinite-гвард защищает и от битых входных данных (NaN-интервал
+  // из повреждённого localStorage).
+  if (!Number.isFinite(newInterval) || newInterval < 1) {
+    newInterval = 1;
+  }
+  newInterval = Math.min(newInterval, MAX_INTERVAL_DAYS);
 
   // --- 3. Calculate next review date ---
   const nextReview = new Date(now);
   nextReview.setDate(nextReview.getDate() + newInterval);
+  // Гвард на невалидную дату (defense in depth): если дата всё же не
+  // вычислилась — честно возвращаем карту в оборот сегодня,
+  // а не «NaN-NaN-NaN» навсегда.
+  const nextReviewStr = Number.isNaN(nextReview.getTime())
+    ? today
+    : getLocalDateString(nextReview);
 
   return {
     ...card,
     interval: newInterval,
     easeFactor: newEF,
     repetitions: newReps,
-    nextReview: getLocalDateString(nextReview),
+    nextReview: nextReviewStr,
     lastReview: today,
   };
 }
 
 /**
  * Get an array of card IDs that are due for review (nextReview <= today).
+ * Карты с невалидной датой (легаси-«NaN-NaN-NaN» до фикса SW-20) считаются
+ * просроченными: возвращаются в очередь и лечатся при первом ревью,
+ * а не теряются навсегда.
  */
 export function getDueCardIds(
   srCards: Record<string, SRCardData>,
@@ -134,7 +171,7 @@ export function getDueCardIds(
   const today = getLocalDateString(new Date());
   return allCardIds.filter((id) => {
     const card = srCards[id];
-    return card && card.nextReview <= today;
+    return Boolean(card && (card.nextReview <= today || !isValidDateString(card.nextReview)));
   });
 }
 
@@ -143,11 +180,16 @@ export function getDueCardIds(
  */
 export function getSRStatusLabel(card: SRCardData): string {
   const today = getLocalDateString(new Date());
-  const daysUntil = daysBetween(today, card.nextReview);
 
   if (card.repetitions === 0 && card.interval === 0) {
     return 'Новое';
   }
+  // Легаси-карточка с невалидной датой — честно «К повторению»,
+  // а не «Через NaN мес.»
+  if (!isValidDateString(card.nextReview)) {
+    return 'К повторению';
+  }
+  const daysUntil = daysBetween(today, card.nextReview);
   if (card.nextReview > today) {
     if (daysUntil === 1) return 'Завтра';
     if (daysUntil <= 7) return `Через ${daysUntil} дн.`;
@@ -176,7 +218,7 @@ export function getSRStats(
     if (!card) continue;
     total++;
 
-    if (card.nextReview <= today) {
+    if (card.nextReview <= today || !isValidDateString(card.nextReview)) {
       due++;
     }
 
@@ -199,6 +241,11 @@ function getLocalDateString(date: Date): string {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+}
+
+/** Валидна ли строка даты карточки (YYYY-MM-DD) — отсекает «NaN-NaN-NaN» и мусор. */
+function isValidDateString(dateStr: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr) && !Number.isNaN(new Date(dateStr).getTime());
 }
 
 function daysBetween(dateStr1: string, dateStr2: string): number {
